@@ -1,3 +1,9 @@
+Problems I have found:
+Missing CADSupport.py:
+	If I build the project in visual studio for the first time with the Debug version then the CADSupport.py file is missing
+	Workaround:
+		Switch to Release version before building for the first time
+
 
 Integration with de-la-mo
 

@@ -22,8 +22,8 @@ class AutoFiber:
         (used to determine which surface to operate on)
         :param pois: Points on the surface where fiber orientation is desired, if None will calculate at all element centers
         :param offset: an offset from the initpoint to start geodesics away from the edge
-        :param kwargs: options: {'E (Young's Modulus)': 228, 'nu (Poisson's ratio)': 0.2, 'fiberint': 0.1
-                                'plotting': False, 'optimize': True, 'accel': False}
+        :param kwargs: options: E (Young's Modulus) = 228, nu (Poisson's ratio) = 0.2, fiberint = 0.1
+                                plotting = False, optimize = True, accel = False
         """
         # Get CAD file of part that we would like to lay composite fiber over
         self.cadfile = cadfile
