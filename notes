@@ -1,0 +1,15 @@
+
+Integration with de-la-mo
+
+https://www.sharcnet.ca/Software/Abaqus/6.14.2/v6.14/books/ker/default.htm
+
+Possible integration points:
+    api.py - line: 1020
+        Define MaterialOrientation with results of geodesic code
+            MaterialOrientation() - Property Commands
+                - fieldname
+                    DiscreteField() - Field Commands
+                        - data
+                            DataTable() - Field Commands
+                                - domain: A tuple of Ints specifying the domain node, element or integration point identifiers.
+                                - table: A tuple of Floats specifying the data within the domain.
