@@ -137,6 +137,8 @@ class AutoFiber:
         # With results we will calculate the fiber directions based on the available parametrizations
         self.calcorientations()
 
+        print("Done. Plotting...")
+
         if self.plotting:
             import matplotlib.pyplot as plt
             from mpl_toolkits.mplot3d import axes3d

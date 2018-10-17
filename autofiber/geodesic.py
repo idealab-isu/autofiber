@@ -499,8 +499,6 @@ def find_element_within(point, unitvector, normal, vertices, vertexids, facetnor
                         if check_inplane_vector(newvector, facetnormals[i]):
                             # print("vector adjusted")
                             return i, newvector
-
-    print("### Failed to find element ###")
     return None, None
 
 
