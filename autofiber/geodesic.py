@@ -35,7 +35,10 @@ def referenceaxis(facetnormal):
 
 def calcunitvector(vector):
     """ Returns the unit vector of the vector.  """
-    return vector / np.linalg.norm(vector)
+    if len(vector.shape) >= 2:
+        return vector / np.linalg.norm(vector, axis=1)[:, np.newaxis]
+    else:
+        return vector / np.linalg.norm(vector)
 
 
 def angle_between_vectors(v1, v2):

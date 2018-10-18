@@ -64,8 +64,6 @@ class AutoFiber:
 
         # If no points of interest identified then use centroids
         self.pois = pois
-        if self.pois is None:
-            self.pois = self.centroids
 
         # Init fiber material properties
         self.fiberint = kwargs.get("fiberint", 0.1)
@@ -112,10 +110,10 @@ class AutoFiber:
         self.normalized_2d = OP.calc2d(self.obj, self.vertices[self.vertexids])
         # Init final orientation arrays
         self.orientations = None
-        self.orientations_opt = None
-        self.orientations = np.zeros(self.pois.shape)
-        if self.optimize:
-            self.orientations_opt = np.zeros(self.pois.shape)
+        if self.pois is not None:
+            self.orientations = np.zeros(self.pois.shape)
+        else:
+            self.orientations = np.zeros(self.centroids.shape)
 
         # Find start points for all geodesics
         self.find_startpoints()
@@ -157,12 +155,8 @@ class AutoFiber:
             fig = plt.figure()
             ax = fig.add_subplot(111, projection='3d')
             ax.scatter(self.vertices[:, 0], self.vertices[:, 1], self.vertices[:, 2])
-            if self.optimize:
-                ax.quiver(self.centroids[:, 0], self.centroids[:, 1], self.centroids[:, 2], self.orientations_opt[:, 0],
-                          self.orientations_opt[:, 1], self.orientations_opt[:, 2], length=0.1)
-            else:
-                ax.quiver(self.centroids[:, 0], self.centroids[:, 1], self.centroids[:, 2], self.orientations[:, 0],
-                          self.orientations[:, 1], self.orientations[:, 2], length=0.1)
+            ax.quiver(self.centroids[:, 0], self.centroids[:, 1], self.centroids[:, 2], self.orientations[:, 0],
+                      self.orientations[:, 1], self.orientations[:, 2], length=0.1)
 
             plt.show()
 
@@ -392,26 +386,32 @@ class AutoFiber:
         print("Time to optimize: %f seconds" % elapsed)
 
     def calcorientations(self):
-        if self.orientations_opt is not None:
+        if self.optimize:
             self.calctransform(self.optimizedparameterization)
         else:
             self.calctransform(self.geoparameterization)
 
-        for i in range(0, self.pois.shape[0]):
-            vert = self.pois[i]
-            element = None
-            for j in range(0, self.vertexids.shape[0]):
-                if geometry.point_in_polygon_3d(self.vertices[self.vertexids][j], vert, self.inplanemat[j]):
-                    element = j
-                    continue
-            if element:
-                red_texcoords2inplane = self.texcoords2inplane[element][:2, :2]
-                texutexbasis = np.array([1.0, 0.0])
-                texu2dbasis = np.dot(red_texcoords2inplane, texutexbasis)
-                u3D = np.dot(self.inplanemat[element].T, texu2dbasis)
-                self.orientations_opt[i] = GEO.calcunitvector(u3D)
-            else:
-                print("Failed to find point on surface: %s" % vert)
+        if self.pois is not None:
+            for i in range(0, self.pois.shape[0]):
+                vert = self.pois[i]
+                element = None
+                for j in range(0, self.vertexids.shape[0]):
+                    if geometry.point_in_polygon_3d(self.vertices[self.vertexids][j], vert, self.inplanemat[j]):
+                        element = j
+                        continue
+                if element:
+                    red_texcoords2inplane = self.texcoords2inplane[element][:2, :2]
+                    texutexbasis = np.array([1.0, 0.0])
+                    texu2dbasis = np.dot(red_texcoords2inplane, texutexbasis)
+                    u3D = np.dot(self.inplanemat[element].T, texu2dbasis)
+                    self.orientations[i] = GEO.calcunitvector(u3D)
+                else:
+                    print("Failed to find point on surface: %s" % vert)
+        else:
+            red_texcoords2inplane = self.texcoords2inplane[:, :2, :2]
+            texutexbasis = np.repeat(np.array([1.0, 0.0])[np.newaxis, :], red_texcoords2inplane.shape[0], axis=0)
+            texu2dbasis = np.einsum('ijk,ik->ij', red_texcoords2inplane, texutexbasis)
+            self.orientations = GEO.calcunitvector(np.einsum('ijk,ik->ij', self.inplanemat.transpose(0, 2, 1), texu2dbasis))
 
     def calctransform(self, parameterization):
         self.obj.implpart.surfaces[0].intrinsicparameterization.invalidateprojinfo()
