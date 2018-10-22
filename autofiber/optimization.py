@@ -65,8 +65,8 @@ def computeglobalstrain(normalized_2d, fiberpoints, vertexids, stiffness_tensor)
     stress = np.einsum('ij,ej->ei', stiffness_tensor, strain_vector)
     strain_energy_density = 0.5 * (np.einsum('ei,ei->e', stress, strain_vector))
 
-    sys.stdout.write('Strain Energy Density: %f       \r' % (np.sum(strain_energy_density),))
-    sys.stdout.flush()
+    # sys.stdout.write('Strain Energy Density: %f       \r' % (np.sum(strain_energy_density),))
+    # sys.stdout.flush()
     return np.sum(strain_energy_density)
 
 
@@ -164,3 +164,32 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
 
         point_strain_grad[ele_vertices] = point_strain_grad[ele_vertices] + ele_strain_grad
     return point_strain_grad.flatten()
+
+
+def optimize(f, grad, x_0, eps=1e-11):
+    import pdb
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import axes3d
+
+    x = x_0.flatten()
+    b = f(x)
+    print("Starting Energy: %s" % b)
+
+    its = 1000
+    strains = np.zeros(its)
+    for i in range(0, its):
+        cur_grad = grad(x)
+        x = x - eps * cur_grad
+        b = f(x)
+
+        strains[i] = b
+        print("Current Strain Energy: %s" % b)
+
+    fig = plt.figure()
+    plt.scatter(x_0[:, 0], x_0[:, 1])
+    plt.scatter(x.reshape(x_0.shape)[:, 0], x.reshape(x_0.shape)[:, 1])
+
+    fig = plt.figure()
+    plt.plot(range(0, its), strains)
+
+    return x.reshape(x_0.shape)
