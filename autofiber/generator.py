@@ -66,9 +66,14 @@ class AutoFiber:
         self.pois = pois
 
         # Init fiber material properties
+        # http://www.performance-composites.com/carbonfibre/mechanicalproperties_2.asp
         self.fiberint = kwargs.get("fiberint", 0.1)
-        self.E = kwargs.get("E", 228)
-        self.nu = kwargs.get("nu", 0.2)
+        self.E = kwargs.get("E", np.array([12.3, 12.3, 0.]))
+        self.nu = kwargs.get("nu", np.array([[0., 0.53, 0.],
+                                             [0.53, 0., 0.],
+                                             [0., 0., 0.]]))
+        # [G_12, G_13, G_23]
+        self.G = kwargs.get("G", np.array([11., 0., 0.]))
 
         # Init geodesic variables
         self.startpoints = np.empty((0, 3))
@@ -97,13 +102,26 @@ class AutoFiber:
         # Init optimization parameterization
         self.optimizedparameterization = None
         # Calculate compliance tensor
-        G = self.E / (2 * (1 + self.nu))
-        self.compliance_tensor = np.array([[1/self.E, -self.nu/self.E, -self.nu/self.E, 0, 0, 0],
-                                  [-self.nu/self.E, 1/self.E, -self.nu/self.E, 0, 0, 0],
-                                  [-self.nu/self.E, -self.nu/self.E, 1/self.E, 0, 0, 0],
-                                  [0, 0, 0, 1/G, 0, 0],
-                                  [0, 0, 0, 0, 1/G, 0],
-                                  [0, 0, 0, 0, 0, 1/G]])
+        # Orthotropic
+        self.compliance_tensor = np.array([[1/self.E[0], -self.nu[1, 0]/self.E[1], -self.nu[2, 0]/self.E[2], 0, 0, 0],
+                                           [-self.nu[0, 1]/self.E[0], 1/self.E[1], -self.nu[2, 1]/self.E[2], 0, 0, 0],
+                                           [-self.nu[0, 2]/self.E[0], -self.nu[1, 2]/self.E[1], 1/self.E[2], 0, 0, 0],
+                                           [0, 0, 0, 1/self.G[2], 0, 0],
+                                           [0, 0, 0, 0, 1/self.G[1], 0],
+                                           [0, 0, 0, 0, 0, 1/self.G[0]]])
+        self.compliance_tensor[np.isnan(self.compliance_tensor)] = 0
+        self.compliance_tensor[np.isinf(self.compliance_tensor)] = 0
+        import pdb
+        pdb.set_trace()
+        # Isotropic
+        # G = self.E / (2 * (1 + self.nu))
+        # self.compliance_tensor = np.array([[1/self.E, -self.nu/self.E, -self.nu/self.E, 0, 0, 0],
+        #                                    [-self.nu/self.E, 1/self.E, -self.nu/self.E, 0, 0, 0],
+        #                                    [-self.nu/self.E, -self.nu/self.E, 1/self.E, 0, 0, 0],
+        #                                    [0, 0, 0, 1/G, 0, 0],
+        #                                    [0, 0, 0, 0, 1/G, 0],
+        #                                    [0, 0, 0, 0, 0, 1/G]])
+
         # Calculate stiffness tensor
         self.stiffness_tensor = np.linalg.inv(self.compliance_tensor)
         # Calculate 2D normalized points for each element
@@ -150,7 +168,8 @@ class AutoFiber:
 
             fig = plt.figure()
             plt.scatter(self.geoparameterization[:, 0], self.geoparameterization[:, 1])
-            plt.scatter(self.optimizedparameterization[:, 0], self.optimizedparameterization[:, 1])
+            if self.optimize:
+                plt.scatter(self.optimizedparameterization[:, 0], self.optimizedparameterization[:, 1])
 
             fig = plt.figure()
             ax = fig.add_subplot(111, projection='3d')
@@ -378,9 +397,10 @@ class AutoFiber:
             return OP.computeglobalstrain_grad(self.normalized_2d, x, self.vertexids, self.stiffness_tensor)
 
         start_time = time.time()
-        res = optimize.minimize(f, self.geoparameterization, jac=gradf, method="CG", options={'gtol': 1})
-        print("Final Strain Energy Density Value: %f" % res.fun)
-        self.optimizedparameterization = res.x.reshape(self.geoparameterization.shape)
+        # res = optimize.minimize(f, self.geoparameterization, jac=gradf, method="CG", options={'gtol': 1})
+        # print("Final Strain Energy Density Value: %f" % res.fun)
+        # self.optimizedparameterization = res.x.reshape(self.geoparameterization.shape)
+        self.optimizedparameterization = OP.optimize(f, gradf, self.geoparameterization)
         stop_time = time.time()
         elapsed = stop_time - start_time
         print("Time to optimize: %f seconds" % elapsed)
