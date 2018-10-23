@@ -39,3 +39,7 @@ function [x] = conjgrad(A, b, x)
         rsold = rsnew;
     end
 end
+
+sys.modules["__main__"].__dict__.update(globals())
+sys.modules["__main__"].__dict__.update(locals())
+raise ValueError()
