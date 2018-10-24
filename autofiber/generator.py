@@ -31,8 +31,6 @@ class AutoFiber:
         # Gather options, set to default if option doesn't exist
         # plotting: activate visual plots
         self.plotting = kwargs.get("plotting", False)
-        # optimize: activate strain energy density optimization
-        self.optimize = kwargs.get("optimize", True)
         # accel: activate opencl optimization features
         self.accel = kwargs.get("accel", False)
 
@@ -66,14 +64,9 @@ class AutoFiber:
         self.pois = pois
 
         # Init fiber material properties
-        # http://www.performance-composites.com/carbonfibre/mechanicalproperties_2.asp
         self.fiberint = kwargs.get("fiberint", 0.1)
-        self.E = kwargs.get("E", np.array([12.3, 12.3, 0.]))
-        self.nu = kwargs.get("nu", np.array([[0., 0.53, 0.],
-                                             [0.53, 0., 0.],
-                                             [0., 0., 0.]]))
-        # [G_12, G_13, G_23]
-        self.G = kwargs.get("G", np.array([11., 0., 0.]))
+        self.E = kwargs.get("E", 228.0)
+        self.nu = kwargs.get("nu", 0.2)
 
         # Init geodesic variables
         self.startpoints = np.empty((0, 3))
@@ -102,26 +95,18 @@ class AutoFiber:
         # Init optimization parameterization
         self.optimizedparameterization = None
         # Calculate compliance tensor
-        # Orthotropic
-        self.compliance_tensor = np.array([[1/self.E[0], -self.nu[1, 0]/self.E[1], -self.nu[2, 0]/self.E[2], 0, 0, 0],
-                                           [-self.nu[0, 1]/self.E[0], 1/self.E[1], -self.nu[2, 1]/self.E[2], 0, 0, 0],
-                                           [-self.nu[0, 2]/self.E[0], -self.nu[1, 2]/self.E[1], 1/self.E[2], 0, 0, 0],
-                                           [0, 0, 0, 1/self.G[2], 0, 0],
-                                           [0, 0, 0, 0, 1/self.G[1], 0],
-                                           [0, 0, 0, 0, 0, 1/self.G[0]]])
-        self.compliance_tensor[np.isnan(self.compliance_tensor)] = 0
-        self.compliance_tensor[np.isinf(self.compliance_tensor)] = 0
-        import pdb
-        pdb.set_trace()
-        # Isotropic
-        # G = self.E / (2 * (1 + self.nu))
-        # self.compliance_tensor = np.array([[1/self.E, -self.nu/self.E, -self.nu/self.E, 0, 0, 0],
-        #                                    [-self.nu/self.E, 1/self.E, -self.nu/self.E, 0, 0, 0],
-        #                                    [-self.nu/self.E, -self.nu/self.E, 1/self.E, 0, 0, 0],
-        #                                    [0, 0, 0, 1/G, 0, 0],
-        #                                    [0, 0, 0, 0, 1/G, 0],
-        #                                    [0, 0, 0, 0, 0, 1/G]])
+        G = self.E / (2 * (1 + self.nu))
+        self.compliance_tensor = np.array([[1/self.E, -self.nu/self.E, -self.nu/self.E, 0, 0, 0],
+                                  [-self.nu/self.E, 1/self.E, -self.nu/self.E, 0, 0, 0],
+                                  [-self.nu/self.E, -self.nu/self.E, 1/self.E, 0, 0, 0],
+                                  [0, 0, 0, 1/G, 0, 0],
+                                  [0, 0, 0, 0, 1/G, 0],
+                                  [0, 0, 0, 0, 0, 1/G]])
+        self.compliance_tensor_test = np.array([[1 / self.E, -self.nu / self.E, 0],
+                                                [-self.nu / self.E, 1 / self.E, 0],
+                                                [0, 0, 1 / G]])
 
+        self.stiffness_tensor_test = np.linalg.inv(self.compliance_tensor_test)
         # Calculate stiffness tensor
         self.stiffness_tensor = np.linalg.inv(self.compliance_tensor)
         # Calculate 2D normalized points for each element
@@ -145,10 +130,8 @@ class AutoFiber:
         # Interpolate any vertices missed by the geodesics
         self.cleanup()
 
-        # If optimize is True then we will attempt to optimize the geodesic parametrization based on strain energy
-        # density
-        if self.optimize:
-            self.fiberoptimize()
+        # Optimize the geodesic parametrization based on strain energy density
+        self.fiberoptimize()
 
         # With results we will calculate the fiber directions based on the available parametrizations
         self.calcorientations()
@@ -168,8 +151,7 @@ class AutoFiber:
 
             fig = plt.figure()
             plt.scatter(self.geoparameterization[:, 0], self.geoparameterization[:, 1])
-            if self.optimize:
-                plt.scatter(self.optimizedparameterization[:, 0], self.optimizedparameterization[:, 1])
+            plt.scatter(self.optimizedparameterization[:, 0], self.optimizedparameterization[:, 1])
 
             fig = plt.figure()
             ax = fig.add_subplot(111, projection='3d')
@@ -397,19 +379,16 @@ class AutoFiber:
             return OP.computeglobalstrain_grad(self.normalized_2d, x, self.vertexids, self.stiffness_tensor)
 
         start_time = time.time()
-        # res = optimize.minimize(f, self.geoparameterization, jac=gradf, method="CG", options={'gtol': 1})
-        # print("Final Strain Energy Density Value: %f" % res.fun)
-        # self.optimizedparameterization = res.x.reshape(self.geoparameterization.shape)
-        self.optimizedparameterization = OP.optimize(f, gradf, self.geoparameterization)
+        res = optimize.minimize(f, self.geoparameterization, jac=gradf, method="CG", options={'gtol': 1})
+        print("Final Strain Energy Value: %f J/m" % res.fun)
+        self.optimizedparameterization = res.x.reshape(self.geoparameterization.shape)
+        # self.optimizedparameterization = OP.optimize(f, gradf, self.geoparameterization)
         stop_time = time.time()
         elapsed = stop_time - start_time
         print("Time to optimize: %f seconds" % elapsed)
 
     def calcorientations(self):
-        if self.optimize:
-            self.calctransform(self.optimizedparameterization)
-        else:
-            self.calctransform(self.geoparameterization)
+        self.calctransform(self.optimizedparameterization)
 
         if self.pois is not None:
             for i in range(0, self.pois.shape[0]):

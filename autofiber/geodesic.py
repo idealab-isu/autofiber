@@ -41,6 +41,13 @@ def calcunitvector(vector):
         return vector / np.linalg.norm(vector)
 
 
+def calcnormal(points):
+    """ Returns the normal for the given 2d points"""
+    v1 = points[2] - points[0]
+    v2 = points[1] - points[0]
+    return np.cross(v1, v2)
+
+
 def angle_between_vectors(v1, v2):
     """ Returns the angle in radians between vectors 'v1' and 'v2'
         https://stackoverflow.com/questions/2827393/angles-between-two-n-dimensional-vectors-in-python
@@ -507,7 +514,7 @@ def find_element_within(point, unitvector, normal, vertices, vertexids, facetnor
 
 def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, length, uv_start, parameterization=True):
     if parameterization and element not in list(af.georecord.keys()):
-        af.georecord[element] = []
+        af.georecord[element] = [[], None]
         af.fiberdirections[element] = unitfiberdirection
 
     # Determine the elements surrounding the current element
@@ -542,8 +549,8 @@ def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, 
     int_pnt = find_intpnt(pointuv, lnpoint, nextedge[0], nextedge[1])
 
     if parameterization:
-        af.georecord[element].append((pointuv, int_pnt))
-        prev_lines = af.georecord.get(element)
+        af.georecord[element][0].append((pointuv, int_pnt))
+        prev_lines = af.georecord.get(element)[0]
         for line in prev_lines:
             if check_intersection(pointuv, int_pnt, line[0], line[1]):
                 raise EdgeError
@@ -560,6 +567,17 @@ def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, 
             fpoint[1] = fpoint[1] + uv_start[1]
 
             af.geoparameterization[closest_point_idx] = fpoint
+
+            if af.georecord[element][1] is None and ~np.isnan(af.geoparameterization[af.vertexids][element]).any():
+                af.georecord[element][1] = np.sign(calcnormal(af.geoparameterization[af.vertexids][element]))
+            elif af.georecord[element][1] is not None:
+                if np.sign(calcnormal(af.geoparameterization[af.vertexids][element])) != af.georecord[element][1]:
+                    pass
+                import pdb
+                pdb.set_trace()
+            # if element in [120, 138, 152, 165, 166, 168, 182, 196, 197, 215, 362, 376, 378, 390, 392, 406, 421, 425, 436, 438, 440]:
+            #     import pdb
+            #     pdb.set_trace()
 
     # Retrieve the 3d coordinates of the edge vertices
     nextedgec = af.vertices[af.vertexids[element, edge]]
