@@ -378,14 +378,17 @@ class AutoFiber:
         def gradf(x, *args):
             return OP.computeglobalstrain_grad(self.normalized_2d, x, self.vertexids, self.stiffness_tensor)
 
+        def f_test(x, *args):
+            return OP.computeglobalstrain_test(self.normalized_2d.flatten(), x, self.vertexids, self.stiffness_tensor_test)
+
         def gradf_test(x, *args):
-            return optimize.approx_fprime(x, f, 1e-8)
+            return optimize.approx_fprime(x, f_test, 1e-8)
 
         start_time = time.time()
-        res = optimize.minimize(f, self.geoparameterization, jac=gradf, method="CG", options={'gtol': 1})
+        # res = optimize.minimize(f, self.geoparameterization, jac=gradf, method="CG", options={'gtol': 1})
         # print("Final Strain Energy Density Value: %f" % res.fun)
-        self.optimizedparameterization = res.x.reshape(self.geoparameterization.shape)
-        # self.optimizedparameterization = OP.optimize(f, gradf, self.geoparameterization)
+        # self.optimizedparameterization = res.x.reshape(self.geoparameterization.shape)
+        self.optimizedparameterization = OP.optimize(f_test, gradf_test, self.geoparameterization)
         stop_time = time.time()
         elapsed = stop_time - start_time
         print("Time to optimize: %f seconds" % elapsed)
