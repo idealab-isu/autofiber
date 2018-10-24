@@ -21,41 +21,6 @@ def minor(arr, i, j):
                                np.array(range(j)+range(j+1, arr.shape[2]))]
 
 
-def computeglobalstrain_test(normalized_2d, fiberpoints, vertexids, stiffness_tensor):
-    element_vertices_2d = normalized_2d.reshape(normalized_2d.shape[0] / 2, 2)[vertexids]
-    element_vertices_uv = fiberpoints.reshape(fiberpoints.shape[0]/2, 2)[vertexids]
-
-    centroid_2d = np.sum(element_vertices_2d, axis=1) / 3
-    centroid_uv = np.sum(element_vertices_uv, axis=1) / 3
-
-    rel_uv = np.subtract(element_vertices_uv, centroid_uv[:, np.newaxis])
-    rel_uv = np.pad(rel_uv, [(0, 0), (0, 0), (0, 1)], "constant", constant_values=1)
-    rel_2d = np.subtract(element_vertices_2d, centroid_2d[:, np.newaxis])
-
-    invrel_uv = np.linalg.inv(rel_uv)
-    deform_mat = np.matmul(invrel_uv, rel_2d)[:, :2, :2]
-
-    # https://en.wikipedia.org/wiki/Infinitesimal_strain_theory
-    # deform_mat = deform_mat + np.identity(deform_mat.shape[1])
-    # strain = 0.5 * (np.transpose(deform_mat, (0, 2, 1)) + deform_mat) - np.identity(deform_mat.shape[1])
-    # Finite strain theory
-    # https://www.klancek.si/sites/default/files/datoteke/files/derivativeofprincipalstretches.pdf
-    strain = 0.5 * (np.matmul(np.transpose(deform_mat, (0, 2, 1)), deform_mat) - np.identity(deform_mat.shape[1]))
-
-    m = np.array([1, 1, 0.5])[np.newaxis].T
-    strain_vector = np.divide(np.array([[strain[:, 0, 0]], [strain[:, 1, 1]], [strain[:, 0, 1]]]).transpose((2, 0, 1)), m).squeeze()
-
-    # http://homepages.engineering.auckland.ac.nz/~pkel015/SolidMechanicsBooks/Part_I/BookSM_Part_I/08_Energy/08_Energy_02_Elastic_Strain_Energy.pdf
-    stress = np.einsum('ij,ej->ei', stiffness_tensor, strain_vector)
-    strain_energy_density = 0.5 * (np.einsum('ei,ei->e', stress, strain_vector))
-
-    # sys.stdout.write('Strain Energy Density: %f       \r' % (np.sum(strain_energy_density),))
-    # sys.stdout.flush()
-    # import pdb
-    # pdb.set_trace()
-    return np.sum(strain_energy_density)
-
-
 def computeglobalstrain(normalized_2d, fiberpoints, vertexids, stiffness_tensor):
     element_vertices_uv = fiberpoints.reshape(fiberpoints.shape[0]/2, 2)[vertexids]
 
@@ -64,6 +29,8 @@ def computeglobalstrain(normalized_2d, fiberpoints, vertexids, stiffness_tensor)
 
     rel_uv = np.subtract(element_vertices_uv, centroid_uv[:, np.newaxis])
     rel_2d = np.subtract(normalized_2d, centroid_2d[:, np.newaxis]).reshape(element_vertices_uv.shape[0], 6)
+
+    areas = 0.5 * np.linalg.det(np.pad(rel_uv, [(0, 0), (0, 0), (0, 1)], "constant", constant_values=1).transpose(0, 2, 1))
 
     C = np.array([[rel_uv[:, 0, 0], rel_uv[:, 0, 1], np.ones(rel_uv.shape[0]), np.zeros(rel_uv.shape[0]), np.zeros(rel_uv.shape[0]), np.zeros(rel_uv.shape[0])],
                   [np.zeros(rel_uv.shape[0]), np.zeros(rel_uv.shape[0]), np.zeros(rel_uv.shape[0]), rel_uv[:, 0, 0], rel_uv[:, 0, 1], np.ones(rel_uv.shape[0])],
@@ -86,21 +53,24 @@ def computeglobalstrain(normalized_2d, fiberpoints, vertexids, stiffness_tensor)
                   [b[:, 3], b[:, 4], b[:, 5]],
                   [np.zeros(b.shape[0]), np.zeros(b.shape[0]), np.zeros(b.shape[0])]]).transpose((2, 0, 1))
 
-    deform_mat = B + np.identity(B.shape[1])
+    deform_mat = B
     # https://en.wikipedia.org/wiki/Infinitesimal_strain_theory
-    strain = 0.5 * (np.transpose(deform_mat, (0, 2, 1)) + deform_mat) - np.identity(B.shape[1])
+    # strain = 0.5 * (np.transpose(deform_mat, (0, 2, 1)) + deform_mat) - np.identity(B.shape[1])
     # Finite strain theory
     # https://www.klancek.si/sites/default/files/datoteke/files/derivativeofprincipalstretches.pdf
-    # strain = 0.5 * (np.matmul(np.transpose(deform_mat, (0, 2, 1)), deform_mat) - np.identity(B.shape[1]))
+    strain = 0.5 * (np.matmul(np.transpose(deform_mat, (0, 2, 1)), deform_mat) - np.identity(B.shape[1]))
 
     m = np.array([1, 1, 1, 0.5, 0.5, 0.5])[np.newaxis].T
     strain_vector = np.divide(np.array([[strain[:, 0, 0]], [strain[:, 1, 1]], [strain[:, 2, 2]], [strain[:, 1, 2]], [strain[:, 0, 2]], [strain[:, 0, 1]]]).transpose((2, 0, 1)), m).squeeze()
 
     # http://homepages.engineering.auckland.ac.nz/~pkel015/SolidMechanicsBooks/Part_I/BookSM_Part_I/08_Energy/08_Energy_02_Elastic_Strain_Energy.pdf
-    stress = np.einsum('ij,ej->ei', stiffness_tensor, strain_vector)
-    strain_energy_density = 0.5 * (np.einsum('ei,ei->e', stress, strain_vector))
+    stress = np.einsum('ij,ej->ej', stiffness_tensor, strain_vector)
+    strain_energy_density = np.multiply(np.einsum('ei,ei->e', stress, strain_vector), areas)
 
-    sys.stdout.write('Strain Energy Density: %f       \r' % (np.sum(strain_energy_density),))
+    import pdb
+    pdb.set_trace()
+
+    sys.stdout.write('Strain Energy: %f J/m                    \r' % (np.sum(strain_energy_density),))
     sys.stdout.flush()
     return np.sum(strain_energy_density)
 
@@ -171,22 +141,23 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
                   [b[:, 3], b[:, 4], b[:, 5]],
                   [np.zeros(b.shape[0]), np.zeros(b.shape[0]), np.zeros(b.shape[0])]]).transpose((2, 0, 1))
 
-    deform_mat = B + np.identity(B.shape[1])
+    deform_mat = B
     # Infinitesimal theory
-    strain = 0.5 * (np.transpose(deform_mat, (0, 2, 1)) + deform_mat) - np.identity(B.shape[1])
+    # strain = 0.5 * (np.transpose(deform_mat, (0, 2, 1)) + deform_mat) - np.identity(B.shape[1])
     # Finite theory
-    # strain = 0.5 * (np.matmul(np.transpose(deform_mat, (0, 2, 1)), deform_mat) - np.identity(B.shape[1]))
+    strain = 0.5 * (np.matmul(np.transpose(deform_mat, (0, 2, 1)), deform_mat) - np.identity(B.shape[1]))
 
     m = np.array([1, 1, 1, 0.5, 0.5, 0.5])[np.newaxis].T
     strain_vector = np.divide(np.array([[strain[:, 0, 0]], [strain[:, 1, 1]], [strain[:, 2, 2]], [strain[:, 1, 2]], [strain[:, 0, 2]], [strain[:, 0, 1]]]).transpose((2, 0, 1)), m).squeeze()
-    dE_dstrain = 0.5 * (np.einsum('ij,ej->ei', stiffness_tensor, strain_vector) + np.einsum('ei,ij->ej', strain_vector, stiffness_tensor))
+
+    dE_dstrain = np.einsum('ij,ej->ej', stiffness_tensor, strain_vector)
 
     # Calculate dstrain/du
     # Infinitesimal
-    dstrain_du = 0.5 * (np.transpose(db_du, (0, 1, 3, 2)) + db_du)
+    # dstrain_du = 0.5 * (np.transpose(db_du, (0, 1, 3, 2)) + db_du)
     # Finite theory dstrain/du
-    # dstrain_du = 0.5 * (np.matmul(np.transpose(db_du, (0, 1, 3, 2)), deform_mat[:, np.newaxis, :, :]) + np.matmul(
-    #     np.transpose(deform_mat, (0, 2, 1))[:, np.newaxis, :, :], db_du))
+    dstrain_du = 0.5 * (np.matmul(np.transpose(db_du, (0, 1, 3, 2)), deform_mat[:, np.newaxis, :, :]) + np.matmul(
+        np.transpose(deform_mat, (0, 2, 1))[:, np.newaxis, :, :], db_du))
 
     dstrain_vector_du = np.divide(np.array([[dstrain_du[:, :, 0, 0]], [dstrain_du[:, :, 1, 1]], [dstrain_du[:, :, 2, 2]], [dstrain_du[:, :, 1, 2]], [dstrain_du[:, :, 0, 2]], [dstrain_du[:, :, 0, 1]]]).transpose((2, 3, 0, 1)), m).squeeze()
 
