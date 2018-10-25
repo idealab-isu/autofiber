@@ -216,7 +216,7 @@ def find_edge(point, direction, error):
         return find_edge(point, -direction, error)
     else:
         # pdb.set_trace()
-        raise SurfaceError('### Something weird has happened ###')
+        raise EdgeError('### Something weird has happened ###')
 
 
 def find_neighbors(element, vertexids_indices, adjacencyidx):
@@ -567,17 +567,6 @@ def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, 
             fpoint[1] = fpoint[1] + uv_start[1]
 
             af.geoparameterization[closest_point_idx] = fpoint
-
-            if af.georecord[element][1] is None and ~np.isnan(af.geoparameterization[af.vertexids][element]).any():
-                af.georecord[element][1] = np.sign(calcnormal(af.geoparameterization[af.vertexids][element]))
-            elif af.georecord[element][1] is not None:
-                if np.sign(calcnormal(af.geoparameterization[af.vertexids][element])) != af.georecord[element][1]:
-                    pass
-                import pdb
-                pdb.set_trace()
-            # if element in [120, 138, 152, 165, 166, 168, 182, 196, 197, 215, 362, 376, 378, 390, 392, 406, 421, 425, 436, 438, 440]:
-            #     import pdb
-            #     pdb.set_trace()
 
     # Retrieve the 3d coordinates of the edge vertices
     nextedgec = af.vertices[af.vertexids[element, edge]]

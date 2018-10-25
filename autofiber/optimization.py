@@ -30,7 +30,7 @@ def computeglobalstrain(normalized_2d, fiberpoints, vertexids, stiffness_tensor)
     rel_uv = np.subtract(element_vertices_uv, centroid_uv[:, np.newaxis])
     rel_2d = np.subtract(normalized_2d, centroid_2d[:, np.newaxis]).reshape(element_vertices_uv.shape[0], 6)
 
-    areas = 0.5 * np.linalg.det(np.pad(rel_uv, [(0, 0), (0, 0), (0, 1)], "constant", constant_values=1).transpose(0, 2, 1))
+    areas = np.abs(0.5 * np.linalg.det(np.pad(rel_uv, [(0, 0), (0, 0), (0, 1)], "constant", constant_values=1).transpose(0, 2, 1)))
 
     C = np.array([[rel_uv[:, 0, 0], rel_uv[:, 0, 1], np.ones(rel_uv.shape[0]), np.zeros(rel_uv.shape[0]), np.zeros(rel_uv.shape[0]), np.zeros(rel_uv.shape[0])],
                   [np.zeros(rel_uv.shape[0]), np.zeros(rel_uv.shape[0]), np.zeros(rel_uv.shape[0]), rel_uv[:, 0, 0], rel_uv[:, 0, 1], np.ones(rel_uv.shape[0])],
@@ -66,9 +66,6 @@ def computeglobalstrain(normalized_2d, fiberpoints, vertexids, stiffness_tensor)
     # http://homepages.engineering.auckland.ac.nz/~pkel015/SolidMechanicsBooks/Part_I/BookSM_Part_I/08_Energy/08_Energy_02_Elastic_Strain_Energy.pdf
     stress = np.einsum('ij,ej->ej', stiffness_tensor, strain_vector)
     strain_energy_density = np.multiply(np.einsum('ei,ei->e', stress, strain_vector), areas)
-
-    import pdb
-    pdb.set_trace()
 
     sys.stdout.write('Strain Energy: %f J/m                    \r' % (np.sum(strain_energy_density),))
     sys.stdout.flush()
