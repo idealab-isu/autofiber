@@ -387,7 +387,7 @@ class AutoFiber:
             return OP.computeglobalstrain_grad(self.normalized_2d, x, self.vertexids, self.stiffness_tensor)
 
         start_time = time.time()
-        res = optimize.minimize(f, self.geoparameterization*1.5, jac=gradf, method="CG", options={'gtol': 1e-5})
+        res = optimize.minimize(f, self.geoparameterization, jac=gradf, method="CG", options={'gtol': 1e-5})
         print("Final Strain Energy Value: %f J/m" % res.fun)
         self.optimizedparameterization = res.x.reshape(self.geoparameterization.shape)
         # self.optimizedparameterization = OP.optimize(f, gradf, self.geoparameterization)
