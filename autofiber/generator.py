@@ -95,18 +95,26 @@ class AutoFiber:
         # Init optimization parameterization
         self.optimizedparameterization = None
         # Calculate compliance tensor
-        G = self.E / (2 * (1 + self.nu))
-        self.compliance_tensor = np.array([[1/self.E, -self.nu/self.E, -self.nu/self.E, 0, 0, 0],
-                                  [-self.nu/self.E, 1/self.E, -self.nu/self.E, 0, 0, 0],
-                                  [-self.nu/self.E, -self.nu/self.E, 1/self.E, 0, 0, 0],
-                                  [0, 0, 0, 1/G, 0, 0],
-                                  [0, 0, 0, 0, 1/G, 0],
-                                  [0, 0, 0, 0, 0, 1/G]])
-        self.compliance_tensor_test = np.array([[1 / self.E, -self.nu / self.E, 0],
-                                                [-self.nu / self.E, 1 / self.E, 0],
-                                                [0, 0, 1 / G]])
-
-        self.stiffness_tensor_test = np.linalg.inv(self.compliance_tensor_test)
+        if isinstance(self.E, list):
+            # Orthotropic
+            G = kwargs.get("G", None)
+            if G is None:
+                raise ValueError("G property is not defined.")
+            self.compliance_tensor = np.array([[1/self.E[0], -self.nu[0]/self.E[1], -self.nu[1]/self.E[2], 0, 0, 0],
+                                               [-self.nu[0]/self.E[0], 1/self.E[1], -self.nu[2]/self.E[2], 0, 0, 0],
+                                               [-self.nu[1]/self.E[0], -self.nu[2]/self.E[2], 1/self.E[2], 0, 0, 0],
+                                               [0, 0, 0, 1/(2*G[2]), 0, 0],
+                                               [0, 0, 0, 0, 1/(2*G[1]), 0],
+                                               [0, 0, 0, 0, 0, 1/(2*G[0])]])
+        else:
+            # Isotropic
+            G = self.E / (2 * (1 + self.nu))
+            self.compliance_tensor = np.array([[1/self.E, -self.nu/self.E, -self.nu/self.E, 0, 0, 0],
+                                               [-self.nu/self.E, 1/self.E, -self.nu/self.E, 0, 0, 0],
+                                               [-self.nu/self.E, -self.nu/self.E, 1/self.E, 0, 0, 0],
+                                               [0, 0, 0, 1/G, 0, 0],
+                                               [0, 0, 0, 0, 1/G, 0],
+                                               [0, 0, 0, 0, 0, 1/G]])
         # Calculate stiffness tensor
         self.stiffness_tensor = np.linalg.inv(self.compliance_tensor)
         # Calculate 2D normalized points for each element
@@ -379,7 +387,7 @@ class AutoFiber:
             return OP.computeglobalstrain_grad(self.normalized_2d, x, self.vertexids, self.stiffness_tensor)
 
         start_time = time.time()
-        res = optimize.minimize(f, self.geoparameterization, jac=gradf, method="CG", options={'gtol': 1})
+        res = optimize.minimize(f, self.geoparameterization*1.5, jac=gradf, method="CG", options={'gtol': 1e-5})
         print("Final Strain Energy Value: %f J/m" % res.fun)
         self.optimizedparameterization = res.x.reshape(self.geoparameterization.shape)
         # self.optimizedparameterization = OP.optimize(f, gradf, self.geoparameterization)
