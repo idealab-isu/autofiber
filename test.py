@@ -82,10 +82,16 @@ fiberpoints2d = fiberpoints2d_un.flatten()
 
 
 def f(x, *args):
-    return OP.computeglobalstrain(vertices2d_un, x, vertexids2d, stiffness_tensor3d)
+    return OP.computeglobalstrain(vertices2d_un[np.newaxis], x, vertexids2d, stiffness_tensor3d)
 
 
-res = optimize.minimize(f, fiberpoints2d, method="CG", options={'gtol': 1e-5})
+def gradf(x, *args):
+    return OP.computeglobalstrain_grad(vertices2d_un[np.newaxis], x, vertexids2d, stiffness_tensor3d)
+
+
+# grad_check = optimize.check_grad(f)
+
+res = optimize.minimize(f, fiberpoints2d, jac=gradf, method="CG", options={'gtol': 1e-8})
 
 fres = res.x.reshape(fiberpoints2d_un.shape)
 

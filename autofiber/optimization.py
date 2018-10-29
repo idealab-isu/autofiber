@@ -162,7 +162,8 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
     dstrain_vector_du = np.divide(np.array([[dstrain_du[:, :, 0, 0]], [dstrain_du[:, :, 1, 1]], [dstrain_du[:, :, 2, 2]], [dstrain_du[:, :, 1, 2]], [dstrain_du[:, :, 0, 2]], [dstrain_du[:, :, 0, 1]]]).transpose((2, 3, 0, 1)), m).squeeze()[np.newaxis]
 
     dE_du = np.einsum('eij,ej->ei', dstrain_vector_du, dE_dstrain).reshape(dstrain_vector_du.shape[0], 3, 2)
-
+    import pdb
+    pdb.set_trace()
     point_strain_grad = np.zeros((fiberpoints.shape[0]/2, 2))
     for i in range(0, vertexids.shape[0]):
         ele_vertices = vertexids[i]
