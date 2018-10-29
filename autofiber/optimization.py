@@ -61,7 +61,7 @@ def computeglobalstrain(normalized_2d, fiberpoints, vertexids, stiffness_tensor)
     strain = 0.5 * (np.matmul(np.transpose(deform_mat, (0, 2, 1)), deform_mat) - np.identity(B.shape[1]))
 
     m = np.array([1, 1, 1, 0.5, 0.5, 0.5])[np.newaxis].T
-    strain_vector = np.divide(np.array([[strain[:, 0, 0]], [strain[:, 1, 1]], [strain[:, 2, 2]], [strain[:, 1, 2]], [strain[:, 0, 2]], [strain[:, 0, 1]]]).transpose((2, 0, 1)), m).squeeze()
+    strain_vector = np.divide(np.array([[strain[:, 0, 0]], [strain[:, 1, 1]], [strain[:, 2, 2]], [strain[:, 1, 2]], [strain[:, 0, 2]], [strain[:, 0, 1]]]).transpose((2, 0, 1)), m).squeeze()[np.newaxis]
 
     # http://homepages.engineering.auckland.ac.nz/~pkel015/SolidMechanicsBooks/Part_I/BookSM_Part_I/08_Energy/08_Energy_02_Elastic_Strain_Energy.pdf
     stress = np.einsum('ij,ej->ej', stiffness_tensor, strain_vector)
@@ -87,6 +87,8 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
 
     rel_uv = np.subtract(element_vertices_uv, centroid_uv[:, np.newaxis])
     rel_2d = np.subtract(normalized_2d, centroid_2d[:, np.newaxis]).reshape(element_vertices_uv.shape[0], 6)
+
+    areas = np.abs(0.5 * np.linalg.det(np.pad(rel_uv, [(0, 0), (0, 0), (0, 1)], "constant", constant_values=1).transpose(0, 2, 1)))
 
     C = np.array([[rel_uv[:, 0, 0], rel_uv[:, 0, 1], np.ones(rel_uv.shape[0]), np.zeros(rel_uv.shape[0]), np.zeros(rel_uv.shape[0]), np.zeros(rel_uv.shape[0])],
                   [np.zeros(rel_uv.shape[0]), np.zeros(rel_uv.shape[0]), np.zeros(rel_uv.shape[0]), rel_uv[:, 0, 0], rel_uv[:, 0, 1], np.ones(rel_uv.shape[0])],
@@ -145,9 +147,10 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
     strain = 0.5 * (np.matmul(np.transpose(deform_mat, (0, 2, 1)), deform_mat) - np.identity(B.shape[1]))
 
     m = np.array([1, 1, 1, 0.5, 0.5, 0.5])[np.newaxis].T
-    strain_vector = np.divide(np.array([[strain[:, 0, 0]], [strain[:, 1, 1]], [strain[:, 2, 2]], [strain[:, 1, 2]], [strain[:, 0, 2]], [strain[:, 0, 1]]]).transpose((2, 0, 1)), m).squeeze()
+    strain_vector = np.divide(np.array([[strain[:, 0, 0]], [strain[:, 1, 1]], [strain[:, 2, 2]], [strain[:, 1, 2]], [strain[:, 0, 2]], [strain[:, 0, 1]]]).transpose((2, 0, 1)), m).squeeze()[np.newaxis]
 
-    dE_dstrain = np.einsum('ij,ej->ej', stiffness_tensor, strain_vector)
+    # dE_dstrain = np.multiply(np.einsum('ij,ej->ej', stiffness_tensor, strain_vector), np.repeat(areas[np.newaxis], 6, axis=0).T)
+    dE_dstrain = np.einsum('ij,ej->ei', stiffness_tensor, strain_vector)
 
     # Calculate dstrain/du
     # Infinitesimal
@@ -156,7 +159,7 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
     dstrain_du = 0.5 * (np.matmul(np.transpose(db_du, (0, 1, 3, 2)), deform_mat[:, np.newaxis, :, :]) + np.matmul(
         np.transpose(deform_mat, (0, 2, 1))[:, np.newaxis, :, :], db_du))
 
-    dstrain_vector_du = np.divide(np.array([[dstrain_du[:, :, 0, 0]], [dstrain_du[:, :, 1, 1]], [dstrain_du[:, :, 2, 2]], [dstrain_du[:, :, 1, 2]], [dstrain_du[:, :, 0, 2]], [dstrain_du[:, :, 0, 1]]]).transpose((2, 3, 0, 1)), m).squeeze()
+    dstrain_vector_du = np.divide(np.array([[dstrain_du[:, :, 0, 0]], [dstrain_du[:, :, 1, 1]], [dstrain_du[:, :, 2, 2]], [dstrain_du[:, :, 1, 2]], [dstrain_du[:, :, 0, 2]], [dstrain_du[:, :, 0, 1]]]).transpose((2, 3, 0, 1)), m).squeeze()[np.newaxis]
 
     dE_du = np.einsum('eij,ej->ei', dstrain_vector_du, dE_dstrain).reshape(dstrain_vector_du.shape[0], 3, 2)
 
@@ -169,7 +172,7 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
     return point_strain_grad.flatten()
 
 
-def optimize(f, grad, x_0, eps=1e-8):
+def optimize(f, grad, x_0, eps=1e-7):
     import pdb
     import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d import axes3d
@@ -178,7 +181,7 @@ def optimize(f, grad, x_0, eps=1e-8):
     b = f(x)
     print("Starting Energy: %s" % b)
 
-    its = 5
+    its = 10
     strains = np.zeros(its)
     for i in range(0, its):
         cur_grad = grad(x)
