@@ -149,8 +149,8 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
     m = np.array([1, 1, 1, 0.5, 0.5, 0.5])[np.newaxis].T
     strain_vector = np.divide(np.array([[strain[:, 0, 0]], [strain[:, 1, 1]], [strain[:, 2, 2]], [strain[:, 1, 2]], [strain[:, 0, 2]], [strain[:, 0, 1]]]).transpose((2, 0, 1)), m).squeeze()[np.newaxis]
 
-    # dE_dstrain = np.multiply(np.einsum('ij,ej->ej', stiffness_tensor, strain_vector), np.repeat(areas[np.newaxis], 6, axis=0).T)
-    dE_dstrain = np.einsum('ij,ej->ei', stiffness_tensor, strain_vector)
+    dE_dstrain = np.multiply(np.einsum('ij,ej->ej', stiffness_tensor, strain_vector), np.repeat(areas[np.newaxis], 6, axis=0).T)
+    # dE_dstrain = np.einsum('ij,ej->ej', stiffness_tensor, strain_vector)
 
     # Calculate dstrain/du
     # Infinitesimal
@@ -162,8 +162,7 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
     dstrain_vector_du = np.divide(np.array([[dstrain_du[:, :, 0, 0]], [dstrain_du[:, :, 1, 1]], [dstrain_du[:, :, 2, 2]], [dstrain_du[:, :, 1, 2]], [dstrain_du[:, :, 0, 2]], [dstrain_du[:, :, 0, 1]]]).transpose((2, 3, 0, 1)), m).squeeze()[np.newaxis]
 
     dE_du = np.einsum('eij,ej->ei', dstrain_vector_du, dE_dstrain).reshape(dstrain_vector_du.shape[0], 3, 2)
-    import pdb
-    pdb.set_trace()
+
     point_strain_grad = np.zeros((fiberpoints.shape[0]/2, 2))
     for i in range(0, vertexids.shape[0]):
         ele_vertices = vertexids[i]
