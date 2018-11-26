@@ -390,12 +390,12 @@ class AutoFiber:
             return optimize.approx_fprime(x, f, 1e-8)
 
         start_time = time.time()
-        graderror = optimize.check_grad(f, gradf, self.geoparameterization.flatten())
-        print("Gradient error: %f" % graderror)
-        # res = optimize.minimize(f, self.geoparameterization, jac=gradf, method="CG", options={'gtol': 1e-5})
-        # print("Final Strain Energy Value: %f J/m" % res.fun)
-        # self.optimizedparameterization = res.x.reshape(self.geoparameterization.shape)
-        self.optimizedparameterization = OP.optimize(f, gradf, self.geoparameterization)
+        # graderror = optimize.check_grad(f, gradf, self.geoparameterization.flatten())
+        # print("Gradient error: %f" % graderror)
+        res = optimize.minimize(f, self.geoparameterization, method="CG", options={'gtol': 1e-5})
+        print("Final Strain Energy Value: %f J/m" % res.fun)
+        self.optimizedparameterization = res.x.reshape(self.geoparameterization.shape)
+        # self.optimizedparameterization = OP.optimize(f, gradf, self.geoparameterization)
         stop_time = time.time()
         elapsed = stop_time - start_time
         print("Time to optimize: %f seconds" % elapsed)

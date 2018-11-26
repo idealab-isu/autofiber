@@ -34,7 +34,7 @@ angle = 30
 
 # test = AF(r'C:\Users\Nate\Documents\UbuntuSharedFiles\fibergeneration\demos\CurvedSurface.x3d', np.array([25.0, 0.0, 25.0]), np.array([-np.sin(np.deg2rad(angle)), 0, -np.cos(np.deg2rad(angle))]), np.array([0, -1, 0]), plotting=True, offset=0.1)
 
-# test = AF(r'C:\Users\Nate\Documents\UbuntuSharedFiles\fibergeneration\demos\smallsaddle.x3d', np.array([1.0, 1.0, 1.0]), np.array([-np.cos(np.deg2rad(angle)), 0, -np.sin(np.deg2rad(angle))]), np.array([0, 1, 0]), plotting=True, offset=0.01, fiberint=0.01)
+# test = AF(r'C:\Files\Research\Fiber-Generator\demos\smallsaddle.x3d', np.array([1.0, 1.0, 1.0]), np.array([-np.cos(np.deg2rad(angle)), 0, -np.sin(np.deg2rad(angle))]), np.array([0, 1, 0]), plotting=True, offset=0.01, fiberint=0.01)
 
 # Anisotropic
 # test = AF(r'C:\Users\Nate\Documents\UbuntuSharedFiles\fibergeneration\demos\smallsaddle.x3d',
@@ -75,41 +75,47 @@ vertices2d_un = np.array([[0, 0],
 vertices2d = vertices2d_un.flatten()
 
 fiberpoints2d_un = np.array([[0, 0],
-                             [1, 2],
-                             [2, 0]], dtype=np.float)
+                             [1.5, 2],
+                             [2.5, 0]], dtype=np.float)
 
 fiberpoints2d = fiberpoints2d_un.flatten()
 
 
 def f(x, *args):
-    return OP.computeglobalstrain(vertices2d_un[np.newaxis], x, vertexids2d, stiffness_tensor3d)
+    return OP.computeglobalstrain_test(vertices2d_un[np.newaxis], x, vertexids2d, stiffness_tensor2d)
 
 
 def gradf(x, *args):
-    return OP.computeglobalstrain_grad(vertices2d_un[np.newaxis], x, vertexids2d, stiffness_tensor3d)
+    return OP.computeglobalstrain_grad_test(vertices2d_un[np.newaxis], x, vertexids2d, stiffness_tensor2d)
 
 
-# grad_check = optimize.check_grad(f)
+# testgrad = optimize.approx_fprime(fiberpoints2d, f, 1e-8)
 
-res = optimize.minimize(f, fiberpoints2d, jac=gradf, method="CG", options={'gtol': 1e-8})
+grad_check = optimize.check_grad(f, gradf, fiberpoints2d)
 
-fres = res.x.reshape(fiberpoints2d_un.shape)
+print(grad_check)
 
-import matplotlib.pyplot as plt
-
-fig = plt.figure()
-
-plt.scatter(vertices2d_un[:, 0], vertices2d_un[:, 1], color='b')
-t1 = plt.Polygon(vertices2d_un, color='b', fill=False)
-plt.gca().add_patch(t1)
-
-plt.scatter(fiberpoints2d_un[:, 0], fiberpoints2d_un[:, 1], color='r')
-t2 = plt.Polygon(fiberpoints2d_un, color='r', fill=False)
-plt.gca().add_patch(t2)
-
-plt.scatter(fres[:, 0], fres[:, 1], color='g')
-t3 = plt.Polygon(fres, color='g', fill=False)
-plt.gca().add_patch(t3)
+# res = optimize.minimize(f, fiberpoints2d, method="CG", options={'gtol': 1e-8})
+#
+# print("Total strain energy: %s" % res.fun)
+#
+# fres = res.x.reshape(fiberpoints2d_un.shape)
+#
+# import matplotlib.pyplot as plt
+#
+# fig = plt.figure()
+#
+# plt.scatter(vertices2d_un[:, 0], vertices2d_un[:, 1], color='b')
+# t1 = plt.Polygon(vertices2d_un, color='b', fill=False)
+# plt.gca().add_patch(t1)
+#
+# plt.scatter(fiberpoints2d_un[:, 0], fiberpoints2d_un[:, 1], color='r')
+# t2 = plt.Polygon(fiberpoints2d_un, color='r', fill=False)
+# plt.gca().add_patch(t2)
+#
+# plt.scatter(fres[:, 0], fres[:, 1], color='g')
+# t3 = plt.Polygon(fres, color='g', fill=False)
+# plt.gca().add_patch(t3)
 
 sys.modules["__main__"].__dict__.update(globals())
 sys.modules["__main__"].__dict__.update(locals())
