@@ -82,13 +82,18 @@ fiberpoints2d = fiberpoints2d_un.flatten()
 
 
 def f(x, *args):
-    return OP.computeglobalstrain_test(vertices2d_un[np.newaxis], x, vertexids2d, stiffness_tensor2d)
+    return OP.computeglobalstrain(vertices2d_un[np.newaxis], x, vertexids2d, stiffness_tensor2d)
 
 
 def gradf(x, *args):
-    return OP.computeglobalstrain_grad_test(vertices2d_un[np.newaxis], x, vertexids2d, stiffness_tensor2d)
+    return OP.computeglobalstrain_grad(vertices2d_un[np.newaxis], x, vertexids2d, stiffness_tensor2d)
 
-
+# [-0.016,  0.052,  0.04 , -0.13 , -0.024,  0.078]
+# [ 2.55999993e-01, -3.20000026e-02,  0.00000000e+00, -1.11022302e-08, -2.56000005e-01,  3.20000026e-02]
+# [-0.016,  0.052,  0.04 , -0.13 , -0.024,  0.078]
+# [ 0.096,  0.088, -0.32 ,  0.04 ,  0.224, -0.128]
+# [-257.14285101, -528.57142094,  -30.76922894]
+# [-109.18900841,  -46.39670834,  -11.29670579,  128.56318534, 120.48571705,  -82.16648979]
 # testgrad = optimize.approx_fprime(fiberpoints2d, f, 1e-8)
 
 grad_check = optimize.check_grad(f, gradf, fiberpoints2d)

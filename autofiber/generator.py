@@ -109,12 +109,9 @@ class AutoFiber:
         else:
             # Isotropic
             G = self.E / (2 * (1 + self.nu))
-            self.compliance_tensor = np.array([[1/self.E, -self.nu/self.E, -self.nu/self.E, 0, 0, 0],
-                                               [-self.nu/self.E, 1/self.E, -self.nu/self.E, 0, 0, 0],
-                                               [-self.nu/self.E, -self.nu/self.E, 1/self.E, 0, 0, 0],
-                                               [0, 0, 0, 1/G, 0, 0],
-                                               [0, 0, 0, 0, 1/G, 0],
-                                               [0, 0, 0, 0, 0, 1/G]])
+            self.compliance_tensor = np.array([[1/self.E, -self.nu/self.E, 0],
+                                               [-self.nu/self.E, 1/self.E, 0],
+                                               [0, 0, 1/G]])
         # Calculate stiffness tensor
         self.stiffness_tensor = np.linalg.inv(self.compliance_tensor)
         # Calculate 2D normalized points for each element
