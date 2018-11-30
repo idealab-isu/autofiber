@@ -46,12 +46,11 @@ def computeglobalstrain(normalized_2d, fiberpoints, vertexids, stiffness_tensor)
 
     strain = 0.5 * (np.matmul(F.transpose(0, 2, 1), F) - np.identity(F.shape[1]))
 
-    m = np.array([1, 1, 0.5])[np.newaxis].T
+    m = np.array([1.0, 1.0, 0.5])[np.newaxis].T
     strain_vector = np.divide(np.array([[strain[:, 0, 0]], [strain[:, 1, 1]], [strain[:, 0, 1]]]).transpose((2, 0, 1)), m).squeeze()[np.newaxis]
 
     # http://homepages.engineering.auckland.ac.nz/~pkel015/SolidMechanicsBooks/Part_I/BookSM_Part_I/08_Energy/08_Energy_02_Elastic_Strain_Energy.pdf
-    stress = np.einsum('ij,ej->ej', stiffness_tensor, strain_vector)
-    strain_energy_density = np.multiply(np.einsum('ei,ei->e', stress, strain_vector), areas)
+    strain_energy_density = 0.5*np.multiply(np.einsum('ei,ei->e', np.einsum('ij,ej->ej', stiffness_tensor, strain_vector), strain_vector), areas)
 
     total_strain_energy = np.sum(strain_energy_density)
 
@@ -79,37 +78,43 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
 
     adj_mat = np.multiply(minor_mat, build_checkerboard(minor_mat.shape[1], minor_mat.shape[2])).transpose(0, 2, 1)
 
-    dareas_duvw = np.zeros(rel_uvw.shape)
-    for i in range(0, 3):
-        for j in range(0, 3):
+    dareas_duv = np.zeros((rel_uvw.shape[0], 6))
+    for j in range(0, 3):
+        for i in range(0, 2):
             duvw_duij = np.zeros((rel_uvw.shape[1], rel_uvw.shape[2]))
             duvw_duij[i, j] = 1
-            dareas_duvw[:, i, j] = 0.5 * np.trace(np.matmul(adj_mat, duvw_duij), axis1=1, axis2=2)[0]
+            dareas_duv[:, j*2+i] = -0.5 * np.trace(np.matmul(adj_mat, duvw_duij), axis1=1, axis2=2)[0]
 
     F = np.matmul(rel_3d, np.linalg.inv(rel_uvw))[:, :2, :2]
 
     strain = 0.5 * (np.matmul(F.transpose(0, 2, 1), F) - np.identity(F.shape[1]))
 
-    m = np.array([1, 1, 0.5])[np.newaxis].T
+    m = np.array([1.0, 1.0, 0.5])[np.newaxis].T
     strain_vector = np.divide(np.array([[strain[:, 0, 0]], [strain[:, 1, 1]], [strain[:, 0, 1]]]).transpose((2, 0, 1)), m).squeeze()[np.newaxis]
 
-    # [-257.14285101, -528.57142094,  -30.76922894]
-    dE_dstrain = 2*areas*np.einsum('ij,ej->ej', stiffness_tensor, strain_vector)
+    # [-128.57142551, -264.28571047,  -15.38461447]
+    dE_dstrain = areas*np.einsum('ij,ej->ej', stiffness_tensor, strain_vector)
 
-    dF_duvw = np.zeros((F.shape[0], 6, F.shape[1], F.shape[2]))
+    dF_duv = np.zeros((F.shape[0], 6, F.shape[1], F.shape[2]))
     for j in range(0, 3):
         for i in range(0, 2):
             duvw_duij = np.zeros((rel_uvw.shape[1], rel_uvw.shape[2]))
-            duvw_duij[i, j] = 1
-            dF_duvw[:, j*2+i, :, :] = np.matmul(rel_3d, np.matmul(np.matmul(-1*np.linalg.inv(rel_uvw), duvw_duij), np.linalg.inv(rel_uvw)))[:, :2, :2]
+            duvw_duij[i, j] = 1.0
+            dF_duv[:, j*2+i, :, :] = np.matmul(rel_3d, np.matmul(np.matmul(-1.0*np.linalg.inv(rel_uvw), duvw_duij), np.linalg.inv(rel_uvw)))[:, :2, :2]
 
-    dstrainvector_duvw = np.zeros((strain_vector.shape[0], strain_vector.shape[1], 6))
+    dstrainvector_duv = np.zeros((strain_vector.shape[0], strain_vector.shape[1], 6))
     for i in range(0, 6):
-        dstrain_du = 0.5 * (np.matmul(dF_duvw[:, i, :, :].transpose(0, 2, 1), F) + np.matmul(F.transpose(0, 2, 1), dF_duvw[:, i, :, :]))
-        dstrainvector_duvw[:, :, i] = np.divide(np.array([[dstrain_du[:, 0, 0]], [dstrain_du[:, 1, 1]], [dstrain_du[:, 0, 1]]]).transpose((2, 0, 1)), m).squeeze()[np.newaxis]
+        dstrain_du = 0.5 * (np.matmul(dF_duv[:, i, :, :].transpose(0, 2, 1), F) + np.matmul(F.transpose(0, 2, 1), dF_duv[:, i, :, :]))
+        dstrainvector_duv[:, :, i] = np.divide(np.array([[dstrain_du[:, 0, 0]], [dstrain_du[:, 1, 1]], [dstrain_du[:, 0, 1]]]).transpose((2, 0, 1)), m).squeeze()[np.newaxis]
 
-    # [-109.18900841,  -46.39670834,  -11.29670579,  128.56318534, 120.48571705,  -82.16648979]
-    dE_du = np.einsum('eij,ei->ej', dstrainvector_duvw, dE_dstrain).reshape(dstrainvector_duvw.shape[0], 3, 2)
+    # [-54.59450421, -23.19835417,  -5.6483529 ,  64.28159267, 60.24285852, -41.08324489]
+    dE_du = np.einsum('ei,eij->ej', dE_dstrain, dstrainvector_duv).reshape(dstrainvector_duv.shape[0], 3, 2)
+
+    t1 = 0.5*np.matmul(np.matmul(stiffness_tensor, dstrainvector_duv), dstrainvector_duv.transpose(0, 2, 1))*areas
+    t2 = 0.5*np.matmul(strain_vector, np.matmul(stiffness_tensor, dstrainvector_duv))*areas
+    t3 = 0.5*np.multiply(np.einsum('ei,ei->e', np.einsum('ij,ej->ej', stiffness_tensor, strain_vector), strain_vector), dareas_duv)
+    import pdb
+    pdb.set_trace()
 
     point_strain_grad = np.zeros((fiberpoints.shape[0]/2, 2))
     for i in range(0, vertexids.shape[0]):
