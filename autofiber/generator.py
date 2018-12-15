@@ -100,12 +100,9 @@ class AutoFiber:
             G = kwargs.get("G", None)
             if G is None:
                 raise ValueError("G property is not defined.")
-            self.compliance_tensor = np.array([[1/self.E[0], -self.nu[0]/self.E[1], -self.nu[1]/self.E[2], 0, 0, 0],
-                                               [-self.nu[0]/self.E[0], 1/self.E[1], -self.nu[2]/self.E[2], 0, 0, 0],
-                                               [-self.nu[1]/self.E[0], -self.nu[2]/self.E[2], 1/self.E[2], 0, 0, 0],
-                                               [0, 0, 0, 1/(2*G[2]), 0, 0],
-                                               [0, 0, 0, 0, 1/(2*G[1]), 0],
-                                               [0, 0, 0, 0, 0, 1/(2*G[0])]])
+            self.compliance_tensor = np.array([[1/self.E[0], -self.nu[0]/self.E[1], 0],
+                                               [-self.nu[0]/self.E[0], 1/self.E[1], 0],
+                                               [0, 0, 1/(2*G[0])]])
         else:
             # Isotropic
             G = self.E / (2 * (1 + self.nu))
@@ -140,6 +137,8 @@ class AutoFiber:
 
         # With results we will calculate the fiber directions based on the available parametrizations
         self.calcorientations()
+
+        np.save("orientation.npy", self.orientations)
 
         print("Done. Plotting...")
 
@@ -383,13 +382,12 @@ class AutoFiber:
         def gradf(x, *args):
             return OP.computeglobalstrain_grad(self.normalized_2d, x, self.vertexids, self.stiffness_tensor)
 
-        def gradtest(x, *args):
-            return optimize.approx_fprime(x, f, 1e-8)
-
         start_time = time.time()
-        # graderror = optimize.check_grad(f, gradf, self.geoparameterization.flatten())
-        # print("Gradient error: %f" % graderror)
-        res = optimize.minimize(f, self.geoparameterization, method="CG", options={'gtol': 1e-5})
+        print("Testing gradient")
+        graderror = optimize.check_grad(f, gradf, self.geoparameterization.flatten())
+        print("Gradient error: %f" % graderror)
+        print("Optimizing...")
+        res = optimize.minimize(f, self.geoparameterization, jac=gradf, method="CG")
         print("Final Strain Energy Value: %f J/m" % res.fun)
         self.optimizedparameterization = res.x.reshape(self.geoparameterization.shape)
         # self.optimizedparameterization = OP.optimize(f, gradf, self.geoparameterization)
