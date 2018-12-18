@@ -133,12 +133,12 @@ class AutoFiber:
         self.cleanup()
 
         # Optimize the geodesic parametrization based on strain energy density
-        self.fiberoptimize()
+        # self.fiberoptimize()
 
         # With results we will calculate the fiber directions based on the available parametrizations
-        self.calcorientations()
+        # self.calcorientations()
 
-        np.save("orientation.npy", self.orientations)
+        # np.save("orientation.npy", self.orientations)
 
         print("Done. Plotting...")
 
@@ -153,15 +153,28 @@ class AutoFiber:
             for i in self.geoints:
                 ax.plot(i[:, 0], i[:, 1], i[:, 2])
 
-            fig = plt.figure()
-            plt.scatter(self.geoparameterization[:, 0], self.geoparameterization[:, 1])
-            plt.scatter(self.optimizedparameterization[:, 0], self.optimizedparameterization[:, 1])
+            # fig = plt.figure()
+            # plt.scatter(self.geoparameterization[:, 0], self.geoparameterization[:, 1])
+            # plt.scatter(self.optimizedparameterization[:, 0], self.optimizedparameterization[:, 1])
+            #
+            # fig = plt.figure()
+            # ax = fig.add_subplot(111, projection='3d')
+            # ax.scatter(self.vertices[:, 0], self.vertices[:, 1], self.vertices[:, 2])
+            # ax.quiver(self.centroids[:, 0], self.centroids[:, 1], self.centroids[:, 2], self.orientations[:, 0],
+            #           self.orientations[:, 1], self.orientations[:, 2], length=0.1)
+
+            rel_uvw = np.pad(self.geoparameterization[self.vertexids], [(0, 0), (0, 0), (0, 1)], "constant", constant_values=1).transpose(0, 2, 1)
+            areas = 0.5 * np.linalg.det(rel_uvw)
+
+            bad_facets = np.where((areas < 0))[0]
 
             fig = plt.figure()
             ax = fig.add_subplot(111, projection='3d')
-            ax.scatter(self.vertices[:, 0], self.vertices[:, 1], self.vertices[:, 2])
-            ax.quiver(self.centroids[:, 0], self.centroids[:, 1], self.centroids[:, 2], self.orientations[:, 0],
-                      self.orientations[:, 1], self.orientations[:, 2], length=0.1)
+            ax.scatter(self.vertices[:, 0], self.vertices[:, 1], self.vertices[:, 2], alpha=0.1)
+            for i in bad_facets:
+                # import pdb
+                # pdb.set_trace()
+                ax.scatter(self.vertices[self.vertexids[i]][:, 0], self.vertices[self.vertexids[i]][:, 1], self.vertices[self.vertexids[i]][:, 2])
 
             plt.show()
 
@@ -383,9 +396,11 @@ class AutoFiber:
             return OP.computeglobalstrain_grad(self.normalized_2d, x, self.vertexids, self.stiffness_tensor)
 
         start_time = time.time()
-        print("Testing gradient")
-        graderror = optimize.check_grad(f, gradf, self.geoparameterization.flatten())
-        print("Gradient error: %f" % graderror)
+        # print("Testing gradient")
+        # graderror = optimize.check_grad(f, gradf, self.geoparameterization.flatten())
+        # print("Gradient error: %f" % graderror)
+        # testgrad = optimize.approx_fprime(self.geoparameterization.flatten(), f, 1e-8)
+        # print(testgrad.reshape(self.geoparameterization.shape[0], 2))
         print("Optimizing...")
         res = optimize.minimize(f, self.geoparameterization, jac=gradf, method="CG")
         print("Final Strain Energy Value: %f J/m" % res.fun)
@@ -394,6 +409,8 @@ class AutoFiber:
         stop_time = time.time()
         elapsed = stop_time - start_time
         print("Time to optimize: %f seconds" % elapsed)
+        import pdb
+        pdb.set_trace()
 
     def calcorientations(self):
         self.calctransform(self.optimizedparameterization)

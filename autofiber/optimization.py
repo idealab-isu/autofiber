@@ -40,7 +40,7 @@ def computeglobalstrain(normalized_2d, fiberpoints, vertexids, stiffness_tensor)
     rel_uvw = np.pad(rel_uv, [(0, 0), (0, 0), (0, 1)], "constant", constant_values=1).transpose(0, 2, 1)
     rel_3d = np.pad(rel_2d, [(0, 0), (0, 0), (0, 1)], "constant", constant_values=1).transpose(0, 2, 1)
 
-    areas = np.abs(0.5 * np.linalg.det(rel_uvw))
+    areas = 0.5 * np.linalg.det(rel_uvw)
 
     F = np.matmul(rel_3d, np.linalg.inv(rel_uvw))[:, :2, :2]
 
@@ -54,6 +54,8 @@ def computeglobalstrain(normalized_2d, fiberpoints, vertexids, stiffness_tensor)
 
     total_strain_energy = np.sum(strain_energy_density)
     print(total_strain_energy)
+    import pdb
+    pdb.set_trace()
     return total_strain_energy
 
 
@@ -83,7 +85,7 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
         for i in range(0, 2):
             duvw_duij = np.zeros((rel_uvw.shape[1], rel_uvw.shape[2]))
             duvw_duij[i, j] = 1
-            dareas_duv[:, j*2+i] = 0.5 * np.trace(np.matmul(adj_mat, duvw_duij), axis1=1, axis2=2)
+            dareas_duv[:, j*2+i] = -0.5 * np.trace(np.matmul(adj_mat, duvw_duij), axis1=1, axis2=2)
 
     F = np.matmul(rel_3d, np.linalg.inv(rel_uvw))[:, :2, :2]
 
@@ -112,6 +114,10 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
         ele_strain_grad = dE_du[i]
 
         point_strain_grad[ele_vertices] = point_strain_grad[ele_vertices] + ele_strain_grad
+
+    import pdb
+    # print(point_strain_grad)
+    pdb.set_trace()
     return -1*point_strain_grad.flatten()
 
 

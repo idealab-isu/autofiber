@@ -251,9 +251,22 @@ def calcdistance(unitvector, oldvertex, meshpoints):
     :param meshpoints: Test points
     :return: Perpedicular and parallel distance to each mesh point
     """
-    perpdistance = -((oldvertex - meshpoints) - np.multiply(np.dot((oldvertex - meshpoints), unitvector[:, np.newaxis]), unitvector[np.newaxis, :]))
-    paraldistance = np.dot(meshpoints - oldvertex, unitvector)
-    return perpdistance, paraldistance
+    perpvectors = -1*((oldvertex - meshpoints) - np.multiply(np.dot((oldvertex - meshpoints), unitvector[:, np.newaxis]), unitvector[np.newaxis, :]))
+    paralvectors = np.multiply(np.dot(meshpoints - oldvertex, unitvector), unitvector[:, np.newaxis])
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import axes3d
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.quiver(oldvertex[0], oldvertex[1], oldvertex[2], paralvectors[0, 0], paralvectors[0, 1], paralvectors[0, 2], color="r")
+    ax.scatter(meshpoints[:, 0], meshpoints[:, 1], meshpoints[:, 2])
+    ax.quiver(oldvertex[0], oldvertex[1], oldvertex[2], unitvector[0], unitvector[1], unitvector[2], color="b")
+    ax.quiver(oldvertex[0], oldvertex[1], oldvertex[2], perpvectors[0, 0], perpvectors[0, 1], perpvectors[0, 2], color="g")
+    ax.scatter(oldvertex[0], oldvertex[1], oldvertex[2])
+    ax.scatter(meshpoints[0, 0], meshpoints[0, 1], meshpoints[0, 2])
+    import pdb
+    pdb.set_trace()
+    paraldistance = np.linalg.norm(paralvectors, axis=1)
+    return perpvectors, paraldistance
 
 
 def calcclosestpoint(unitvector, oldpoint, meshpoints, normal):
@@ -270,7 +283,7 @@ def calcclosestpoint(unitvector, oldpoint, meshpoints, normal):
     point_3d = trimedmeshpoints[point_idx]
     vector2pnt = perpdistances[point_idx]
 
-    testval = np.dot(calcunitvector(np.cross(unitvector, vector2pnt)), normal)
+    testval = np.sign(np.dot(calcunitvector(np.cross(unitvector, vector2pnt)), normal))
 
     fpointv = testval * np.linalg.norm(vector2pnt)
     fpointu = paraldistances[point_idx]
@@ -567,6 +580,13 @@ def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, 
             fpoint[1] = fpoint[1] + uv_start[1]
 
             af.geoparameterization[closest_point_idx] = fpoint
+
+    # rel_uvw = np.pad(af.geoparameterization[af.vertexids], [(0, 0), (0, 0), (0, 1)], "constant", constant_values=1)
+    # vdir = 0.5 * np.linalg.det(rel_uvw)
+    #
+    # if (np.sign(vdir) < 0).any():
+    #     import pdb
+    #     pdb.set_trace()
 
     # Retrieve the 3d coordinates of the edge vertices
     nextedgec = af.vertices[af.vertexids[element, edge]]
