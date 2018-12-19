@@ -132,9 +132,6 @@ class AutoFiber:
         # Interpolate any vertices missed by the geodesics
         self.cleanup()
 
-        import pdb
-        pdb.set_trace()
-
         # Optimize the geodesic parametrization based on strain energy density
         # self.fiberoptimize()
 
@@ -378,6 +375,7 @@ class AutoFiber:
                                 unassigned_fpoint = self.geoparameterization[self.vertexids[j]][k] + fdistance
                                 array_sum = array_sum + unassigned_fpoint
                                 count += 1
+                                print(unassigned_fpoint)
                         else:
                             neighbors = GEO.find_neighbors(j, self.vertexids_indices, self.adjacencyidx)
                             for neighbor in neighbors:
@@ -385,9 +383,20 @@ class AutoFiber:
                                     est_fiberdir = GEO.rot_vector(self.facetnormals[j], self.facetnormals[neighbor],
                                                                   self.fiberdirections[neighbor], force=True)
                                     self.fiberdirections[j] = est_fiberdir
+                                    print("Happened")
                 if count > 0:
                     fpoint = array_sum / count
                     self.geoparameterization[leftover_idxs[i]] = fpoint
+                    print("\n")
+                    print(fpoint)
+                    rel_uvw = np.pad(self.geoparameterization[self.vertexids], [(0, 0), (0, 0), (0, 1)], "constant", constant_values=1)
+                    vdir = 0.5 * np.linalg.det(rel_uvw)
+                    if (vdir < 0).any():
+                        print("BAD\n")
+                        # import pdb
+                        # pdb.set_trace()
+                    print("-------------------------------------")
+                    print("\n")
             leftover_idxs = np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0]
         assert np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0].size == 0
 

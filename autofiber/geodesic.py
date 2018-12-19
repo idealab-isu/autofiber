@@ -1,3 +1,5 @@
+import pdb
+
 import numpy as np
 from spatialnde import geometry
 import matplotlib.pyplot as plt
@@ -251,7 +253,7 @@ def calcdistance(unitvector, oldvertex, meshpoints):
     :param unitvector: Reference vector to calculate distance from
     :param oldvertex: Start point for unitvector
     :param meshpoints: Test points
-    :return: Perpedicular and parallel distance to each mesh point
+    :return: Perpendicular and parallel distance to each mesh point
     """
     perpvectors = -1*((oldvertex - meshpoints) - np.multiply(np.dot((oldvertex - meshpoints), unitvector[:, np.newaxis]), unitvector[np.newaxis, :]))
     paraldistance = np.dot(meshpoints - oldvertex, unitvector)
@@ -274,12 +276,28 @@ def calcclosestpoint(unitvector, oldpoint, meshpoints, normal):
     point_3d = trimedmeshpoints[point_idx]
     vector2pnt = perpdistances[point_idx]
 
-    perppoint = oldpoint + unitvector*fpointu
+    # perppoint = oldpoint + unitvector*fpointu
 
     # rel_uvw = np.vstack((oldpoint, perppoint, point_3d)).T
     # testval = np.sign(0.5*np.linalg.det(rel_uvw))
 
-    testval = np.sign(np.dot(calcunitvector(np.cross(unitvector, vector2pnt)), normal))
+    testval = np.dot(calcunitvector(np.cross(unitvector, vector2pnt)), normal)
+
+    # if element == 204:
+    #     fig = plt.figure()
+    #     ax = fig.add_subplot(111, projection='3d')
+    #     ax.quiver(oldpoint[0], oldpoint[1], oldpoint[2], unitvector[0], unitvector[1], unitvector[2], color="y", length=0.1)
+    #     ax.quiver(oldpoint[0], oldpoint[1], oldpoint[2], normal[0], normal[1], normal[2], color="r",
+    #               length=0.1)
+    #     ax.quiver(perppoint[0], perppoint[1], perppoint[2], vector2pnt[0], vector2pnt[1], vector2pnt[2], color="orange", length=0.1)
+    #     ax.scatter(oldpoint[0], oldpoint[1], oldpoint[2], color="black")
+    #     ax.scatter(point_3d[0], point_3d[1], point_3d[2], color="g")
+    #     ax.scatter(perppoint[0], perppoint[1], perppoint[2], color="b")
+    #     ax.scatter(meshpoints[:, 0], meshpoints[:, 1], meshpoints[:, 2], color="cyan")
+    #     import sys
+    #     sys.modules["__main__"].__dict__.update(globals())
+    #     sys.modules["__main__"].__dict__.update(locals())
+    #     pdb.set_trace()
 
     fpointv = testval * np.linalg.norm(vector2pnt)
     if np.isnan(fpointv):
@@ -296,7 +314,6 @@ def calcclosestpoint(unitvector, oldpoint, meshpoints, normal):
     #
     # print(unitvector)
     # print(fpoint)
-    # import pdb
     # pdb.set_trace()
     return fpoint, point_3d
 
@@ -580,37 +597,20 @@ def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, 
         closest_point_idx = np.where((af.vertices == closest_point).all(axis=1))[0][0]
 
         if np.isnan(fiberpoints_local[closest_point_idx]).all() or np.abs(fpoint[1]) < np.abs(fiberpoints_local[closest_point_idx][1]):
-            fiberpoints_local[closest_point_idx] = fpoint
+            fpoint_t = np.array([length + fpoint[0] + uv_start[0], fpoint[1] + uv_start[1]])
 
-            # For every iteration that isn't the first add the last fiberpoint.u and the u value of the very first point
-            fpoint[0] = length + fpoint[0] + uv_start[0]
+            fiberrec = np.copy(af.geoparameterization)
+            fiberrec[closest_point_idx] = fpoint_t
 
-            fpoint[1] = fpoint[1] + uv_start[1]
-
-            af.geoparameterization[closest_point_idx] = fpoint
-        rel_uvw = np.pad(af.geoparameterization[af.vertexids[element]], [(0, 0), (0, 1)], "constant", constant_values=1).T
-        vdir = 0.5 * np.linalg.det(rel_uvw)
-        if (np.sign(vdir) < 0).any():
-            fig = plt.figure()
-            ax = fig.add_subplot(111, projection='3d')
-            ax.quiver(point[0], point[1], point[2], unitfiberdirection[0], unitfiberdirection[1], unitfiberdirection[2], color="r", length=0.1)
-            ax.quiver(point[0], point[1], point[2], af.facetnormals[element][0], af.facetnormals[element][1], af.facetnormals[element][2], color="g", length=0.1)
-            ax.scatter(point[0], point[1], point[2])
-            ax.scatter(closest_point[0], closest_point[1], closest_point[2], color="r")
-            ax.scatter(element_vertices[:, 0], element_vertices[:, 1], element_vertices[:, 2])
-            ax.scatter(af.vertices[:, 0], af.vertices[:, 1], af.vertices[:, 2], color="b", alpha=0.1)
-            print(fpoint)
-            import sys
-            sys.modules["__main__"].__dict__.update(globals())
-            sys.modules["__main__"].__dict__.update(locals())
-            raise ValueError()
-
-    # rel_uvw = np.pad(af.geoparameterization[af.vertexids], [(0, 0), (0, 0), (0, 1)], "constant", constant_values=1)
-    # vdir = 0.5 * np.linalg.det(rel_uvw)
-    #
-    # if (np.sign(vdir) < 0).any():
-    #     import pdb
-    #     pdb.set_trace()
+            rel_uvw = np.pad(fiberrec[af.vertexids], [(0, 0), (0, 0), (0, 1)], "constant", constant_values=1)
+            vdir = 0.5 * np.linalg.det(rel_uvw)
+            if (np.sign(vdir) < 0).any():
+                pass
+            else:
+                fiberpoints_local[closest_point_idx] = fpoint
+                # For every iteration that isn't the first add the last fiberpoint.u and the u value of the very first point
+                af.geoparameterization[closest_point_idx] = fpoint_t
+            del fiberrec
 
     # Retrieve the 3d coordinates of the edge vertices
     nextedgec = af.vertices[af.vertexids[element, edge]]
