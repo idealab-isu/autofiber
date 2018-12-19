@@ -132,6 +132,9 @@ class AutoFiber:
         # Interpolate any vertices missed by the geodesics
         self.cleanup()
 
+        import pdb
+        pdb.set_trace()
+
         # Optimize the geodesic parametrization based on strain energy density
         # self.fiberoptimize()
 
