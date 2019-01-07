@@ -1,4 +1,3 @@
-import sys
 import numpy as np
 
 
@@ -53,9 +52,7 @@ def computeglobalstrain(normalized_2d, fiberpoints, vertexids, stiffness_tensor)
     strain_energy_density = 0.5*np.multiply(np.einsum("ei,ei->e", strain_vector, np.matmul(strain_vector, stiffness_tensor)), areas)
 
     total_strain_energy = np.sum(strain_energy_density)
-    print(total_strain_energy)
-    import pdb
-    pdb.set_trace()
+    # print(total_strain_energy)
     return total_strain_energy
 
 
@@ -115,9 +112,6 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
 
         point_strain_grad[ele_vertices] = point_strain_grad[ele_vertices] + ele_strain_grad
 
-    import pdb
-    # print(point_strain_grad)
-    pdb.set_trace()
     return -1*point_strain_grad.flatten()
 
 

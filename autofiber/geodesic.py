@@ -1,9 +1,5 @@
-import pdb
-
 import numpy as np
 from spatialnde import geometry
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import axes3d
 
 
 class EdgeError(Exception):
@@ -550,10 +546,9 @@ def find_element_within(point, unitvector, normal, vertices, vertexids, facetnor
     return None, None
 
 
-def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, length, uv_start, parameterization=True):
+def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, length, uv_start, parameterization=True, nan=False):
     if parameterization and element not in list(af.georecord.keys()):
         af.georecord[element] = [[], None]
-        af.fiberdirections[element] = unitfiberdirection
 
     # Determine the elements surrounding the current element
     neighbors = find_neighbors(element, af.vertexids_indices, af.adjacencyidx)
@@ -610,6 +605,7 @@ def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, 
                 fiberpoints_local[closest_point_idx] = fpoint
                 # For every iteration that isn't the first add the last fiberpoint.u and the u value of the very first point
                 af.geoparameterization[closest_point_idx] = fpoint_t
+                af.fiberdirections[element] = unitfiberdirection
             del fiberrec
 
     # Retrieve the 3d coordinates of the edge vertices
