@@ -41,6 +41,13 @@ def calcunitvector(vector):
         return vector / np.linalg.norm(vector)
 
 
+def calcnormal(points):
+    """ Returns the normal for the given 2d points"""
+    v1 = points[2] - points[0]
+    v2 = points[1] - points[0]
+    return np.cross(v1, v2)
+
+
 def angle_between_vectors(v1, v2):
     """ Returns the angle in radians between vectors 'v1' and 'v2'
         https://stackoverflow.com/questions/2827393/angles-between-two-n-dimensional-vectors-in-python
@@ -209,7 +216,7 @@ def find_edge(point, direction, error):
         return find_edge(point, -direction, error)
     else:
         # pdb.set_trace()
-        raise SurfaceError('### Something weird has happened ###')
+        raise EdgeError('### Something weird has happened ###')
 
 
 def find_neighbors(element, vertexids_indices, adjacencyidx):
@@ -242,11 +249,11 @@ def calcdistance(unitvector, oldvertex, meshpoints):
     :param unitvector: Reference vector to calculate distance from
     :param oldvertex: Start point for unitvector
     :param meshpoints: Test points
-    :return: Perpedicular and parallel distance to each mesh point
+    :return: Perpendicular and parallel distance to each mesh point
     """
-    perpdistance = -((oldvertex - meshpoints) - np.multiply(np.dot((oldvertex - meshpoints), unitvector[:, np.newaxis]), unitvector[np.newaxis, :]))
+    perpvectors = -1*((oldvertex - meshpoints) - np.multiply(np.dot((oldvertex - meshpoints), unitvector[:, np.newaxis]), unitvector[np.newaxis, :]))
     paraldistance = np.dot(meshpoints - oldvertex, unitvector)
-    return perpdistance, paraldistance
+    return perpvectors, paraldistance
 
 
 def calcclosestpoint(unitvector, oldpoint, meshpoints, normal):
@@ -260,16 +267,50 @@ def calcclosestpoint(unitvector, oldpoint, meshpoints, normal):
     trimedmeshpoints = np.delete(meshpoints, np.where((meshpoints == oldpoint).all(axis=1)), axis=0)
     perpdistances, paraldistances = calcdistance(unitvector, oldpoint, trimedmeshpoints)
     point_idx = np.argmin(np.linalg.norm(perpdistances, axis=1))
+
+    fpointu = paraldistances[point_idx]
     point_3d = trimedmeshpoints[point_idx]
     vector2pnt = perpdistances[point_idx]
 
+    # perppoint = oldpoint + unitvector*fpointu
+
+    # rel_uvw = np.vstack((oldpoint, perppoint, point_3d)).T
+    # testval = np.sign(0.5*np.linalg.det(rel_uvw))
+
     testval = np.dot(calcunitvector(np.cross(unitvector, vector2pnt)), normal)
 
+    # if element == 204:
+    #     fig = plt.figure()
+    #     ax = fig.add_subplot(111, projection='3d')
+    #     ax.quiver(oldpoint[0], oldpoint[1], oldpoint[2], unitvector[0], unitvector[1], unitvector[2], color="y", length=0.1)
+    #     ax.quiver(oldpoint[0], oldpoint[1], oldpoint[2], normal[0], normal[1], normal[2], color="r",
+    #               length=0.1)
+    #     ax.quiver(perppoint[0], perppoint[1], perppoint[2], vector2pnt[0], vector2pnt[1], vector2pnt[2], color="orange", length=0.1)
+    #     ax.scatter(oldpoint[0], oldpoint[1], oldpoint[2], color="black")
+    #     ax.scatter(point_3d[0], point_3d[1], point_3d[2], color="g")
+    #     ax.scatter(perppoint[0], perppoint[1], perppoint[2], color="b")
+    #     ax.scatter(meshpoints[:, 0], meshpoints[:, 1], meshpoints[:, 2], color="cyan")
+    #     import sys
+    #     sys.modules["__main__"].__dict__.update(globals())
+    #     sys.modules["__main__"].__dict__.update(locals())
+    #     pdb.set_trace()
+
     fpointv = testval * np.linalg.norm(vector2pnt)
-    fpointu = paraldistances[point_idx]
     if np.isnan(fpointv):
         fpointv = 0.0
     fpoint = np.array([fpointu, fpointv])
+
+    # fig = plt.figure()
+    # ax = fig.add_subplot(111, projection='3d')
+    # ax.quiver(oldpoint[0], oldpoint[1], oldpoint[2], unitvector[0], unitvector[1], unitvector[2], color="r", length=0.1)
+    # ax.quiver(perppoint[0], perppoint[1], perppoint[2], vector2pnt[0], vector2pnt[1], vector2pnt[2], color="r", length=0.1)
+    # ax.scatter(oldpoint[0], oldpoint[1], oldpoint[2], color="black")
+    # ax.scatter(point_3d[0], point_3d[1], point_3d[2], color="g")
+    # ax.scatter(perppoint[0], perppoint[1], perppoint[2], color="b")
+    #
+    # print(unitvector)
+    # print(fpoint)
+    # pdb.set_trace()
     return fpoint, point_3d
 
 
@@ -505,10 +546,9 @@ def find_element_within(point, unitvector, normal, vertices, vertexids, facetnor
     return None, None
 
 
-def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, length, uv_start, parameterization=True):
+def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, length, uv_start, parameterization=True, nan=False):
     if parameterization and element not in list(af.georecord.keys()):
-        af.georecord[element] = []
-        af.fiberdirections[element] = unitfiberdirection
+        af.georecord[element] = [[], None]
 
     # Determine the elements surrounding the current element
     neighbors = find_neighbors(element, af.vertexids_indices, af.adjacencyidx)
@@ -542,8 +582,8 @@ def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, 
     int_pnt = find_intpnt(pointuv, lnpoint, nextedge[0], nextedge[1])
 
     if parameterization:
-        af.georecord[element].append((pointuv, int_pnt))
-        prev_lines = af.georecord.get(element)
+        af.georecord[element][0].append((pointuv, int_pnt))
+        prev_lines = af.georecord.get(element)[0]
         for line in prev_lines:
             if check_intersection(pointuv, int_pnt, line[0], line[1]):
                 raise EdgeError
@@ -552,14 +592,21 @@ def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, 
         closest_point_idx = np.where((af.vertices == closest_point).all(axis=1))[0][0]
 
         if np.isnan(fiberpoints_local[closest_point_idx]).all() or np.abs(fpoint[1]) < np.abs(fiberpoints_local[closest_point_idx][1]):
-            fiberpoints_local[closest_point_idx] = fpoint
+            fpoint_t = np.array([length + fpoint[0] + uv_start[0], fpoint[1] + uv_start[1]])
 
-            # For every iteration that isn't the first add the last fiberpoint.u and the u value of the very first point
-            fpoint[0] = length + fpoint[0] + uv_start[0]
+            fiberrec = np.copy(af.geoparameterization)
+            fiberrec[closest_point_idx] = fpoint_t
 
-            fpoint[1] = fpoint[1] + uv_start[1]
-
-            af.geoparameterization[closest_point_idx] = fpoint
+            rel_uvw = np.pad(fiberrec[af.vertexids], [(0, 0), (0, 0), (0, 1)], "constant", constant_values=1)
+            vdir = 0.5 * np.linalg.det(rel_uvw)
+            if (np.sign(vdir) < 0).any():
+                pass
+            else:
+                fiberpoints_local[closest_point_idx] = fpoint
+                # For every iteration that isn't the first add the last fiberpoint.u and the u value of the very first point
+                af.geoparameterization[closest_point_idx] = fpoint_t
+                af.fiberdirections[element] = unitfiberdirection
+            del fiberrec
 
     # Retrieve the 3d coordinates of the edge vertices
     nextedgec = af.vertices[af.vertexids[element, edge]]
