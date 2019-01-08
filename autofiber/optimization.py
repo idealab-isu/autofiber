@@ -56,6 +56,12 @@ def computeglobalstrain(normalized_2d, fiberpoints, vertexids, stiffness_tensor)
     return total_strain_energy
 
 
+duvw_duij_t = np.zeros((6, 3, 3))
+for j in range(0, 3):
+    for i in range(0, 2):
+        duvw_duij_t[j*2+i, i, j] = 1
+
+
 def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_tensor):
     element_vertices_uv = fiberpoints.reshape(fiberpoints.shape[0]/2, 2)[vertexids]
 
@@ -77,12 +83,7 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
 
     adj_mat = np.multiply(minor_mat, build_checkerboard(minor_mat.shape[1], minor_mat.shape[2])).transpose(0, 2, 1)
 
-    dareas_duv = np.zeros((rel_uvw.shape[0], 6))
-    for j in range(0, 3):
-        for i in range(0, 2):
-            duvw_duij = np.zeros((rel_uvw.shape[1], rel_uvw.shape[2]))
-            duvw_duij[i, j] = 1
-            dareas_duv[:, j*2+i] = -0.5 * np.trace(np.matmul(adj_mat, duvw_duij), axis1=1, axis2=2)
+    dareas_duv = -0.5*np.trace(np.matmul(adj_mat[:, np.newaxis, :, :], duvw_duij_t), axis1=2, axis2=3)
 
     F = np.matmul(rel_3d, np.linalg.inv(rel_uvw))[:, :2, :2]
 
@@ -91,12 +92,7 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
     m = np.array([1.0, 1.0, 0.5])[np.newaxis].T
     strain_vector = np.divide(np.array([[strain[:, 0, 0]], [strain[:, 1, 1]], [strain[:, 0, 1]]]).transpose((2, 0, 1)), m).squeeze()
 
-    dF_duv = np.zeros((F.shape[0], 6, F.shape[1], F.shape[2]))
-    for j in range(0, 3):
-        for i in range(0, 2):
-            duvw_duij = np.zeros((rel_uvw.shape[1], rel_uvw.shape[2]))
-            duvw_duij[i, j] = 1.0
-            dF_duv[:, j*2+i, :, :] = np.matmul(rel_3d, np.matmul(np.matmul(np.linalg.inv(rel_uvw), duvw_duij), np.linalg.inv(rel_uvw)))[:, :2, :2]
+    dF_duv = np.matmul(rel_3d[:, np.newaxis, :, :], np.matmul(np.matmul(np.linalg.inv(rel_uvw)[:, np.newaxis, :, :], duvw_duij_t), np.linalg.inv(rel_uvw)[:, np.newaxis, :, :]))[:, :, :2, :2]
 
     dstrainvector_duv = np.zeros((strain_vector.shape[0], strain_vector.shape[1], 6))
     for i in range(0, 6):
@@ -111,7 +107,6 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
         ele_strain_grad = dE_du[i]
 
         point_strain_grad[ele_vertices] = point_strain_grad[ele_vertices] + ele_strain_grad
-
     return -1*point_strain_grad.flatten()
 
 
