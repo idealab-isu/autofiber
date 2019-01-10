@@ -1,7 +1,6 @@
 import os, time
 import numpy as np
 from scipy import optimize
-from spatialnde import geometry
 from spatialnde.coordframes import coordframe
 from spatialnde.ndeobj import ndepart
 
@@ -415,7 +414,7 @@ class AutoFiber:
                 vert = self.pois[i]
                 element = None
                 for j in range(0, self.vertexids.shape[0]):
-                    if geometry.point_in_polygon_3d(self.vertices[self.vertexids][j], vert, self.inplanemat[j]):
+                    if point_in_polygon_3d(self.vertices[self.vertexids][j], vert, self.inplanemat[j]):
                         element = j
                         continue
                 if element:
@@ -472,7 +471,7 @@ def calcorientations_abaqus(modellocs, vertices, vertexids, inplanemat, texcoord
             count += 1
 
         for j in polys:
-            if geometry.point_in_polygon_3d(vertices[vertexids][j], vert, inplanemat[j]):
+            if point_in_polygon_3d(vertices[vertexids][j], vert, inplanemat[j]):
                 element = j
                 continue
         if element is not None:
@@ -495,6 +494,7 @@ def calcunitvector(vector):
 
 
 def point_in_polygon_2d(vertices_rel_point):
+    import sys
     # Apply winding number algorithm.
     # This algorithm is selected -- in its most simple form --
     # because it is so  simple and robust in the case of the
@@ -572,6 +572,26 @@ def point_in_polygon_2d(vertices_rel_point):
                 return True
             else:
                 assert 0  # Should only be able to get cosparam = +/- 1.0 if abs(det) > 0.0 */
+                pass
+            pass
+        pass
+
+    windingnum = abs(windingnum) * (
+                1.0 / (2.0 * np.pi))  # divide out radians to number of winds; don't care about clockwise vs. ccw
+    if windingnum > .999 and windingnum < 1.001:
+        # Almost exactly one loop... got it!
+        return True
+    elif windingnum >= .001:
+        #
+        sys.stderr.write(
+            "spatialnde.geometry.point_in_polygon_2d() Got weird winding number of %e; assuming inaccurate calculation on polygon edge\n" % (
+                windingnum))
+        # Could also be self intersecting polygon
+        # got it !!!
+        return True
+
+    # If we got this far, the search failed
+    return False
 
 
 def point_in_polygon_3d(vertices, point, inplanemat):
