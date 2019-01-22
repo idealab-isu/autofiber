@@ -582,14 +582,14 @@ def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, 
     int_pnt = find_intpnt(pointuv, lnpoint, nextedge[0], nextedge[1])
 
     if parameterization:
-        af.georecord[element][0].append((pointuv, int_pnt))
+        fpoint, closest_point = calcclosestpoint(unitfiberdirection, point, element_vertices, af.facetnormals[element])
+        closest_point_idx = np.where((af.vertices == closest_point).all(axis=1))[0][0]
+
+        af.georecord[element][0].append((pointuv, int_pnt, point, unitfiberdirection, closest_point_idx))
         prev_lines = af.georecord.get(element)[0]
         for line in prev_lines:
             if check_intersection(pointuv, int_pnt, line[0], line[1]):
                 raise EdgeError
-
-        fpoint, closest_point = calcclosestpoint(unitfiberdirection, point, element_vertices, af.facetnormals[element])
-        closest_point_idx = np.where((af.vertices == closest_point).all(axis=1))[0][0]
 
         if np.isnan(fiberpoints_local[closest_point_idx]).all() or np.abs(fpoint[1]) < np.abs(fiberpoints_local[closest_point_idx][1]):
             fpoint_t = np.array([length + fpoint[0] + uv_start[0], fpoint[1] + uv_start[1]])
