@@ -373,15 +373,18 @@ class AutoFiber:
                     spoint = self.vertices[leftover_idxs[i]]
                     traveld = dlist[mind] / num_interpolate
 
+                    v2p = np.cross(min_geodesic[3], self.facetnormals[facet])
+
                     lstart_points = []
                     for j in range(1, num_interpolate):
-                        lstart_points.append(spoint + min_geodesic[3] * traveld * j)
+                        lstart_points.append(spoint - v2p * traveld * j)
 
+                    ints = []
                     for k in range(0, len(lstart_points)):
-                        unitfiberdirection = min_geodesic[3]
+                        unitfiberdirection = np.copy(min_geodesic[3])
                         point = lstart_points[k]
                         element = facet
-                        uv_start_i = self.geoparameterization[min_geodesic[4]]
+                        uv_start_i = np.copy(self.geoparameterization[min_geodesic[4]])
                         # Create an empty array of intersection points to visualize geodesics
                         int_pnts = np.array([lstart_points[k]])
 
@@ -410,7 +413,20 @@ class AutoFiber:
                             element = nextelement
                             p += 1
                         self.geoints.append(int_pnts)
+                        ints.append(int_pnts)
 
+                    # import matplotlib.pyplot as plt
+                    # from mpl_toolkits.mplot3d import axes3d
+                    #
+                    # fig = plt.figure()
+                    # ax = fig.add_subplot(111, projection='3d')
+                    # ax.scatter(self.vertices[leftover_idxs[i]][0], self.vertices[leftover_idxs[i]][1], self.vertices[leftover_idxs[i]][2], c="r")
+                    # ax.scatter(self.vertices[:, 0], self.vertices[:, 1], self.vertices[:, 2])
+                    # for l in ints:
+                    #     ax.plot(l[:, 0], l[:, 1], l[:, 2])
+                    # for p in lstart_points:
+                    #     ax.scatter(p[0], p[1], p[2])
+                    #
                     # pdb.set_trace()
         leftover_idxs = np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0]
         print(leftover_idxs.shape[0])
