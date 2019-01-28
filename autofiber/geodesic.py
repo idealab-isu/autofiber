@@ -546,7 +546,7 @@ def find_element_within(point, unitvector, normal, vertices, vertexids, facetnor
     return None, None
 
 
-def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, length, uv_start, parameterization=True, nan=False):
+def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, length, uv_start, parameterization=True):
     if parameterization and element not in list(af.georecord.keys()):
         af.georecord[element] = [[], None]
 
@@ -582,31 +582,38 @@ def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, 
     int_pnt = find_intpnt(pointuv, lnpoint, nextedge[0], nextedge[1])
 
     if parameterization:
-        fpoint, closest_point = calcclosestpoint(unitfiberdirection, point, element_vertices, af.facetnormals[element])
-        closest_point_idx = np.where((af.vertices == closest_point).all(axis=1))[0][0]
+        test_vertices = np.copy(element_vertices)
+        for p in range(0, element_vertices.shape[0]):
+            fpoint, closest_point = calcclosestpoint(unitfiberdirection, point, test_vertices, af.facetnormals[element])
+            closest_point_idx = np.where((af.vertices == closest_point).all(axis=1))[0][0]
 
-        af.georecord[element][0].append((pointuv, int_pnt, point, unitfiberdirection, closest_point_idx))
-        prev_lines = af.georecord.get(element)[0]
-        for line in prev_lines:
-            if check_intersection(pointuv, int_pnt, line[0], line[1]):
-                raise EdgeError
+            prev_lines = af.georecord.get(element)[0]
+            for line in prev_lines:
+                if check_intersection(pointuv, int_pnt, line[0], line[1]):
+                    raise EdgeError
 
-        if np.isnan(fiberpoints_local[closest_point_idx]).all() or np.abs(fpoint[1]) < np.abs(fiberpoints_local[closest_point_idx][1]):
-            fpoint_t = np.array([length + fpoint[0] + uv_start[0], fpoint[1] + uv_start[1]])
+            if np.isnan(fiberpoints_local[closest_point_idx]).all() or np.abs(fpoint[1]) < np.abs(fiberpoints_local[closest_point_idx][1]):
+                fpoint_t = np.array([length + fpoint[0] + uv_start[0], fpoint[1] + uv_start[1]])
 
-            fiberrec = np.copy(af.geoparameterization)
-            fiberrec[closest_point_idx] = fpoint_t
+                if ~np.isnan(fpoint_t).all():
+                    fiberrec = np.copy(af.geoparameterization)
+                    fiberrec[closest_point_idx] = fpoint_t
 
-            rel_uvw = np.pad(fiberrec[af.vertexids], [(0, 0), (0, 0), (0, 1)], "constant", constant_values=1)
-            vdir = 0.5 * np.linalg.det(rel_uvw)
-            if (np.sign(vdir) < 0).any():
-                pass
-            else:
-                fiberpoints_local[closest_point_idx] = fpoint
-                # For every iteration that isn't the first add the last fiberpoint.u and the u value of the very first point
-                af.geoparameterization[closest_point_idx] = fpoint_t
-                af.fiberdirections[element] = unitfiberdirection
-            del fiberrec
+                    rel_uvw = np.pad(fiberrec[af.vertexids], [(0, 0), (0, 0), (0, 1)], "constant", constant_values=1)
+                    vdir = 0.5 * np.linalg.det(rel_uvw)
+                    if (np.sign(vdir) < 0).any():
+                        test_vertices = np.delete(test_vertices, np.where((test_vertices == closest_point).all(axis=1))[0][0], axis=0)
+                        pass
+                    else:
+                        af.georecord[element][0].append(
+                            (pointuv, int_pnt, point, unitfiberdirection, closest_point_idx))
+                        fiberpoints_local[closest_point_idx] = fpoint
+                        # For every iteration that isn't the first add the last fiberpoint.u and the u value of the very first point
+                        af.geoparameterization[closest_point_idx] = fpoint_t
+                        af.fiberdirections[element] = unitfiberdirection
+                        del fiberrec
+                        break
+                    del fiberrec
 
     # Retrieve the 3d coordinates of the edge vertices
     nextedgec = af.vertices[af.vertexids[element, edge]]

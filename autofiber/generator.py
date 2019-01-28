@@ -350,8 +350,69 @@ class AutoFiber:
         mask[np.unique(self.surface_vertexids)] = False
         leftover_idxs = np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0]
         print("Cleaning up %s points" % leftover_idxs.size)
-        # timeout = 0
-        # while leftover_idxs.shape[0] > 0 and timeout < 50:
+
+        leftover_idxs = self.sup_geodesics(leftover_idxs, mask)
+        print("After step one: %s" % leftover_idxs.shape[0])
+
+        leftover_idxs = self.interpolate(leftover_idxs, mask)
+        print("After step two: %s" % leftover_idxs.shape[0])
+
+        leftover_idxs = self.average_fpoint(leftover_idxs, mask)
+        print("After step three: %s" % leftover_idxs.shape[0])
+
+        pdb.set_trace()
+        # assert np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0].size == 0
+
+    def interpolate(self, leftover_idxs, mask):
+        timeout = 0
+        while leftover_idxs.shape[0] > 0 and timeout < 50:
+            for i in range(0, leftover_idxs.shape[0]):
+                unassigned_facets = np.unique(np.where((self.vertexids == leftover_idxs[i]))[0])
+                done = False
+                for j in unassigned_facets:
+                    elementvertices = self.vertices[self.vertexids[j]]
+                    assigned_vertsids = np.where((~np.isnan(self.geoparameterization[self.vertexids[j]]).all(axis=1)))[0]
+                    if assigned_vertsids.shape[0] > 0:
+                        if not np.isnan(self.fiberdirections[j]).any():
+                            for k in assigned_vertsids:
+                                fdistance, closest_point = GEO.calcclosestpoint(self.fiberdirections[j], elementvertices[k],
+                                                                                np.array([self.vertices[leftover_idxs[i]]]),
+                                                                                self.facetnormals[j])
+                                unassigned_fpoint = self.geoparameterization[self.vertexids[j]][k] + fdistance
+
+                                fiberrec = np.copy(self.geoparameterization)
+                                fiberrec[leftover_idxs[i]] = unassigned_fpoint
+                                rel_uvw = np.pad(fiberrec[self.vertexids], [(0, 0), (0, 0), (0, 1)], "constant", constant_values=1).transpose(0, 2, 1)
+                                vdir = 0.5 * np.linalg.det(rel_uvw)
+                                if (vdir < 0).any():
+                                    pass
+                                else:
+                                    self.geoparameterization[leftover_idxs[i]] = unassigned_fpoint
+                                    done = True
+                                    break
+                        else:
+                            neighbors = GEO.find_neighbors(j, self.vertexids_indices, self.adjacencyidx)
+                            for neighbor in neighbors:
+                                if not np.isnan(self.fiberdirections[neighbor]).any():
+                                    est_fiberdir = GEO.rot_vector(self.facetnormals[j], self.facetnormals[neighbor],
+                                                                  self.fiberdirections[neighbor], force=True)
+                                    self.fiberdirections[j] = est_fiberdir
+                                    break
+                    if done:
+                        break
+            leftover_idxs = np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0]
+            timeout += 1
+        return leftover_idxs
+
+    def sup_geodesics(self, leftover_idxs, mask):
+        import pdb
+        import matplotlib.pyplot as plt
+        from mpl_toolkits.mplot3d import axes3d
+
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        # ax.scatter(self.vertices[:, 0], self.vertices[:, 1], self.vertices[:, 2])
+
         for i in range(0, leftover_idxs.shape[0]):
             leftover_neighbors = np.unique(np.where((self.vertexids == leftover_idxs[i]))[0])
             for facet in leftover_neighbors:
@@ -360,78 +421,96 @@ class AutoFiber:
                     geodesics = self.georecord[facet][0]
                     dlist = []
                     dlist_arrays = []
-                    for geodesic in geodesics:
-                        d2left = GEO.calcdistance(geodesic[3], geodesic[2], self.vertices[leftover_idxs[i]])
-                        d2left_perp = np.linalg.norm(d2left[0])
-                        dlist_arrays.append(d2left[0])
-                        dlist.append(d2left_perp)
+                    for g in range(0, len(geodesics)):
+                        if ~np.isnan(self.geoparameterization[geodesics[g][4]]).all():
+                            d2left = GEO.calcdistance(geodesics[g][3], geodesics[g][2], self.vertices[leftover_idxs[i]])
+                            d2left_perp = np.linalg.norm(d2left[0])
+                            dlist_arrays.append(d2left[0])
+                            dlist.append(d2left_perp)
 
-                    mind = np.argmin(dlist)
-                    min_geodesic = geodesics[mind]
+                    if len(dlist) > 0:
+                        mind = np.argmin(dlist)
+                        min_geodesic = geodesics[mind]
 
-                    num_interpolate = 10
-                    spoint = self.vertices[leftover_idxs[i]]
-                    traveld = dlist[mind] / num_interpolate
+                        num_interpolate = 10
+                        spoint = self.vertices[leftover_idxs[i]]
+                        traveld = dlist[mind] / num_interpolate
 
-                    v2p = np.cross(min_geodesic[3], self.facetnormals[facet])
+                        v2p = np.cross(min_geodesic[3], self.facetnormals[facet])
 
-                    lstart_points = []
-                    for j in range(1, num_interpolate):
-                        lstart_points.append(spoint - v2p * traveld * j)
+                        lstart_points = []
+                        for j in range(1, num_interpolate):
+                            gpoint = spoint - calcunitvector(v2p) * traveld * j
+                            if point_in_polygon_3d(self.vertices[self.vertexids[facet]], gpoint, self.inplanemat[facet]):
+                                lstart_points.append(spoint - v2p * traveld * j)
 
-                    ints = []
-                    for k in range(0, len(lstart_points)):
-                        unitfiberdirection = np.copy(min_geodesic[3])
-                        point = lstart_points[k]
-                        element = facet
-                        uv_start_i = np.copy(self.geoparameterization[min_geodesic[4]])
-                        # Create an empty array of intersection points to visualize geodesics
-                        int_pnts = np.array([lstart_points[k]])
+                        ints = []
+                        if len(lstart_points) > 0:
+                            for k in range(0, len(lstart_points)):
+                                unitfiberdirection = np.copy(min_geodesic[3])
+                                point = np.copy(lstart_points[(len(lstart_points)-1) - k])
+                                element = facet
+                                uv_start_i = np.copy(self.geoparameterization[min_geodesic[4]])
+                                # Create an empty array of intersection points to visualize geodesics
+                                int_pnts = np.array([lstart_points[(len(lstart_points)-1) - k]])
 
-                        length = 0
-                        p = 0
-                        while True:
-                            try:
-                                int_pnt_3d, nextunitvector, nextelement, fiberpoints_local = GEO.traverse_element(
-                                    self, element, point, unitfiberdirection, self.fiberpoints_local, length,
-                                    uv_start_i)
-                            except GEO.EdgeError:
-                                break
+                                length = 0
+                                p = 0
+                                while True:
+                                    try:
+                                        int_pnt_3d, nextunitvector, nextelement, fiberpoints_local = GEO.traverse_element(
+                                            self, element, point, unitfiberdirection, self.fiberpoints_local, length,
+                                            uv_start_i)
+                                    except GEO.EdgeError:
+                                        break
 
-                            # Update and store the calculated fiber points and the intersection points
-                            int_pnts = np.vstack((int_pnts, int_pnt_3d))
+                                    # Update and store the calculated fiber points and the intersection points
+                                    int_pnts = np.vstack((int_pnts, int_pnt_3d))
 
-                            # Calculate the new length of the fiber
-                            length = np.linalg.norm(int_pnt_3d - point) + length
+                                    # Calculate the new length of the fiber
+                                    length = np.linalg.norm(int_pnt_3d - point) + length
 
-                            if not nextelement:
-                                break
+                                    if not nextelement:
+                                        break
 
-                            # Update previous iteration values with the next iteration values
-                            point = int_pnt_3d
-                            unitfiberdirection = nextunitvector
-                            element = nextelement
-                            p += 1
-                        self.geoints.append(int_pnts)
-                        ints.append(int_pnts)
+                                    # Update previous iteration values with the next iteration values
+                                    point = int_pnt_3d
+                                    unitfiberdirection = nextunitvector
+                                    element = nextelement
+                                    p += 1
+                                self.geoints.append(int_pnts)
+                                ints.append(int_pnts)
 
-                    # import matplotlib.pyplot as plt
-                    # from mpl_toolkits.mplot3d import axes3d
-                    #
-                    # fig = plt.figure()
-                    # ax = fig.add_subplot(111, projection='3d')
-                    # ax.scatter(self.vertices[leftover_idxs[i]][0], self.vertices[leftover_idxs[i]][1], self.vertices[leftover_idxs[i]][2], c="r")
-                    # ax.scatter(self.vertices[:, 0], self.vertices[:, 1], self.vertices[:, 2])
-                    # for l in ints:
-                    #     ax.plot(l[:, 0], l[:, 1], l[:, 2])
-                    # for p in lstart_points:
-                    #     ax.scatter(p[0], p[1], p[2])
-                    #
-                    # pdb.set_trace()
+                                for l in ints:
+                                    ax.plot(l[:, 0], l[:, 1], l[:, 2])
+                                for p in lstart_points:
+                                    ax.scatter(p[0], p[1], p[2])
         leftover_idxs = np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0]
-        print(leftover_idxs.shape[0])
-        # timeout += 1
-        # assert np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0].size == 0
+        return leftover_idxs
+
+    def average_fpoint(self, leftover_idxs, mask):
+        for i in range(0, leftover_idxs.shape[0]):
+            neighbors = np.unique(np.where((self.vertexids == leftover_idxs[i]))[0])
+            neighbor_fpoint = self.geoparameterization[self.vertexids[neighbors]]
+            neighbor_fpoint = neighbor_fpoint.reshape(neighbor_fpoint.shape[0]*neighbor_fpoint.shape[1], 2)
+
+            count = ~np.isnan(neighbor_fpoint).all(axis=1)
+
+            average_fpoint = np.sum(neighbor_fpoint[count], axis=0)/neighbor_fpoint[count].shape[0]
+
+            fiberrec = np.copy(self.geoparameterization)
+            fiberrec[leftover_idxs[i]] = average_fpoint
+            rel_uvw = np.pad(fiberrec[self.vertexids], [(0, 0), (0, 0), (0, 1)], "constant", constant_values=1)
+            vdir = 0.5 * np.linalg.det(rel_uvw)
+
+            if (np.sign(vdir) < 0).any():
+                pass
+            else:
+                self.geoparameterization[leftover_idxs[i]] = average_fpoint
+
+            del fiberrec
+        leftover_idxs = np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0]
+        return leftover_idxs
 
     def fiberoptimize(self):
         def f(x, *args):

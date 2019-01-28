@@ -339,6 +339,6 @@ def grad(x, *args):
 # t3 = plt.Polygon(fres, color='g', fill=False)
 # plt.gca().add_patch(t3)
 #
-# sys.modules["__main__"].__dict__.update(globals())
-# sys.modules["__main__"].__dict__.update(locals())
-# raise ValueError()
+sys.modules["__main__"].__dict__.update(globals())
+sys.modules["__main__"].__dict__.update(locals())
+raise ValueError()
