@@ -135,14 +135,14 @@ class AutoFiber:
         self.cleanup()
 
         # Optimize the geodesic parametrization based on strain energy density
-        # self.fiberoptimize()
+        self.fiberoptimize()
 
         # With results we will calculate the fiber directions based on the available parametrizations
-        # self.calctransform(self.optimizedparameterization)
-        # self.orientations = calcorientations_abaqus(self.centroids, self.vertices, self.vertexids, self.inplanemat,
-        #                                             self.texcoords2inplane, self.obj.implpart.surfaces[0].boxes,
-        #                                             self.obj.implpart.surfaces[0].boxpolys,
-        #                                             self.obj.implpart.surfaces[0].boxcoords)
+        self.calctransform(self.optimizedparameterization)
+        self.orientations = calcorientations_abaqus(self.centroids, self.vertices, self.vertexids, self.inplanemat,
+                                                    self.texcoords2inplane, self.obj.implpart.surfaces[0].boxes,
+                                                    self.obj.implpart.surfaces[0].boxpolys,
+                                                    self.obj.implpart.surfaces[0].boxcoords)
 
         if self.save:
             np.save("orientation.npy", self.orientations)
@@ -160,15 +160,15 @@ class AutoFiber:
             for i in self.geoints:
                 ax.plot(i[:, 0], i[:, 1], i[:, 2])
 
-            # fig = plt.figure()
-            # plt.scatter(self.geoparameterization[:, 0], self.geoparameterization[:, 1])
-            # plt.scatter(self.optimizedparameterization[:, 0], self.optimizedparameterization[:, 1])
+            fig = plt.figure()
+            plt.scatter(self.geoparameterization[:, 0], self.geoparameterization[:, 1])
+            plt.scatter(self.optimizedparameterization[:, 0], self.optimizedparameterization[:, 1])
 
-            # fig = plt.figure()
-            # ax = fig.add_subplot(111, projection='3d')
-            # ax.scatter(self.vertices[:, 0], self.vertices[:, 1], self.vertices[:, 2])
-            # ax.quiver(self.centroids[:, 0], self.centroids[:, 1], self.centroids[:, 2], self.orientations[:, 0],
-            #           self.orientations[:, 1], self.orientations[:, 2], length=0.1)
+            fig = plt.figure()
+            ax = fig.add_subplot(111, projection='3d')
+            ax.scatter(self.vertices[:, 0], self.vertices[:, 1], self.vertices[:, 2])
+            ax.quiver(self.centroids[:, 0], self.centroids[:, 1], self.centroids[:, 2], self.orientations[:, 0],
+                      self.orientations[:, 1], self.orientations[:, 2], length=0.1)
             plt.show()
 
     def loadobj(self):
@@ -360,8 +360,7 @@ class AutoFiber:
         leftover_idxs = self.average_fpoint(leftover_idxs, mask)
         print("After step three: %s" % leftover_idxs.shape[0])
 
-        pdb.set_trace()
-        # assert np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0].size == 0
+        assert np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0].size == 0
 
     def interpolate(self, leftover_idxs, mask):
         timeout = 0
@@ -405,19 +404,11 @@ class AutoFiber:
         return leftover_idxs
 
     def sup_geodesics(self, leftover_idxs, mask):
-        import pdb
-        import matplotlib.pyplot as plt
-        from mpl_toolkits.mplot3d import axes3d
-
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        # ax.scatter(self.vertices[:, 0], self.vertices[:, 1], self.vertices[:, 2])
-
         for i in range(0, leftover_idxs.shape[0]):
             leftover_neighbors = np.unique(np.where((self.vertexids == leftover_idxs[i]))[0])
             for facet in leftover_neighbors:
                 if facet in self.georecord.keys():
-                    # [pointuv (bary), int_pnt (bary), point (3D), unitfiberdirection (3D), closest_point_idx (i)]
+                    # [pointuv (bary), int_pnt (bary), point (3D), unitfiberdirection (3D), closest_point_idx (idx), uv_start, length]
                     geodesics = self.georecord[facet][0]
                     dlist = []
                     dlist_arrays = []
@@ -425,7 +416,7 @@ class AutoFiber:
                         if ~np.isnan(self.geoparameterization[geodesics[g][4]]).all():
                             d2left = GEO.calcdistance(geodesics[g][3], geodesics[g][2], self.vertices[leftover_idxs[i]])
                             d2left_perp = np.linalg.norm(d2left[0])
-                            dlist_arrays.append(d2left[0])
+                            dlist_arrays.append(d2left)
                             dlist.append(d2left_perp)
 
                     if len(dlist) > 0:
@@ -450,7 +441,7 @@ class AutoFiber:
                                 unitfiberdirection = np.copy(min_geodesic[3])
                                 point = np.copy(lstart_points[(len(lstart_points)-1) - k])
                                 element = facet
-                                uv_start_i = np.copy(self.geoparameterization[min_geodesic[4]])
+                                uv_start_i = np.array([min_geodesic[5][0] + min_geodesic[6] + dlist_arrays[mind][1], min_geodesic[5][1] - (k * traveld)])
                                 # Create an empty array of intersection points to visualize geodesics
                                 int_pnts = np.array([lstart_points[(len(lstart_points)-1) - k]])
 
@@ -480,11 +471,6 @@ class AutoFiber:
                                     p += 1
                                 self.geoints.append(int_pnts)
                                 ints.append(int_pnts)
-
-                                for l in ints:
-                                    ax.plot(l[:, 0], l[:, 1], l[:, 2])
-                                for p in lstart_points:
-                                    ax.scatter(p[0], p[1], p[2])
         leftover_idxs = np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0]
         return leftover_idxs
 

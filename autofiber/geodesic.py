@@ -606,7 +606,7 @@ def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, 
                         pass
                     else:
                         af.georecord[element][0].append(
-                            (pointuv, int_pnt, point, unitfiberdirection, closest_point_idx))
+                            (pointuv, int_pnt, point, unitfiberdirection, closest_point_idx, uv_start, length))
                         fiberpoints_local[closest_point_idx] = fpoint
                         # For every iteration that isn't the first add the last fiberpoint.u and the u value of the very first point
                         af.geoparameterization[closest_point_idx] = fpoint_t
