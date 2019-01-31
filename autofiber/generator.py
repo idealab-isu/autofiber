@@ -350,6 +350,7 @@ class AutoFiber:
         mask[np.unique(self.surface_vertexids)] = False
         leftover_idxs = np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0]
         print("Cleaning up %s points" % leftover_idxs.size)
+        print(leftover_idxs)
 
         leftover_idxs = self.sup_geodesics(leftover_idxs, mask)
         print("After step one: %s" % leftover_idxs.shape[0])
@@ -360,7 +361,13 @@ class AutoFiber:
         leftover_idxs = self.average_fpoint(leftover_idxs, mask)
         print("After step three: %s" % leftover_idxs.shape[0])
 
-        assert np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0].size == 0
+        self.manual(leftover_idxs, mask)
+
+        rel_uvw = np.pad(self.geoparameterization[self.vertexids], [(0, 0), (0, 0), (0, 1)], "constant", constant_values=1).transpose(0, 2, 1)
+        vdir = 0.5 * np.linalg.det(rel_uvw)
+
+        assert (vdir > 0).any()
+        # assert np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0].size == 0
 
     def interpolate(self, leftover_idxs, mask):
         timeout = 0
@@ -497,6 +504,40 @@ class AutoFiber:
             del fiberrec
         leftover_idxs = np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0]
         return leftover_idxs
+
+    def manual(self, leftover_idxs, mask):
+        import pdb
+        for idx in leftover_idxs:
+            neighbors = np.unique(np.where((self.vertexids == idx))[0])
+            fpoint_neighbors = self.geoparameterization[self.vertexids[neighbors]]
+            vpoint_neighbors = self.vertices[self.vertexids[neighbors]]
+            print(self.vertexids[neighbors])
+            import matplotlib.pyplot as plt
+            from mpl_toolkits.mplot3d import axes3d
+
+            # fig = plt.figure()
+            # for neighbor in range(0, fpoint_neighbors.shape[0]):
+            #     plt.plot(fpoint_neighbors[neighbor][:, 0], fpoint_neighbors[neighbor][:, 1])
+            #     ax.scatter(vpoint_neighbors[neighbor][:, 0], vpoint_neighbors[neighbor][:, 1], vpoint_neighbors[neighbor][:, 2])
+            #     print(fpoint_neighbors[neighbor], vpoint_neighbors[neighbor])
+
+            fig = plt.figure()
+            ax = fig.add_subplot(111, projection='3d')
+            ax.scatter(self.vertices[:, 0], self.vertices[:, 1], self.vertices[:, 2], alpha=0.01)
+            ax.scatter(self.startpoints[:, 0], self.startpoints[:, 1], self.startpoints[:, 2])
+            for i in self.geoints:
+                ax.plot(i[:, 0], i[:, 1], i[:, 2])
+
+            fig = plt.figure()
+            for i in range(0, self.vertexids.shape[0]):
+                plt.plot(self.geoparameterization[self.vertexids[i]][:, 0], self.geoparameterization[self.vertexids[i]][:, 1])
+
+            for neighbor in range(0, fpoint_neighbors.shape[0]):
+                plt.scatter(fpoint_neighbors[neighbor][:, 0], fpoint_neighbors[neighbor][:, 1])
+                ax.scatter(vpoint_neighbors[neighbor][:, 0], vpoint_neighbors[neighbor][:, 1], vpoint_neighbors[neighbor][:, 2])
+                # print(fpoint_neighbors[neighbor], vpoint_neighbors[neighbor])
+
+            pdb.set_trace()
 
     def fiberoptimize(self):
         def f(x, *args):
