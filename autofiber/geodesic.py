@@ -487,7 +487,6 @@ def find_element_vertex(vertex, unitvector, curnormal, vertices, vertexids, face
         element = int(element[np.argmin(normal_angles)])
     elif element.shape[0] == 0:
         print("### No elements found ###")
-        # pdb.set_trace()
         element = None
     else:
         element = int(element[0])
@@ -508,58 +507,42 @@ def find_element_within(point, unitvector, normal, vertices, vertexids, facetnor
     vertexid = np.where(np.linalg.norm(vertices - point, axis=1) == np.min(np.linalg.norm(vertices - point, axis=1)))
     neighbors = np.where(vertexids == vertexid)[0]
 
-    import matplotlib.pyplot as plt
-    from mpl_toolkits.mplot3d import axes3d
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    vertsn = vertices[vertexids[neighbors]]
-    ax.scatter(vertsn.reshape(vertsn.shape[0]*vertsn.shape[1], vertsn.shape[2])[:, 0], vertsn.reshape(vertsn.shape[0]*vertsn.shape[1], vertsn.shape[2])[:, 1], vertsn.reshape(vertsn.shape[0]*vertsn.shape[1], vertsn.shape[2])[:, 2], alpha=0.1)
-    ax.scatter(point[0], point[1], point[2])
-
     for i in neighbors:
         if check_inplane_pnt(point, vertices[vertexids[i, :]]):
-            print("point %s in plane with element %s" % (point, i))
+            # print("point %s in plane with element %s" % (point, i))
             if geometry.point_in_polygon_3d(vertices[vertexids[i]], point, inplanemat[i]):
-                print("point in element")
+                # print("point in element")
                 if check_inplane_vector(unitvector, facetnormals[i]):
-                    print("vector in plane")
+                    # print("vector in plane")
                     return i, unitvector
                 else:
-                    print("vector not in plane...adjusting")
+                    # print("vector not in plane...adjusting")
                     try:
                         newvector = rot_vector(normal, facetnormals[i], unitvector)
                     except EdgeError:
                         continue
                     if check_inplane_vector(newvector, facetnormals[i]):
-                        print("vector adjusted")
+                        # print("vector adjusted")
                         return i, newvector
         else:
-            print("point not in plane...attempting to adjust")
+            # print("point not in plane...attempting to adjust")
             test, projpnt = check_proj_inplane_pnt(point, vertices[vertexids[i]])
             if test:
-                print("point in plane with element %s" % i)
-                ax.scatter(vertices[vertexids[i]][:, 0], vertices[vertexids[i]][:, 1], vertices[vertexids[i]][:, 2])
-                ax.scatter(projpnt[0], projpnt[1], projpnt[2])
+                # print("point in plane with element %s" % i)
                 if geometry.point_in_polygon_3d(vertices[vertexids[i]], projpnt, inplanemat[i]):
-                    print("point in element")
+                    # print("point in element")
                     if check_inplane_vector(unitvector, facetnormals[i]):
-                        print("vector in plane")
+                        # print("vector in plane")
                         return i, unitvector
                     else:
-                        print("vector not in plane...adjusting")
+                        # print("vector not in plane...adjusting")
                         try:
                             newvector = rot_vector(normal, facetnormals[i], unitvector)
                         except EdgeError:
                             continue
                         if check_inplane_vector(newvector, facetnormals[i]):
-                            print("vector adjusted")
+                            # print("vector adjusted")
                             return i, newvector
-                        else:
-                            ax.quiver(projpnt[0], projpnt[1], projpnt[2], newvector[0], newvector[1], newvector[2])
-                            ax.quiver(projpnt[0], projpnt[1], projpnt[2], unitvector[0], unitvector[1], unitvector[2])
-                            import pdb
-                            pdb.set_trace()
     return None, None
 
 
@@ -607,7 +590,7 @@ def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, 
                     raise EdgeError
 
             if np.isnan(fiberpoints_local[closest_point_idx]).all() or np.abs(fpoint[1]) < np.abs(fiberpoints_local[closest_point_idx][1]):
-                fpoint_t = np.array([direction*(length + fpoint[0] + uv_start[0]), fpoint[1] + uv_start[1]])
+                fpoint_t = np.array([length + direction*fpoint[0] + uv_start[0], direction*fpoint[1] + uv_start[1]])
 
                 if ~np.isnan(fpoint_t).all():
                     fiberrec = np.copy(af.geoparameterization)
