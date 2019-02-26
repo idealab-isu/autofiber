@@ -135,14 +135,14 @@ class AutoFiber:
         self.cleanup()
 
         # Optimize the geodesic parametrization based on strain energy density
-        # self.fiberoptimize()
+        self.fiberoptimize()
 
         # With results we will calculate the fiber directions based on the available parametrizations
-        # self.calctransform(self.optimizedparameterization)
-        # self.orientations = calcorientations_abaqus(self.centroids, self.vertices, self.vertexids, self.inplanemat,
-        #                                             self.texcoords2inplane, self.obj.implpart.surfaces[0].boxes,
-        #                                             self.obj.implpart.surfaces[0].boxpolys,
-        #                                             self.obj.implpart.surfaces[0].boxcoords)
+        self.calctransform(self.optimizedparameterization)
+        self.orientations = calcorientations_abaqus(self.centroids, self.vertices, self.vertexids, self.inplanemat,
+                                                    self.texcoords2inplane, self.obj.implpart.surfaces[0].boxes,
+                                                    self.obj.implpart.surfaces[0].boxpolys,
+                                                    self.obj.implpart.surfaces[0].boxcoords)
 
         if self.save:
             np.save("orientation.npy", self.orientations)
@@ -163,13 +163,13 @@ class AutoFiber:
             fig = plt.figure()
             plt.scatter(self.geoparameterization[:, 0], self.geoparameterization[:, 1])
             plt.scatter(self.startuv[:, 0], self.startuv[:, 1])
-            # plt.scatter(self.optimizedparameterization[:, 0], self.optimizedparameterization[:, 1])
-            #
-            # fig = plt.figure()
-            # ax = fig.add_subplot(111, projection='3d')
-            # ax.scatter(self.vertices[:, 0], self.vertices[:, 1], self.vertices[:, 2])
-            # ax.quiver(self.centroids[:, 0], self.centroids[:, 1], self.centroids[:, 2], self.orientations[:, 0],
-            #           self.orientations[:, 1], self.orientations[:, 2], length=0.1)
+            plt.scatter(self.optimizedparameterization[:, 0], self.optimizedparameterization[:, 1])
+
+            fig = plt.figure()
+            ax = fig.add_subplot(111, projection='3d')
+            ax.scatter(self.vertices[:, 0], self.vertices[:, 1], self.vertices[:, 2])
+            ax.quiver(self.centroids[:, 0], self.centroids[:, 1], self.centroids[:, 2], self.orientations[:, 0],
+                      self.orientations[:, 1], self.orientations[:, 2], length=0.1)
             plt.show()
 
     def loadobj(self):
@@ -455,6 +455,7 @@ class AutoFiber:
                                         est_fiberdir = GEO.rot_vector(self.facetnormals[j], self.facetnormals[neighbor],
                                                                       self.fiberdirections[neighbor], force=True)
                                         self.fiberdirections[j] = est_fiberdir
+                                        fiberdirection = est_fiberdir
                                         break
 
                         for k in assigned_vertsids:
