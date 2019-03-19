@@ -41,7 +41,11 @@ def computeglobalstrain(normalized_2d, fiberpoints, vertexids, stiffness_tensor)
 
     areas = 0.5 * np.linalg.det(rel_uvw)
 
-    F = np.matmul(rel_3d, np.linalg.inv(rel_uvw))[:, :2, :2]
+    try:
+        F = np.matmul(rel_3d, np.linalg.inv(rel_uvw))[:, :2, :2]
+    except np.linalg.LinAlgError:
+        import pdb
+        pdb.set_trace()
 
     strain = 0.5 * (np.matmul(F.transpose(0, 2, 1), F) - np.identity(F.shape[1]))
 
@@ -110,7 +114,7 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
     return -1*point_strain_grad.flatten()
 
 
-def optimize(f, grad, x_0, eps=1e-7):
+def optimize(f, grad, x_0, eps=1e-5, precision=1e-3, maxiters=1e4):
     import pdb
     import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d import axes3d
@@ -119,21 +123,25 @@ def optimize(f, grad, x_0, eps=1e-7):
     b = f(x)
     print("Starting Energy: %s" % b)
 
-    its = 10
-    strains = np.zeros(its)
-    for i in range(0, its):
+    iters = 0
+    b0 = np.inf
+    b = 0.0
+    strains = np.empty((0))
+    while abs(b - b0) > precision or iters < maxiters:
+        b0 = b
         cur_grad = grad(x)
         x = x - eps * cur_grad
         b = f(x)
 
-        strains[i] = b
         print("Current Strain Energy: %s" % b)
+        strains = np.append(strains, b)
+        iters += 1
 
     fig = plt.figure()
     plt.scatter(x_0[:, 0], x_0[:, 1])
     plt.scatter(x.reshape(x_0.shape)[:, 0], x.reshape(x_0.shape)[:, 1])
 
     fig = plt.figure()
-    plt.plot(range(0, its), strains)
+    plt.plot(range(0, strains.shape[0]), strains)
 
     return x.reshape(x_0.shape)

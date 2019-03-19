@@ -509,39 +509,39 @@ def find_element_within(point, unitvector, normal, vertices, vertexids, facetnor
 
     for i in neighbors:
         if check_inplane_pnt(point, vertices[vertexids[i, :]]):
-            print("point %s in plane with element %s" % (point, i))
+            # print("point %s in plane with element %s" % (point, i))
             if geometry.point_in_polygon_3d(vertices[vertexids[i]], point, inplanemat[i]):
-                print("point in element")
+                # print("point in element")
                 if check_inplane_vector(unitvector, facetnormals[i]):
-                    print("vector in plane")
+                    # print("vector in plane")
                     return i, unitvector
                 else:
-                    print("vector not in plane...adjusting")
+                    # print("vector not in plane...adjusting")
                     try:
                         newvector = rot_vector(normal, facetnormals[i], unitvector)
                     except EdgeError:
                         continue
                     if check_inplane_vector(newvector, facetnormals[i]):
-                        print("vector adjusted")
+                        # print("vector adjusted")
                         return i, newvector
         else:
-            print("point not in plane...attempting to adjust")
+            # print("point not in plane...attempting to adjust")
             test, projpnt = check_proj_inplane_pnt(point, vertices[vertexids[i]])
             if test:
-                print("point in plane with element %s" % i)
+                # print("point in plane with element %s" % i)
                 if geometry.point_in_polygon_3d(vertices[vertexids[i]], projpnt, inplanemat[i]):
-                    print("point in element")
+                    # print("point in element")
                     if check_inplane_vector(unitvector, facetnormals[i]):
-                        print("vector in plane")
+                        # print("vector in plane")
                         return i, unitvector
                     else:
-                        print("vector not in plane...adjusting")
+                        # print("vector not in plane...adjusting")
                         try:
                             newvector = rot_vector(normal, facetnormals[i], unitvector)
                         except EdgeError:
                             continue
                         if check_inplane_vector(newvector, facetnormals[i]):
-                            print("vector adjusted")
+                            # print("vector adjusted")
                             return i, newvector
     return None, None
 
@@ -562,7 +562,7 @@ def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, 
     pointuv = np.array(calcbarycentric(point, element_vertices))
 
     # Calculate the barycentric direction for the current 3d fiber direction vector
-    duv = np.array(calcbarycentricdirection(unitfiberdirection, element_vertices))
+    duv = calcunitvector(np.array(calcbarycentricdirection(unitfiberdirection, element_vertices)))
 
     # Calculate another point in the direction of the fiber in order to calculate intersection point later
     lnpoint = pointuv + duv * 1
