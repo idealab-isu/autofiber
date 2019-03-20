@@ -223,7 +223,7 @@ class AutoFiber:
                 closestvertex = self.vertices[closestvertex_ind[0], :][0]
 
                 # TODO: Offset direction
-                point = closestvertex + initdirection * self.offset
+                point = closestvertex + calcunitvector(initdirection + pointdirection) * self.offset
 
                 # Determine if start point is on a vertex or not then perform
                 # the necessary calculation to find the next element
@@ -283,7 +283,7 @@ class AutoFiber:
                                 self.sfiberdirections = np.vstack((self.sfiberdirections, selementvec))
                                 break
                             else:
-                                if not nextelement:
+                                if nextelement is None:
                                     raise GEO.EdgeError
                                 point = int_pnt_3d
                                 element = nextelement
@@ -292,6 +292,8 @@ class AutoFiber:
                         break
                     self.startuv = np.vstack((self.startuv, np.array([cfpoint[0], np.sign(self.fiberint / np.cos(angle)) * self.fiberint * p + cfpoint[1]])))
                     p += 1
+        if self.startpoints.shape[0] < 1:
+            raise IndexError("No geodesic start points found.")
 
     def determine_surface(self, initdirection):
         # Determine if start point is on a vertex or not then perform the necessary calculation to find the next element
@@ -342,7 +344,7 @@ class AutoFiber:
                 # Calculate the new length of the fiber
                 length = np.linalg.norm(int_pnt_3d - point) + length
 
-                if not nextelement:
+                if nextelement is None:
                     break
 
                 # Update previous iteration values with the next iteration values
@@ -373,7 +375,7 @@ class AutoFiber:
                 # Calculate the new length of the fiber
                 length = -1*np.linalg.norm(int_pnt_3d - point) + length
 
-                if not nextelement:
+                if nextelement is None:
                     break
 
                 # Update previous iteration values with the next iteration values
@@ -488,6 +490,7 @@ class AutoFiber:
         plt.title("TEST")
 
         ax.scatter(self.vertices[:, 0], self.vertices[:, 1], self.vertices[:, 2], alpha=0.1)
+        ax.scatter(self.vertices[leftover_idxs][:, 0], self.vertices[leftover_idxs][:, 1], self.vertices[leftover_idxs][:, 2])
 
         self.fiberint = np.inf
 
@@ -497,7 +500,6 @@ class AutoFiber:
 
             fiberdirections = self.fiberdirections[leftover_neighbors]
             neighbors = leftover_neighbors[~np.isnan(fiberdirections).all(axis=1)]
-
             for element in neighbors:
                 testpnt = point + self.fiberdirections[element] * self.offset
                 res = point_in_polygon_3d(self.vertices[self.vertexids[element]], testpnt, self.inplanemat[element])
@@ -514,21 +516,22 @@ class AutoFiber:
                     cfpoint = np.array([0.0, 0.0])
                     cfpoint[0] = self.geoparameterization[closest_geodesic[4]][0] + distances[1]
 
-                    testval = np.dot(calcunitvector(np.cross(initdirection, distances[0])), normal)
+                    testval = np.dot(calcunitvector(np.cross(initdirection, distances[0])), normal) * -1*np.sign(self.geoparameterization[closest_geodesic[4]][1])
 
                     cfpoint[1] = self.geoparameterization[closest_geodesic[4]][1] + testval * np.linalg.norm(distances[0])
-                    # print(cfpoint)
 
+                    ax.scatter(self.vertices[closest_geodesic[4]][0], self.vertices[closest_geodesic[4]][1], self.vertices[closest_geodesic[4]][2])
                     ax.quiver(point[0], point[1], point[2], initdirection[0], initdirection[1], initdirection[2])
 
                     print(point)
+                    print((testval * np.linalg.norm(distances[0]), distances[1]))
                     print(cfpoint)
                     print(initdirection)
                     print("")
 
-                    self.find_startpoints(point, initdirection, surface_normal, cfpoint)
+                    self.find_startpoints(point, initdirection, normal, cfpoint)
 
-        pdb.set_trace()
+        # pdb.set_trace()
 
         print(self.startpoints.shape[0])
         self.calc_geodesics(loc)
@@ -576,18 +579,25 @@ class AutoFiber:
             return OP.computeglobalstrain(self.normalized_2d, x, self.vertexids, self.stiffness_tensor)
 
         def gradf(x, *args):
-            return OP.computeglobalstrain_grad(self.normalized_2d, x, self.vertexids, self.stiffness_tensor)
+            oc = np.argmin(np.linalg.norm(self.geoparameterization, axis=1))
+            return OP.computeglobalstrain_grad(self.normalized_2d, x, self.vertexids, self.stiffness_tensor, oc)
 
         start_time = time.time()
         print("Optimizing...")
-        # self.geoparameterization[0][0] += 0.01 * 6
-        # res = optimize.minimize(f, self.geoparameterization, jac=gradf, method="CG")
-        # print("Final Strain Energy Value: %f J/m" % res.fun)
-        # print(res)
-        # self.optimizedparameterization = res.x.reshape(self.geoparameterization.shape)
+        # self.geoparameterization[0][0] += 0.01 * 10
 
-        import pdb
-        self.optimizedparameterization = OP.optimize(f, gradf, self.geoparameterization, eps=1e-8)
+        initenergy = OP.computeglobalstrain(self.normalized_2d, self.geoparameterization.flatten(), self.vertexids, self.stiffness_tensor)
+        print("Initial strain energy: %s J/m" % initenergy)
+
+        print("Gradient Check: %s" % optimize.check_grad(f, gradf, self.geoparameterization.flatten()))
+
+        # res = optimize.fmin_cg(f, self.geoparameterization, fprime=gradf, full_output=True)
+        # print("Final Strain Energy Value: %f J/m" % res[1])
+        # print(res)
+        # self.optimizedparameterization = res[0].reshape(self.geoparameterization.shape)
+
+        # import pdb
+        self.optimizedparameterization = OP.optimize(f, gradf, self.geoparameterization, eps=1e-8, precision=1e-5, maxiters=np.inf)
         # pdb.set_trace()
 
         stop_time = time.time()

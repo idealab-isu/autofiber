@@ -91,7 +91,7 @@ def rot_vector(oldnormal, newnormal, vector, force=False):
         cosphi = np.dot(oldnormal, newnormal)
         a_hat = vector_a/sinphi
         if np.arccos(cosphi) >= np.deg2rad(85) and not force:
-            # print("### Crossed a 90 degree or greater edge ###")
+            print("Edge detected...geodesic path completed")
             raise EdgeError
         else:
             return calcunitvector(vector * cosphi - np.cross(vector, a_hat) * sinphi + a_hat * np.dot(vector, a_hat) * (1 - cosphi))
@@ -211,12 +211,13 @@ def find_edge(point, direction, error):
     elif d2 > error and (d2 <= d0 or d0 <= error) and (d2 <= d1 or d1 <= error):
         return 2
     elif d0 == -1 or d1 == -1 or d2 == -1:
-        raise EdgeError("### Trying to follow an edge, bad direction? ###")
+        print("Following an edge...terminating geodesicf")
+        raise EdgeError
     elif d0 < 0 and d1 < 0 and d2 < 0:
         return find_edge(point, -direction, error)
     else:
-        # pdb.set_trace()
-        raise EdgeError('### Something weird has happened ###')
+        print("Unknown error has occured...")
+        raise EdgeError()
 
 
 def find_neighbors(element, vertexids_indices, adjacencyidx):
@@ -419,8 +420,8 @@ def check_inplane_pnt(point, element_vertices):
     detarray = np.vstack((element_vertices, point)).T
     detarray = np.vstack((detarray, np.ones(detarray.shape[1])))
     det = np.linalg.det(detarray)
-    err = 1e-9
-    if det == 0 or -err < det < err:
+    err = 1e-10
+    if det == 0 or np.abs(det) < err:
         return True
     else:
         return False
@@ -587,6 +588,7 @@ def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, 
             prev_lines = af.georecord.get(element, [[], None])[0]
             for line in prev_lines:
                 if check_intersection(pointuv, int_pnt, line[0], line[1]):
+                    print("Intersection detected...terminating current geodesic")
                     raise EdgeError
 
             if np.isnan(fiberpoints_local[closest_point_idx]).all() or np.abs(fpoint[1]) < np.abs(fiberpoints_local[closest_point_idx][1]):
@@ -623,6 +625,7 @@ def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, 
     all_vertices = af.vertices[af.vertexids[neighbors]]
     # Find which element is across the intersected edge
     nextelement = None
+    import pdb
     for i in range(0, all_vertices.shape[0]):
         # Check for the first vertex of the edge
         test = np.linalg.norm(all_vertices[i] - nextedgec[0], axis=1)
@@ -642,6 +645,9 @@ def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, 
     # Rotate current 3d fiber vector to match the plane of the next element
     nextunitvector = rot_vector(af.facetnormals[element], af.facetnormals[nextelement], unitfiberdirection)
 
-    if 0 in np.linalg.norm(af.vertices - int_pnt_3d, axis=1):
-        print("### Encountered a vertex ###")
+    if (np.abs(np.linalg.norm(af.vertices - int_pnt_3d, axis=1)) < 1e-6).any():
+        # import pdb
+        # pdb.set_trace()
+        # print("### Encountered a vertex ###")
+        pass
     return int_pnt_3d, nextunitvector, nextelement, fiberpoints_local

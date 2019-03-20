@@ -41,12 +41,10 @@ def computeglobalstrain(normalized_2d, fiberpoints, vertexids, stiffness_tensor)
 
     areas = 0.5 * np.linalg.det(rel_uvw)
 
-    try:
-        F = np.matmul(rel_3d, np.linalg.inv(rel_uvw))[:, :2, :2]
-    except np.linalg.LinAlgError:
-        import pdb
-        pdb.set_trace()
+    F = np.matmul(rel_3d, np.linalg.inv(rel_uvw))[:, :2, :2]
 
+    # We can exclude the rotation of F by multiplying by it's transpose
+    # https://en.wikipedia.org/wiki/Finite_strain_theory
     strain = 0.5 * (np.matmul(F.transpose(0, 2, 1), F) - np.identity(F.shape[1]))
 
     m = np.array([1.0, 1.0, 0.5])[np.newaxis].T
@@ -66,7 +64,7 @@ for j in range(0, 3):
         duvw_duij_t[j*2+i, i, j] = 1
 
 
-def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_tensor):
+def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_tensor, oc):
     element_vertices_uv = fiberpoints.reshape(fiberpoints.shape[0]/2, 2)[vertexids]
 
     centroid_2d = np.sum(normalized_2d, axis=1) / 3
@@ -91,6 +89,7 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
 
     F = np.matmul(rel_3d, np.linalg.inv(rel_uvw))[:, :2, :2]
 
+    # We can exclude the rotation of F by multiplying by it's transpose
     strain = 0.5 * (np.matmul(F.transpose(0, 2, 1), F) - np.identity(F.shape[1]))
 
     m = np.array([1.0, 1.0, 0.5])[np.newaxis].T
@@ -111,6 +110,10 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
         ele_strain_grad = dE_du[i]
 
         point_strain_grad[ele_vertices] = point_strain_grad[ele_vertices] + ele_strain_grad
+
+    # point_strain_grad[oc][0] = 0.0
+    # point_strain_grad[oc][1] = 0.0
+
     return -1*point_strain_grad.flatten()
 
 
@@ -127,13 +130,15 @@ def optimize(f, grad, x_0, eps=1e-5, precision=1e-3, maxiters=1e4):
     b0 = np.inf
     b = 0.0
     strains = np.empty((0))
-    while abs(b - b0) > precision or iters < maxiters:
+    while abs(b - b0) > precision and iters < maxiters:
         b0 = b
         cur_grad = grad(x)
         x = x - eps * cur_grad
         b = f(x)
 
-        print("Current Strain Energy: %s" % b)
+        print("Residual: %s" % abs(b - b0))
+
+        # print("Current Strain Energy: %s" % b)
         strains = np.append(strains, b)
         iters += 1
 
