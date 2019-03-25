@@ -111,8 +111,8 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
 
         point_strain_grad[ele_vertices] = point_strain_grad[ele_vertices] + ele_strain_grad
 
-    # point_strain_grad[oc][0] = 0.0
-    # point_strain_grad[oc][1] = 0.0
+    point_strain_grad[oc][0] = 0.0
+    point_strain_grad[oc][1] = 0.0
 
     return -1*point_strain_grad.flatten()
 
