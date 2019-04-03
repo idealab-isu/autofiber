@@ -142,11 +142,11 @@ def optimize(f, grad, x_0, eps=1e-5, precision=1e-3, maxiters=1e4):
         strains = np.append(strains, b)
         iters += 1
 
-    fig = plt.figure()
-    plt.scatter(x_0[:, 0], x_0[:, 1])
-    plt.scatter(x.reshape(x_0.shape)[:, 0], x.reshape(x_0.shape)[:, 1])
+    # fig = plt.figure()
+    # plt.scatter(x_0[:, 0], x_0[:, 1])
+    # plt.scatter(x.reshape(x_0.shape)[:, 0], x.reshape(x_0.shape)[:, 1])
 
-    fig = plt.figure()
-    plt.plot(range(0, strains.shape[0]), strains)
+    # fig = plt.figure()
+    # plt.plot(range(0, strains.shape[0]), strains)
 
     return x.reshape(x_0.shape)

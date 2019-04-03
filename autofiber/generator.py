@@ -122,11 +122,11 @@ class AutoFiber:
         else:
             self.orientations = np.zeros(self.centroids.shape)
 
+        # Determine which surface we will be laying the geodesics upon
+        self.determine_surface(initpoint, initdirection)
+
         # Find start points for all geodesics
         self.find_startpoints(initpoint, initdirection, initnormal, np.array([0.0, 0.0]))
-
-        # Determine which surface we will be laying the geodesics upon
-        self.determine_surface(initdirection)
 
         # Calculate each geodesic across the surface
         self.calc_geodesics(0)
@@ -158,6 +158,7 @@ class AutoFiber:
             ax.scatter(self.vertices[:, 0], self.vertices[:, 1], self.vertices[:, 2])
             ax.scatter(initpoint[0], initpoint[1], initpoint[2])
             ax.scatter(self.startpoints[:, 0], self.startpoints[:, 1], self.startpoints[:, 2])
+            # ax.quiver(self.centroids[:, 0], self.centroids[:, 1], self.centroids[:, 2], self.fiberdirections[:, 0], self.fiberdirections[:, 1], self.fiberdirections[:, 2])
             for i in self.geoints:
                 ax.plot(i[:, 0], i[:, 1], i[:, 2])
 
@@ -180,7 +181,7 @@ class AutoFiber:
         if os.path.splitext(self.cadfile)[1] == ".x3d":
             self.objframe = coordframe()
             self.obj = ndepart.fromx3d(self.objframe, None, self.cadfile, tol=1e-6)
-        elif os.path.splitext(self.cadfile)[1] == ".stl":
+        elif os.path.splitext(self.cadfile)[1] in [".stl", ".STL"]:
             self.objframe = coordframe()
             self.obj = ndepart.fromstl(self.objframe, None, self.cadfile, tol=1e-6)
         else:
@@ -197,9 +198,11 @@ class AutoFiber:
         self.edges = AUV.BuildEdgeDict(self.obj.implpart.surfaces[0])
         self.adjacencyidx = AUV.DetermineAdjacency(self.obj.implpart.surfaces[0], self.edges)
         self.surfaces = AUV.FindTexPatches(self.obj.implpart.surfaces[0], self.adjacencyidx)
-        self.texcoords2inplane = self.obj.implpart.surfaces[0].intrinsicparameterization.texcoords2inplane
+        # import pdb
+        # pdb.set_trace()
+        # self.texcoords2inplane = self.obj.implpart.surfaces[0].intrinsicparameterization.texcoords2inplane
 
-    def find_startpoints(self, initpoint, initdirection, normal, cfpoint):
+    def find_startpoints(self, initpoint, initdirection, normal, cfpoint, interpolate=False, debug=False):
         """
         Finds the starting points for each geodesic
         Spawns geodesics in principle directions x, y, z, -x, -y, -z
@@ -223,14 +226,14 @@ class AutoFiber:
                 closestvertex = self.vertices[closestvertex_ind[0], :][0]
 
                 # TODO: Offset direction
-                point = closestvertex + calcunitvector(initdirection + pointdirection) * self.offset
+                point = initpoint
 
                 # Determine if start point is on a vertex or not then perform
-                # the necessary calculation to find the next element
+                # the necessary calculation to find the next element for the seed geodesic
                 if 0 in np.linalg.norm(self.vertices - point, axis=1):
                     # Current point is a vertex:
-                    element, newvector = GEO.find_element_vertex(point, pointdirection, normal,
-                                                                 self.vertices, self.vertexids, self.facetnormals)
+                    element, newvector = GEO.find_element_vertex(point, pointdirection, normal, self.vertices,
+                                                                 self.vertexids, self.facetnormals)
                 else:
                     # Current point is not on a vertex but within a polygon:
                     element, newvector = GEO.find_element_within(point, pointdirection, normal, self.vertices,
@@ -247,16 +250,38 @@ class AutoFiber:
                 vdirection = GEO.calcunitvector(np.cross(normal, initdirection))
                 angle = GEO.angle_between_vectors(vdirection, pointdirection)
 
-                # Rotate the given fiber vector to be in plane with the start element
-                try:
-                    newfibervector = GEO.rot_vector(normal, self.facetnormals[element], initdirection)
-                except GEO.EdgeError:
-                    continue
+                if 0 in np.linalg.norm(self.vertices - point, axis=1):
+                    # Current point is a vertex:
+                    selement, _ = GEO.find_element_vertex(point, initdirection, normal, self.vertices, self.vertexids,
+                                                          self.facetnormals)
+                else:
+                    # Current point is not on a vertex but within a polygon:
+                    selement, _ = GEO.find_element_within(point, initdirection, normal, self.vertices, self.vertexids,
+                                                          self.facetnormals, self.inplanemat)
 
-                self.startpoints = np.vstack((self.startpoints, point))
-                self.startuv = np.vstack((self.startuv, cfpoint))
-                self.startelements = np.append(self.startelements, element)
-                self.sfiberdirections = np.vstack((self.sfiberdirections, newfibervector))
+                # if debug:
+                #     import pdb
+                #     pdb.set_trace()
+
+                if selement is not None:
+                    # Rotate the given fiber vector to be in plane with the start element
+                    try:
+                        newfibervector = GEO.rot_vector(normal, self.facetnormals[selement], initdirection)
+                    except GEO.EdgeError:
+                        continue
+
+                    self.startpoints = np.vstack((self.startpoints, point))
+                    self.startuv = np.vstack((self.startuv, cfpoint))
+                    self.startelements = np.append(self.startelements, selement)
+
+                    if interpolate:
+                        try:
+                            closest_geodesic, _ = self.find_close_geodesic(element, point)
+                            self.sfiberdirections = np.vstack((self.sfiberdirections, closest_geodesic[7] * closest_geodesic[3]))
+                        except IndexError:
+                            self.sfiberdirections = np.vstack((self.sfiberdirections, newfibervector))
+                    else:
+                        self.sfiberdirections = np.vstack((self.sfiberdirections, newfibervector))
 
                 pointdirection = GEO.rot_vector(normal, self.facetnormals[element], pointdirection)
 
@@ -280,7 +305,15 @@ class AutoFiber:
 
                                 self.startpoints = np.vstack((self.startpoints, point))
                                 self.startelements = np.append(self.startelements, element)
-                                self.sfiberdirections = np.vstack((self.sfiberdirections, selementvec))
+
+                                if interpolate:
+                                    try:
+                                        closest_geodesic, _ = self.find_close_geodesic(element, point)
+                                        self.sfiberdirections = np.vstack((self.sfiberdirections, closest_geodesic[7] * closest_geodesic[3]))
+                                    except IndexError:
+                                        self.sfiberdirections = np.vstack((self.sfiberdirections, selementvec))
+                                else:
+                                    self.sfiberdirections = np.vstack((self.sfiberdirections, selementvec))
                                 break
                             else:
                                 if nextelement is None:
@@ -292,32 +325,41 @@ class AutoFiber:
                         break
                     self.startuv = np.vstack((self.startuv, np.array([cfpoint[0], np.sign(self.fiberint / np.cos(angle)) * self.fiberint * p + cfpoint[1]])))
                     p += 1
-        print(self.startpoints.shape[0])
         if self.startpoints.shape[0] < 1:
+            import matplotlib.pyplot as plt
+            from mpl_toolkits.mplot3d import axes3d
+
+            fig = plt.figure()
+            ax = fig.add_subplot(111, projection='3d')
+            ax.scatter(self.vertices[:, 0], self.vertices[:, 1], self.vertices[:, 2])
+            ax.scatter(initpoint[0], initpoint[1], initpoint[2])
+            ax.quiver(initpoint[0], initpoint[1], initpoint[2], initdirection[0], initdirection[1], initdirection[2])
             raise IndexError("No geodesic start points found.")
 
-    def determine_surface(self, initdirection):
+    def determine_surface(self, initpoint, initdirection):
         # Determine if start point is on a vertex or not then perform the necessary calculation to find the next element
-        if 0 in np.linalg.norm(self.vertices - self.startpoints[0], axis=1):
+        if 0 in np.linalg.norm(self.vertices - initpoint, axis=1):
             # Current point is a vertex:
-            element, newvector = GEO.find_element_vertex(self.startpoints[0], initdirection, self.surfacenormal,
+            element, newvector = GEO.find_element_vertex(initpoint, initdirection, self.surfacenormal,
                                                          self.vertices, self.vertexids, self.facetnormals)
         else:
             # Current point is not on a vertex but within a polygon:
-            element, newvector = GEO.find_element_within(self.startpoints[0], initdirection, self.surfacenormal,
+            element, newvector = GEO.find_element_within(initpoint, initdirection, self.surfacenormal,
                                                          self.vertices, self.vertexids, self.facetnormals, self.inplanemat)
 
         surface = [(i, surface.index(element)) for i, surface in enumerate(self.surfaces) if element in surface][0][0]
 
         surface_polygons = self.surfaces[surface]
         self.surface_vertexids = self.vertexids[surface_polygons]
+        self.vertices = self.vertices[np.unique(self.surface_vertexids)].reshape(-1, 3)
 
-    def calc_geodesics(self, startidx):
+    def calc_geodesics(self, startidx, nearby=True):
         """
         Determines the approximate path of a geodesic along a fiber direction
         :param fiberdirection: Fiber orientation in degrees
         :param iters: Number of elements to iterate through
         :param obj: x3d model object
+        :param nearby: Should we assign close points?
         :return: An array of fiber points relative to an approximate geodesic of the surface
         """
 
@@ -335,7 +377,7 @@ class AutoFiber:
             p = 0
             while True:
                 try:
-                    int_pnt_3d, nextunitvector, nextelement, fiberpoints_local = GEO.traverse_element(self, element, point, unitfiberdirection, self.fiberpoints_local, length, uv_start_i)
+                    int_pnt_3d, nextunitvector, nextelement, fiberpoints_local = GEO.traverse_element(self, element, point, unitfiberdirection, self.fiberpoints_local, length, uv_start_i, closest=nearby)
                 except GEO.EdgeError:
                     break
 
@@ -366,7 +408,7 @@ class AutoFiber:
             p = 0
             while True:
                 try:
-                    int_pnt_3d, nextunitvector, nextelement, fiberpoints_local = GEO.traverse_element(self, element, point, unitfiberdirection, self.fiberpoints_local, length, uv_start_i, direction=-1)
+                    int_pnt_3d, nextunitvector, nextelement, fiberpoints_local = GEO.traverse_element(self, element, point, unitfiberdirection, self.fiberpoints_local, length, uv_start_i, direction=-1, closest=nearby)
                 except GEO.EdgeError:
                     break
 
@@ -404,8 +446,8 @@ class AutoFiber:
         leftover_idxs = self.interpolate(leftover_idxs, mask)
         print("After step two: %s" % leftover_idxs.shape[0])
 
-        leftover_idxs = self.average_fpoint(leftover_idxs, mask)
-        print("After step three: %s" % leftover_idxs.shape[0])
+        # leftover_idxs = self.average_fpoint(leftover_idxs, mask)
+        # print("After step three: %s" % leftover_idxs.shape[0])
 
         # self.manual()
 
@@ -417,7 +459,7 @@ class AutoFiber:
 
     def find_close_geodesic(self, element, point):
         if element in self.georecord.keys():
-            # [pointuv (bary), int_pnt (bary), point (3D), unitfiberdirection (3D), closest_point_idx (idx), uv_start, length]
+            # [pointuv (bary), int_pnt (bary), point (3D), unitfiberdirection (3D), closest_point_idx (idx), uv_start, length, direction]
             geodesics = self.georecord[element][0]
             geodets = None
             for g in range(0, len(geodesics)):
@@ -442,22 +484,14 @@ class AutoFiber:
                     elementvertices = self.vertices[self.vertexids[j]]
                     assigned_vertsids = np.where((~np.isnan(self.geoparameterization[self.vertexids[j]]).all(axis=1)))[0]
                     if assigned_vertsids.shape[0] > 0:
-                        fiberdirection = None
-                        try:
-                            min_geodesic, distances = self.find_close_geodesic(j, self.vertices[leftover_idxs[i]])
-                            fiberdirection = min_geodesic[3]
-                        except IndexError:
-                            if not np.isnan(self.fiberdirections[j]).any():
-                                fiberdirection = self.fiberdirections[j]
-                        if fiberdirection is not None:
+                        if not np.isnan(self.fiberdirections[j]).any():
+                            fiberdirection = self.fiberdirections[j]
+                            # self.fiberdirections[unassigned_facets[np.isnan(self.fiberdirections[unassigned_facets]).all(axis=1)]] = fiberdirection
                             for k in assigned_vertsids:
+                                assigned_fpoint = self.geoparameterization[self.vertexids[j]][k]
                                 fdistance, closest_point = GEO.calcclosestpoint(fiberdirection, elementvertices[k],
                                                                                 np.array([self.vertices[leftover_idxs[i]]]),
                                                                                 self.facetnormals[j])
-                                assigned_fpoint = self.geoparameterization[self.vertexids[j]][k]
-                                direction = np.sign(assigned_fpoint[0])
-                                fdistance = direction * fdistance
-
                                 unassigned_fpoint = assigned_fpoint + fdistance
 
                                 fiberrec = np.copy(self.geoparameterization)
@@ -477,69 +511,29 @@ class AutoFiber:
         return leftover_idxs
 
     def sup_geodesics(self, leftover_idxs, mask):
-        import pdb
         loc = self.startpoints.shape[0]
-        print(loc)
-        pbreak = False
+        self.fiberint = self.fiberint * 3
 
-        import matplotlib.pyplot as plt
-        from mpl_toolkits.mplot3d import axes3d
+        for j in range(0, leftover_idxs.shape[0]):
+            for i in range(0, leftover_idxs.shape[0]):
+                point = self.vertices[leftover_idxs[i]]
+                leftover_neighbors = np.unique(np.where((self.vertexids == leftover_idxs[i]))[0])
 
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
+                fiberdirections = self.fiberdirections[leftover_neighbors]
+                neighbors = leftover_neighbors[~np.isnan(fiberdirections).all(axis=1)]
 
-        plt.title("TEST")
-
-        ax.scatter(self.vertices[:, 0], self.vertices[:, 1], self.vertices[:, 2], alpha=0.1)
-        ax.scatter(self.vertices[leftover_idxs][:, 0], self.vertices[leftover_idxs][:, 1], self.vertices[leftover_idxs][:, 2])
-
-        self.fiberint = np.inf
-
-        for i in range(0, 1):
-            point = self.vertices[leftover_idxs[i]]
-            leftover_neighbors = np.unique(np.where((self.vertexids == leftover_idxs[i]))[0])
-
-            fiberdirections = self.fiberdirections[leftover_neighbors]
-            neighbors = leftover_neighbors[~np.isnan(fiberdirections).all(axis=1)]
-            for element in neighbors:
-                centroid = np.sum(self.vertices[self.vertexids[element]], axis=1) / 3
-                offsetdir = calcunitvector(centroid - point)
-
-                testpnt = point + offsetdir * self.offset
-
-                ax.scatter(testpnt[0], testpnt[1], testpnt[2])
-                initdirection = self.fiberdirections[element]
-
-                normal = self.facetnormals[element]
-                surface_normal = np.array([0.0, 0.0, 0.0])
-                surface_normal[np.argmax(normal)] = 1.0
-
-                closest_geodesic, distances = self.find_close_geodesic(element, testpnt)
-
-                cfpoint = np.array([0.0, 0.0])
-                cfpoint[0] = self.geoparameterization[closest_geodesic[4]][0] + distances[1]
-
-                testval = np.dot(calcunitvector(np.cross(initdirection, distances[0])), normal) * np.sign(self.geoparameterization[closest_geodesic[4]][1])
-
-                cfpoint[1] = self.geoparameterization[closest_geodesic[4]][1] + testval * np.linalg.norm(distances[0])
-
-                ax.scatter(self.vertices[closest_geodesic[4]][0], self.vertices[closest_geodesic[4]][1], self.vertices[closest_geodesic[4]][2])
-                ax.quiver(testpnt[0], testpnt[1], testpnt[2], initdirection[0], initdirection[1], initdirection[2])
-
-                print(testpnt)
-                print((testval * np.linalg.norm(distances[0]), distances[1]))
-                print(cfpoint)
-                print(initdirection)
-                print("")
-
-                self.find_startpoints(testpnt, initdirection, normal, cfpoint)
-
-        pdb.set_trace()
-
-        print(self.startpoints.shape[0])
-        self.calc_geodesics(loc)
-
-        leftover_idxs = np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0]
+                for element in neighbors:
+                    try:
+                        closest_geodesic, distances = self.find_close_geodesic(element, point)
+                        cfpoint = self.geoparameterization[closest_geodesic[4]]
+                        self.find_startpoints(self.vertices[closest_geodesic[4]], self.fiberdirections[element],
+                                              self.facetnormals[element], cfpoint, interpolate=True, debug=True)
+                        self.calc_geodesics(loc, nearby=True)
+                        loc = self.startpoints.shape[0]
+                        break
+                    except IndexError:
+                        pass
+            leftover_idxs = np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0]
         return leftover_idxs
 
     def average_fpoint(self, leftover_idxs, mask):
@@ -591,7 +585,7 @@ class AutoFiber:
         initenergy = OP.computeglobalstrain(self.normalized_2d, self.geoparameterization.flatten(), self.vertexids, self.stiffness_tensor)
         print("Initial strain energy: %s J/m" % initenergy)
 
-        print("Gradient Check: %s" % optimize.check_grad(f, gradf, self.geoparameterization.flatten()))
+        # print("Gradient Check: %s" % optimize.check_grad(f, gradf, self.geoparameterization.flatten()))
 
         start_time = time.time()
 
@@ -602,9 +596,9 @@ class AutoFiber:
 
         # import pdb
         print("Optimizing step 1...")
-        self.optimizedparameterization = OP.optimize(f, gradf, self.geoparameterization, eps=1e-8, precision=1e-1, maxiters=np.inf)
+        self.optimizedparameterization = OP.optimize(f, gradf, self.geoparameterization, eps=1e-8, precision=1e-2, maxiters=np.inf)
         print("Optimizing step 2...")
-        self.optimizedparameterization = OP.optimize(f, gradf, self.optimizedparameterization, eps=1e-5, precision=1e-5, maxiters=np.inf)
+        self.optimizedparameterization = OP.optimize(f, gradf, self.optimizedparameterization, eps=1e-4, precision=1e-5, maxiters=np.inf)
         # pdb.set_trace()
 
         stop_time = time.time()
