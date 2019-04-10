@@ -1,7 +1,7 @@
 import numpy as np
 from autofiber.generator import AutoFiber as AF
 
-angles = [0.0]
+angles = [50.0]
 
 for angle in angles:
     print("Angle: %s" % angle)

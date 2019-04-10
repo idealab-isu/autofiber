@@ -76,7 +76,7 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
     rel_uvw = np.pad(rel_uv, [(0, 0), (0, 0), (0, 1)], "constant", constant_values=1).transpose(0, 2, 1)
     rel_3d = np.pad(rel_2d, [(0, 0), (0, 0), (0, 1)], "constant", constant_values=1).transpose(0, 2, 1)
 
-    areas = np.abs(0.5 * np.linalg.det(rel_uvw))
+    areas = 0.5 * np.linalg.det(rel_uvw)
 
     minor_mat = np.zeros(rel_uvw.shape)
     for i in range(0, 3):
