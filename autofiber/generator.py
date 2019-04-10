@@ -483,19 +483,19 @@ class AutoFiber:
                 nanmask = ~np.isnan(self.fiberdirections[neighbors]).all(axis=1)
                 neighbors = neighbors[nanmask]
 
-                nfiberdirections = self.fiberdirections[neighbors]
-                pdb.set_trace()
-                rdirection = GEO.rot_vector(self.facetnormals[neighbors[0]], self.facetnormals[i], nfiberdirections[0])
+                if neighbors.shape[0] > 0:
+                    nfiberdirections = self.fiberdirections[neighbors]
+                    rdirection = GEO.rot_vector(self.facetnormals[neighbors[0]], self.facetnormals[i], nfiberdirections[0])
 
-                sharedvertex = self.vertices[np.intersect1d(self.vertexids[neighbors[0]], self.vertexids[i])][1]
+                    sharedvertex = self.vertices[np.intersect1d(self.vertexids[neighbors[0]], self.vertexids[i])][1]
 
-                shared_cg, element, distance = self.find_close_geodesic([neighbors[0]], sharedvertex)
+                    shared_cg, element, distance = self.find_close_geodesic([neighbors[0]], sharedvertex)
 
-                testval = np.dot(calcunitvector(np.cross(shared_cg[7] * shared_cg[3], distance[0])), self.facetnormals[element])
-                cfpoint = np.array([shared_cg[6] + distance[1] + shared_cg[5][0], testval*np.linalg.norm(distance[0]) + shared_cg[5][1]])
+                    testval = np.dot(calcunitvector(np.cross(shared_cg[7] * shared_cg[3], distance[0])), self.facetnormals[element])
+                    cfpoint = np.array([shared_cg[6] + distance[1] + shared_cg[5][0], testval*np.linalg.norm(distance[0]) + shared_cg[5][1]])
 
-                self.find_startpoints(sharedvertex, rdirection, self.facetnormals[i], cfpoint, interpolate=True)
-                self.calc_geodesics(loc, nearby=False)
+                    self.find_startpoints(sharedvertex, rdirection, self.facetnormals[i], cfpoint, interpolate=True)
+                    self.calc_geodesics(loc, nearby=False)
             loc = self.startpoints.shape[0]
 
         # mask = np.ones((self.geoparameterization.shape[0]), dtype=bool)
@@ -537,10 +537,11 @@ class AutoFiber:
 
             self.geoparameterization[i] = fpoint_t
 
-        rel_uvw = np.pad(self.geoparameterization[self.vertexids], [(0, 0), (0, 0), (0, 1)], "constant", constant_values=1).transpose(0, 2, 1)
-        vdir = 0.5 * np.linalg.det(rel_uvw)
+            rel_uvw = np.pad(self.geoparameterization[self.vertexids], [(0, 0), (0, 0), (0, 1)], "constant", constant_values=1).transpose(0, 2, 1)
+            vdir = 0.5 * np.linalg.det(rel_uvw)
+            vdir[np.isnan(vdir)] = np.inf
 
-        assert (vdir > 0).any()
+            assert (vdir > 0).any()
         assert np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0].size == 0
 
     def interpolate(self, leftover_idxs, mask):
@@ -665,9 +666,9 @@ class AutoFiber:
 
         # import pdb
         print("Optimizing step 1...")
-        self.optimizedparameterization = OP.optimize(f, gradf, self.geoparameterization, eps=1e-9, precision=1e-1, maxiters=np.inf)
+        self.optimizedparameterization, _ = OP.optimize(f, gradf, self.geoparameterization, eps=1e-11, precision=1e-3, maxiters=np.inf)
         print("Optimizing step 2...")
-        self.optimizedparameterization = OP.optimize(f, gradf, self.optimizedparameterization, eps=1e-6, precision=1e-5, maxiters=np.inf)
+        self.optimizedparameterization, _ = OP.optimize(f, gradf, self.optimizedparameterization, eps=1e-9, precision=1e-5, maxiters=np.inf)
         # pdb.set_trace()
 
         stop_time = time.time()

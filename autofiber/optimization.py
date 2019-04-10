@@ -122,14 +122,17 @@ def optimize(f, grad, x_0, eps=1e-5, precision=1e-3, maxiters=1e4):
     import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d import axes3d
 
+    # iteration, strain value
+    record = np.empty((0, 2))
+
     x = x_0.flatten()
     b = f(x)
     print("Starting Energy: %s" % b)
 
+    residual = np.inf
     iters = 0
     b0 = np.inf
     b = 0.0
-    strains = np.empty((0))
     while abs(b - b0) > precision and iters < maxiters:
         b0 = b
         cur_grad = grad(x)
@@ -137,16 +140,22 @@ def optimize(f, grad, x_0, eps=1e-5, precision=1e-3, maxiters=1e4):
         b = f(x)
 
         print("Residual: %s" % abs(b - b0))
+        if abs(b - b0) > residual:
+            print("Final residual: %s" % residual)
+            print("Step size too large. Increase in residual detected. Terminating...")
+            break
+        residual = abs(b - b0)
 
         # print("Current Strain Energy: %s" % b)
-        strains = np.append(strains, b)
+        record = np.vstack((record, np.array([iters, b])))
+
         iters += 1
 
     # fig = plt.figure()
     # plt.scatter(x_0[:, 0], x_0[:, 1])
     # plt.scatter(x.reshape(x_0.shape)[:, 0], x.reshape(x_0.shape)[:, 1])
 
-    # fig = plt.figure()
-    # plt.plot(range(0, strains.shape[0]), strains)
+    fig = plt.figure()
+    plt.plot(record[:, 0], record[:, 1])
 
-    return x.reshape(x_0.shape)
+    return x.reshape(x_0.shape), record
