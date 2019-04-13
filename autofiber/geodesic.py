@@ -441,7 +441,7 @@ def check_inplane_vector(vector, normal):
         return False
 
 
-def find_element_vertex(point, unitvector, curnormal, vertices, vertexids, facetnormals):
+def find_element_vertex(point, unitvector, curnormal, vertices, vertexids, facetnormals, debug=False):
     """
     Determines which element is next given a vertex and an angle
     :param point: Vertex in the mesh
@@ -472,6 +472,7 @@ def find_element_vertex(point, unitvector, curnormal, vertices, vertexids, facet
             evectors = calcunitvector(nvector[0][np.unique(np.nonzero(nvector)[1])].reshape(-1, 3))
             if vector_inbetween(newvector, evectors[0], evectors[1]):
                 element = i
+                break
 
                 # import matplotlib.pyplot as plt
                 # from mpl_toolkits.mplot3d import axes3d
@@ -562,7 +563,7 @@ def find_element_within(point, unitvector, normal, vertices, vertexids, facetnor
     return None, None
 
 
-def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, length, uv_start, direction=1, parameterization=True, closest=True):
+def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, length, uv_start, direction=1, parameterization=True):
     # Determine the elements surrounding the current element
     neighbors = find_neighbors(element, af.vertexids_indices, af.adjacencyidx)
 

@@ -117,6 +117,63 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
     return -1*point_strain_grad.flatten()
 
 
+# https://medium.com/100-days-of-algorithms/day-69-rmsprop-7a88d475003b
+def rmsprop_momentum(F, dF, x_0, steps=100, lr=0.001, decay=.9, eps=1e-8, mu=.9):
+    x = x_0.flatten()
+
+    loss = []
+    dx_mean_sqr = np.zeros(x.shape, dtype=float)
+    momentum = np.zeros(x.shape, dtype=float)
+
+    for _ in range(steps):
+        dx = dF(x)
+        dx_mean_sqr = decay * dx_mean_sqr + (1 - decay) * dx ** 2
+        momentum = mu * momentum + lr * dx / (np.sqrt(dx_mean_sqr) + eps)
+        x -= momentum
+        if F(x) < 0:
+            break
+        loss.append(F(x))
+
+    return x.reshape(-1, 2), loss
+
+
+def optimize_momentum(f, grad, x_0, lr=0.001, decay=0.9, eps=1e-8, mu=0.9, precision=1e-3, maxiters=1e4):
+    # strain value
+    loss = []
+
+    x = x_0.flatten()
+    b = f(x)
+    print("Starting Energy: %s" % b)
+
+    dx_mean_sqr = np.zeros(x.shape, dtype=float)
+    momentum = np.zeros(x.shape, dtype=float)
+    residual = np.inf
+    iters = 0
+    b0 = np.inf
+    b = 0.0
+    while abs(b - b0) > precision and iters < maxiters:
+        b0 = b
+        dx = grad(x)
+        dx_mean_sqr = decay * dx_mean_sqr + (1 - decay) * dx ** 2
+        momentum = mu * momentum + lr * dx / (np.sqrt(dx_mean_sqr) + eps)
+        x -= momentum
+        b = f(x)
+
+        print("Residual: %s" % abs(b - b0))
+        if abs(b - b0) > residual:
+            print("Final Strain Energy: %s" % b0)
+            print("Step size too large. Increase in residual detected. Terminating...")
+            break
+        residual = abs(b - b0)
+
+        # print("Current Strain Energy: %s" % b)
+        loss.append(b)
+
+        iters += 1
+
+    return x.reshape(x_0.shape), loss
+
+
 def optimize(f, grad, x_0, eps=1e-5, precision=1e-3, maxiters=1e4):
     import pdb
     import matplotlib.pyplot as plt
