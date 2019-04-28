@@ -43,12 +43,15 @@ def computeglobalstrain(normalized_2d, fiberpoints, vertexids, stiffness_tensor)
 
     F = np.matmul(rel_3d, np.linalg.inv(rel_uvw))[:, :2, :2]
 
+    # We can exclude the rotation of F by multiplying by it's transpose
+    # https://en.wikipedia.org/wiki/Finite_strain_theory
     strain = 0.5 * (np.matmul(F.transpose(0, 2, 1), F) - np.identity(F.shape[1]))
 
     m = np.array([1.0, 1.0, 0.5])[np.newaxis].T
     strain_vector = np.divide(np.array([[strain[:, 0, 0]], [strain[:, 1, 1]], [strain[:, 0, 1]]]).transpose((2, 0, 1)), m).squeeze()
 
     # http://homepages.engineering.auckland.ac.nz/~pkel015/SolidMechanicsBooks/Part_I/BookSM_Part_I/08_Energy/08_Energy_02_Elastic_Strain_Energy.pdf
+    # J == Pa * m^3 -> J/m = Pa * m^2           ex. GPa * mm^3 = 1 J so to get J/mm -> GPa * mm^2
     strain_energy_density = 0.5*np.multiply(np.einsum("ei,ei->e", strain_vector, np.matmul(strain_vector, stiffness_tensor)), areas)
 
     total_strain_energy = np.sum(strain_energy_density)
@@ -56,7 +59,13 @@ def computeglobalstrain(normalized_2d, fiberpoints, vertexids, stiffness_tensor)
     return total_strain_energy
 
 
-def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_tensor):
+duvw_duij_t = np.zeros((6, 3, 3))
+for j in range(0, 3):
+    for i in range(0, 2):
+        duvw_duij_t[j*2+i, i, j] = 1
+
+
+def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_tensor, oc):
     element_vertices_uv = fiberpoints.reshape(fiberpoints.shape[0]/2, 2)[vertexids]
 
     centroid_2d = np.sum(normalized_2d, axis=1) / 3
@@ -68,7 +77,7 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
     rel_uvw = np.pad(rel_uv, [(0, 0), (0, 0), (0, 1)], "constant", constant_values=1).transpose(0, 2, 1)
     rel_3d = np.pad(rel_2d, [(0, 0), (0, 0), (0, 1)], "constant", constant_values=1).transpose(0, 2, 1)
 
-    areas = np.abs(0.5 * np.linalg.det(rel_uvw))
+    areas = 0.5 * np.linalg.det(rel_uvw)
 
     minor_mat = np.zeros(rel_uvw.shape)
     for i in range(0, 3):
@@ -77,26 +86,17 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
 
     adj_mat = np.multiply(minor_mat, build_checkerboard(minor_mat.shape[1], minor_mat.shape[2])).transpose(0, 2, 1)
 
-    dareas_duv = np.zeros((rel_uvw.shape[0], 6))
-    for j in range(0, 3):
-        for i in range(0, 2):
-            duvw_duij = np.zeros((rel_uvw.shape[1], rel_uvw.shape[2]))
-            duvw_duij[i, j] = 1
-            dareas_duv[:, j*2+i] = -0.5 * np.trace(np.matmul(adj_mat, duvw_duij), axis1=1, axis2=2)
+    dareas_duv = -0.5*np.trace(np.matmul(adj_mat[:, np.newaxis, :, :], duvw_duij_t), axis1=2, axis2=3)
 
     F = np.matmul(rel_3d, np.linalg.inv(rel_uvw))[:, :2, :2]
 
+    # We can exclude the rotation of F by multiplying by it's transpose
     strain = 0.5 * (np.matmul(F.transpose(0, 2, 1), F) - np.identity(F.shape[1]))
 
     m = np.array([1.0, 1.0, 0.5])[np.newaxis].T
     strain_vector = np.divide(np.array([[strain[:, 0, 0]], [strain[:, 1, 1]], [strain[:, 0, 1]]]).transpose((2, 0, 1)), m).squeeze()
 
-    dF_duv = np.zeros((F.shape[0], 6, F.shape[1], F.shape[2]))
-    for j in range(0, 3):
-        for i in range(0, 2):
-            duvw_duij = np.zeros((rel_uvw.shape[1], rel_uvw.shape[2]))
-            duvw_duij[i, j] = 1.0
-            dF_duv[:, j*2+i, :, :] = np.matmul(rel_3d, np.matmul(np.matmul(np.linalg.inv(rel_uvw), duvw_duij), np.linalg.inv(rel_uvw)))[:, :2, :2]
+    dF_duv = np.matmul(rel_3d[:, np.newaxis, :, :], np.matmul(np.matmul(np.linalg.inv(rel_uvw)[:, np.newaxis, :, :], duvw_duij_t), np.linalg.inv(rel_uvw)[:, np.newaxis, :, :]))[:, :, :2, :2]
 
     dstrainvector_duv = np.zeros((strain_vector.shape[0], strain_vector.shape[1], 6))
     for i in range(0, 6):
@@ -112,33 +112,35 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
 
         point_strain_grad[ele_vertices] = point_strain_grad[ele_vertices] + ele_strain_grad
 
+    point_strain_grad[oc][0] = 0.0
+    point_strain_grad[oc][1] = 0.0
+
     return -1*point_strain_grad.flatten()
 
 
-def optimize(f, grad, x_0, eps=1e-7):
-    import pdb
-    import matplotlib.pyplot as plt
-    from mpl_toolkits.mplot3d import axes3d
-
+# https://medium.com/100-days-of-algorithms/day-69-rmsprop-7a88d475003b
+def rmsprop_momentum(F, dF, x_0, precision=None, maxsteps=None, lr=None, decay=None, eps=None, mu=None):
     x = x_0.flatten()
-    b = f(x)
-    print("Starting Energy: %s" % b)
+    loss = []
+    dx_mean_sqr = np.zeros(x.shape, dtype=float)
+    momentum = np.zeros(x.shape, dtype=float)
 
-    its = 10
-    strains = np.zeros(its)
-    for i in range(0, its):
-        cur_grad = grad(x)
-        x = x - eps * cur_grad
-        b = f(x)
+    if F(x) < eps:
+        return x.reshape(-1, 2), loss
 
-        strains[i] = b
-        print("Current Strain Energy: %s" % b)
+    for _ in range(maxsteps):
+        b0 = F(x)
+        dx = dF(x)
+        dx_mean_sqr = decay * dx_mean_sqr + (1 - decay) * dx ** 2
+        momentum = mu * momentum + lr * dx / (np.sqrt(dx_mean_sqr) + eps)
+        x -= momentum
 
-    fig = plt.figure()
-    plt.scatter(x_0[:, 0], x_0[:, 1])
-    plt.scatter(x.reshape(x_0.shape)[:, 0], x.reshape(x_0.shape)[:, 1])
+        loss.append(F(x))
 
-    fig = plt.figure()
-    plt.plot(range(0, its), strains)
+        print(F(x), abs(F(x) - b0))
 
-    return x.reshape(x_0.shape)
+        if abs(F(x) - b0) < precision:
+            break
+        if F(x) < 0:
+            raise ValueError("Negative strain energy detected. Bad parameterization?")
+    return x.reshape(-1, 2), loss

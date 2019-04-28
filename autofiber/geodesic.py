@@ -63,7 +63,7 @@ def angle_between_vectors(v1, v2):
         return 2*np.pi - np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
 
 
-def vector_inbetween(v1, v2, v3):
+def vector_inbetween(v1, v2, v3, error=1e-10):
     """
     Determines if a vector (v1) is between v2 and v3
     https://stackoverflow.com/questions/13640931/how-to-determine-if-a-vector-is-between-two-other-vectors
@@ -72,7 +72,7 @@ def vector_inbetween(v1, v2, v3):
     :param v3: Given vector
     :return: True if vector is between v2 and v3, false if not between
     """
-    if np.dot(np.cross(v2, v1), np.cross(v2, v3)) >= 0 and np.dot(np.cross(v3, v1), np.cross(v3, v2)) >= 0:
+    if np.dot(np.cross(v2, v1), np.cross(v2, v3)) >= -error and np.dot(np.cross(v3, v1), np.cross(v3, v2)) >= -error:
         return True
     else:
         return False
@@ -90,11 +90,15 @@ def rot_vector(oldnormal, newnormal, vector, force=False):
         sinphi = np.linalg.norm(vector_a)
         cosphi = np.dot(oldnormal, newnormal)
         a_hat = vector_a/sinphi
-        if np.arccos(cosphi) >= np.deg2rad(85) and not force:
-            # print("### Crossed a 90 degree or greater edge ###")
+        if np.arccos(cosphi) >= np.deg2rad(85.0) and not force:
+            # print("Edge detected...geodesic path completed")
             raise EdgeError
         else:
             return calcunitvector(vector * cosphi - np.cross(vector, a_hat) * sinphi + a_hat * np.dot(vector, a_hat) * (1 - cosphi))
+
+
+def rot_vector_angle(vector, normal, angle):
+    return calcunitvector(vector * np.cos(np.deg2rad(angle)) + np.cross(normal, vector) * np.sin(np.deg2rad(angle)) + normal * np.dot(normal, vector) * (1 - np.cos(np.deg2rad(angle))))
 
 
 def check_proj_inplane_pnt(point, element_vertices):
@@ -128,12 +132,11 @@ def check_intersection(p1, q1, p2, q2):
     """
     https://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/
     """
-
     def orientation(p, q, r):
         val = (q[1] - p[1]) * (r[0] - q[0]) - (q[0] - p[0])*(r[1] - q[1])
-        if val is 0:
+        if val == 0.0:
             return 0
-        if val > 0:
+        elif val > 0:
             return 1
         else:
             return 2
@@ -141,6 +144,9 @@ def check_intersection(p1, q1, p2, q2):
     def onSegment(p, q, r):
         if q[0] <= np.max([p[0], r[0]]) and q[0] >= np.min([p[0], r[0]]) and q[1] <= np.max([p[1], r[1]]) and q[1] >= np.min([p[1], r[1]]):
             return True
+        return False
+
+    if (p1 == p2).all():
         return False
 
     o1 = orientation(p1, q1, p2)
@@ -208,15 +214,22 @@ def find_edge(point, direction, error):
         return 0
     elif d1 >= error and (d1 <= d0 or d0 <= error) and (d1 <= d2 or d2 <= error):
         return 1
-    elif d2 > error and (d2 <= d0 or d0 <= error) and (d2 <= d1 or d1 <= error):
+    elif d2 >= error and (d2 <= d0 or d0 <= error) and (d2 <= d1 or d1 <= error):
+        return 2
+    elif d0 == 0.0 and d1 != 0.0 and d2 != 0.0:
+        return 0
+    elif d0 != 0.0 and d1 == 0.0 and d2 != 0.0:
+        return 1
+    elif d0 != 0.0 and d1 != 0.0 and d2 == 0.0:
         return 2
     elif d0 == -1 or d1 == -1 or d2 == -1:
-        raise EdgeError("### Trying to follow an edge, bad direction? ###")
+        # print("Following an edge...")
+        raise EdgeError
     elif d0 < 0 and d1 < 0 and d2 < 0:
         return find_edge(point, -direction, error)
     else:
-        # pdb.set_trace()
-        raise EdgeError('### Something weird has happened ###')
+        # print("Edge is uncertain...terminating geodesic")
+        raise EdgeError
 
 
 def find_neighbors(element, vertexids_indices, adjacencyidx):
@@ -271,46 +284,12 @@ def calcclosestpoint(unitvector, oldpoint, meshpoints, normal):
     fpointu = paraldistances[point_idx]
     point_3d = trimedmeshpoints[point_idx]
     vector2pnt = perpdistances[point_idx]
-
-    # perppoint = oldpoint + unitvector*fpointu
-
-    # rel_uvw = np.vstack((oldpoint, perppoint, point_3d)).T
-    # testval = np.sign(0.5*np.linalg.det(rel_uvw))
-
     testval = np.dot(calcunitvector(np.cross(unitvector, vector2pnt)), normal)
-
-    # if element == 204:
-    #     fig = plt.figure()
-    #     ax = fig.add_subplot(111, projection='3d')
-    #     ax.quiver(oldpoint[0], oldpoint[1], oldpoint[2], unitvector[0], unitvector[1], unitvector[2], color="y", length=0.1)
-    #     ax.quiver(oldpoint[0], oldpoint[1], oldpoint[2], normal[0], normal[1], normal[2], color="r",
-    #               length=0.1)
-    #     ax.quiver(perppoint[0], perppoint[1], perppoint[2], vector2pnt[0], vector2pnt[1], vector2pnt[2], color="orange", length=0.1)
-    #     ax.scatter(oldpoint[0], oldpoint[1], oldpoint[2], color="black")
-    #     ax.scatter(point_3d[0], point_3d[1], point_3d[2], color="g")
-    #     ax.scatter(perppoint[0], perppoint[1], perppoint[2], color="b")
-    #     ax.scatter(meshpoints[:, 0], meshpoints[:, 1], meshpoints[:, 2], color="cyan")
-    #     import sys
-    #     sys.modules["__main__"].__dict__.update(globals())
-    #     sys.modules["__main__"].__dict__.update(locals())
-    #     pdb.set_trace()
 
     fpointv = testval * np.linalg.norm(vector2pnt)
     if np.isnan(fpointv):
         fpointv = 0.0
     fpoint = np.array([fpointu, fpointv])
-
-    # fig = plt.figure()
-    # ax = fig.add_subplot(111, projection='3d')
-    # ax.quiver(oldpoint[0], oldpoint[1], oldpoint[2], unitvector[0], unitvector[1], unitvector[2], color="r", length=0.1)
-    # ax.quiver(perppoint[0], perppoint[1], perppoint[2], vector2pnt[0], vector2pnt[1], vector2pnt[2], color="r", length=0.1)
-    # ax.scatter(oldpoint[0], oldpoint[1], oldpoint[2], color="black")
-    # ax.scatter(point_3d[0], point_3d[1], point_3d[2], color="g")
-    # ax.scatter(perppoint[0], perppoint[1], perppoint[2], color="b")
-    #
-    # print(unitvector)
-    # print(fpoint)
-    # pdb.set_trace()
     return fpoint, point_3d
 
 
@@ -419,8 +398,8 @@ def check_inplane_pnt(point, element_vertices):
     detarray = np.vstack((element_vertices, point)).T
     detarray = np.vstack((detarray, np.ones(detarray.shape[1])))
     det = np.linalg.det(detarray)
-    err = 1e-9
-    if det == 0 or -err < det < err:
+    err = 1e-10
+    if det == 0 or np.abs(det) < err:
         return True
     else:
         return False
@@ -441,11 +420,10 @@ def check_inplane_vector(vector, normal):
         return False
 
 
-def find_element_vertex(vertex, unitvector, curnormal, vertices, vertexids, facetnormals):
+def find_element_vertex(point, unitvector, curnormal, vertices, vertexids, facetnormals):
     """
     Determines which element is next given a vertex and an angle
-    :param af: AutoFiber class variable
-    :param vertex: Vertex in the mesh
+    :param point: Vertex in the mesh
     :param unitvector: Fiber direction vector
     :param curnormal: Current element normal direction vector
     :param vertices: Mesh vertices
@@ -454,14 +432,13 @@ def find_element_vertex(vertex, unitvector, curnormal, vertices, vertexids, face
     :return: The element in which the fiber direction vector resides
     """
     newvector = None
-    element = np.empty((0, 3), dtype=int)
+    element = None
     # Find neighboring elements:
-    vertexid = np.where(
-        np.linalg.norm(vertices - vertex, axis=1) == np.min(np.linalg.norm(vertices - vertex, axis=1)))
-    neighbors = np.where(vertexids == vertexid)[0]
+    idx = np.where(np.linalg.norm(vertices - point, axis=1) == np.min(np.linalg.norm(vertices - point, axis=1)))
+    neighbors = np.unique(np.where((vertexids == idx))[0])
 
-    # For each neighbor and the given angle determine which will include the next point
-    nvectors = vertices[vertexids[neighbors]] - vertex
+    # For each neighbor and the given direction determine which will include the next point
+    nvectors = vertices[vertexids[neighbors]] - point
     for i in neighbors:
         # Calculate fiber direction at current point
         try:
@@ -469,37 +446,17 @@ def find_element_vertex(vertex, unitvector, curnormal, vertices, vertexids, face
         except EdgeError:
             continue
         if check_inplane_vector(newvector, facetnormals[i]):
-            where_ind = np.where((nvectors[np.where((neighbors == i))][0] == 0))[0]
-            unique, counts = np.unique(where_ind, return_counts=True)
-            evectors = np.delete(nvectors[np.where((neighbors == i))], np.where((counts == 3)), axis=1)[0]
+            nvector = nvectors[np.where((neighbors == i))]
+            evectors = calcunitvector(nvector[0][np.unique(np.nonzero(nvector)[1])].reshape(-1, 3))
             if vector_inbetween(newvector, evectors[0], evectors[1]):
-                element = np.append(element, i)
-            else:
-                element = np.append(element, i)
-    if element.shape[0] > 1:
-        print("### On an edge, multiple potential elements ###")
-        normal_angles = np.array([])
-        for i in range(0, element.shape[0]):
-            angle = angle_between_vectors(curnormal, facetnormals[element[i]])
-            if angle > np.pi:
-                angle = 2 * np.pi - angle
-            normal_angles = np.append(normal_angles, angle)
-        element = int(element[np.argmin(normal_angles)])
-    elif element.shape[0] == 0:
-        print("### No elements found ###")
-        # pdb.set_trace()
-        element = None
-    else:
-        element = int(element[0])
-    if element is not None:
-        newvector = rot_vector(curnormal, facetnormals[element], unitvector)
+                element = i
+                break
     return element, newvector
 
 
 def find_element_within(point, unitvector, normal, vertices, vertexids, facetnormals, inplanemat):
     """
     Determines which element a point is within
-    :param af: AutoFiber class variable
     :param point: Vertex in the mesh
     :param unitvector: Fiber direction vector
     :param normal: Current element normal direction vector
@@ -507,49 +464,36 @@ def find_element_within(point, unitvector, normal, vertices, vertexids, facetnor
     """
     vertexid = np.where(np.linalg.norm(vertices - point, axis=1) == np.min(np.linalg.norm(vertices - point, axis=1)))
     neighbors = np.where(vertexids == vertexid)[0]
+
     for i in neighbors:
         if check_inplane_pnt(point, vertices[vertexids[i, :]]):
-            # print("point in plane with element %s" % i)
             if geometry.point_in_polygon_3d(vertices[vertexids[i]], point, inplanemat[i]):
-                # print("point in element")
                 if check_inplane_vector(unitvector, facetnormals[i]):
-                    # print("vector in plane")
-                    return i, unitvector
+                    return i, unitvector, None
                 else:
-                    # print("vector not in plane...adjusting")
                     try:
                         newvector = rot_vector(normal, facetnormals[i], unitvector)
                     except EdgeError:
                         continue
                     if check_inplane_vector(newvector, facetnormals[i]):
-                        # print("vector adjusted")
-                        return i, newvector
+                        return i, newvector, None
         else:
-            # print("point not in plane...attempting to adjust")
             test, projpnt = check_proj_inplane_pnt(point, vertices[vertexids[i]])
             if test:
-                # print("point in plane with element %s" % i)
                 if geometry.point_in_polygon_3d(vertices[vertexids[i]], projpnt, inplanemat[i]):
-                    # print("point in element")
                     if check_inplane_vector(unitvector, facetnormals[i]):
-                        # print("vector in plane")
-                        return i, unitvector
+                        return i, unitvector, projpnt
                     else:
-                        # print("vector not in plane...adjusting")
                         try:
                             newvector = rot_vector(normal, facetnormals[i], unitvector)
                         except EdgeError:
                             continue
                         if check_inplane_vector(newvector, facetnormals[i]):
-                            # print("vector adjusted")
-                            return i, newvector
-    return None, None
+                            return i, newvector, projpnt
+    return None, None, None
 
 
-def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, length, uv_start, parameterization=True, nan=False):
-    if parameterization and element not in list(af.georecord.keys()):
-        af.georecord[element] = [[], None]
-
+def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, length, uv_start, direction=1, parameterization=True):
     # Determine the elements surrounding the current element
     neighbors = find_neighbors(element, af.vertexids_indices, af.adjacencyidx)
 
@@ -565,7 +509,7 @@ def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, 
     pointuv = np.array(calcbarycentric(point, element_vertices))
 
     # Calculate the barycentric direction for the current 3d fiber direction vector
-    duv = np.array(calcbarycentricdirection(unitfiberdirection, element_vertices))
+    duv = calcunitvector(np.array(calcbarycentricdirection(unitfiberdirection, element_vertices)))
 
     # Calculate another point in the direction of the fiber in order to calculate intersection point later
     lnpoint = pointuv + duv * 1
@@ -581,32 +525,26 @@ def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, 
     # Find the point of intersection between the edge and a line in the fiber direction
     int_pnt = find_intpnt(pointuv, lnpoint, nextedge[0], nextedge[1])
 
+    intersected = []
+    prev_lines = af.georecord.get(element, [[], None])[0]
+    for line in prev_lines:
+        if check_intersection(pointuv, int_pnt, line[0], line[1]):
+            # print("Intersection detected...terminating current geodesic")
+            int_pnt_3d = invcalcbarycentric(find_intpnt(pointuv, int_pnt, line[0], line[1]), element_vertices)
+            distance = np.linalg.norm(int_pnt_3d - point)
+            intersected.append((distance, int_pnt_3d))
+    if len(intersected) > 0:
+        return min(intersected, key=lambda t: t[0])[1], None, None, fiberpoints_local
+
     if parameterization:
-        af.georecord[element][0].append((pointuv, int_pnt))
-        prev_lines = af.georecord.get(element)[0]
-        for line in prev_lines:
-            if check_intersection(pointuv, int_pnt, line[0], line[1]):
-                raise EdgeError
+        af.fiberdirections[element] = direction * unitfiberdirection
+        if element not in list(af.georecord.keys()):
+            af.georecord[element] = [[], None]
 
-        fpoint, closest_point = calcclosestpoint(unitfiberdirection, point, element_vertices, af.facetnormals[element])
+        fpoint, closest_point = calcclosestpoint(direction * unitfiberdirection, point, element_vertices, af.facetnormals[element])
         closest_point_idx = np.where((af.vertices == closest_point).all(axis=1))[0][0]
-
-        if np.isnan(fiberpoints_local[closest_point_idx]).all() or np.abs(fpoint[1]) < np.abs(fiberpoints_local[closest_point_idx][1]):
-            fpoint_t = np.array([length + fpoint[0] + uv_start[0], fpoint[1] + uv_start[1]])
-
-            fiberrec = np.copy(af.geoparameterization)
-            fiberrec[closest_point_idx] = fpoint_t
-
-            rel_uvw = np.pad(fiberrec[af.vertexids], [(0, 0), (0, 0), (0, 1)], "constant", constant_values=1)
-            vdir = 0.5 * np.linalg.det(rel_uvw)
-            if (np.sign(vdir) < 0).any():
-                pass
-            else:
-                fiberpoints_local[closest_point_idx] = fpoint
-                # For every iteration that isn't the first add the last fiberpoint.u and the u value of the very first point
-                af.geoparameterization[closest_point_idx] = fpoint_t
-                af.fiberdirections[element] = unitfiberdirection
-            del fiberrec
+        af.georecord[element][0].append(
+            (pointuv, int_pnt, point, unitfiberdirection, closest_point_idx, uv_start, length, direction))
 
     # Retrieve the 3d coordinates of the edge vertices
     nextedgec = af.vertices[af.vertexids[element, edge]]
@@ -635,6 +573,4 @@ def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, 
     # Rotate current 3d fiber vector to match the plane of the next element
     nextunitvector = rot_vector(af.facetnormals[element], af.facetnormals[nextelement], unitfiberdirection)
 
-    if 0 in np.linalg.norm(af.vertices - int_pnt_3d, axis=1):
-        print("### Encountered a vertex ###")
     return int_pnt_3d, nextunitvector, nextelement, fiberpoints_local
