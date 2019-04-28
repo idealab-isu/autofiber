@@ -51,6 +51,7 @@ def computeglobalstrain(normalized_2d, fiberpoints, vertexids, stiffness_tensor)
     strain_vector = np.divide(np.array([[strain[:, 0, 0]], [strain[:, 1, 1]], [strain[:, 0, 1]]]).transpose((2, 0, 1)), m).squeeze()
 
     # http://homepages.engineering.auckland.ac.nz/~pkel015/SolidMechanicsBooks/Part_I/BookSM_Part_I/08_Energy/08_Energy_02_Elastic_Strain_Energy.pdf
+    # J == Pa * m^3 -> J/m = Pa * m^2           ex. GPa * mm^3 = 1 J so to get J/mm -> GPa * mm^2
     strain_energy_density = 0.5*np.multiply(np.einsum("ei,ei->e", strain_vector, np.matmul(strain_vector, stiffness_tensor)), areas)
 
     total_strain_energy = np.sum(strain_energy_density)
@@ -118,101 +119,28 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
 
 
 # https://medium.com/100-days-of-algorithms/day-69-rmsprop-7a88d475003b
-def rmsprop_momentum(F, dF, x_0, steps=100, lr=0.001, decay=.9, eps=1e-8, mu=.9):
+def rmsprop_momentum(F, dF, x_0, precision=None, maxsteps=None, lr=None, decay=None, eps=None, mu=None):
     x = x_0.flatten()
-
     loss = []
     dx_mean_sqr = np.zeros(x.shape, dtype=float)
     momentum = np.zeros(x.shape, dtype=float)
 
-    for _ in range(steps):
+    if F(x) < eps:
+        return x.reshape(-1, 2), loss
+
+    for _ in range(maxsteps):
+        b0 = F(x)
         dx = dF(x)
         dx_mean_sqr = decay * dx_mean_sqr + (1 - decay) * dx ** 2
         momentum = mu * momentum + lr * dx / (np.sqrt(dx_mean_sqr) + eps)
         x -= momentum
-        if F(x) < 0:
-            break
+
         loss.append(F(x))
 
+        print(F(x), abs(F(x) - b0))
+
+        if abs(F(x) - b0) < precision:
+            break
+        if F(x) < 0:
+            raise ValueError("Negative strain energy detected. Bad parameterization?")
     return x.reshape(-1, 2), loss
-
-
-def optimize_momentum(f, grad, x_0, lr=0.001, decay=0.9, eps=1e-8, mu=0.9, precision=1e-3, maxiters=1e4):
-    # strain value
-    loss = []
-
-    x = x_0.flatten()
-    b = f(x)
-    print("Starting Energy: %s" % b)
-
-    dx_mean_sqr = np.zeros(x.shape, dtype=float)
-    momentum = np.zeros(x.shape, dtype=float)
-    residual = np.inf
-    iters = 0
-    b0 = np.inf
-    b = 0.0
-    while abs(b - b0) > precision and iters < maxiters:
-        b0 = b
-        dx = grad(x)
-        dx_mean_sqr = decay * dx_mean_sqr + (1 - decay) * dx ** 2
-        momentum = mu * momentum + lr * dx / (np.sqrt(dx_mean_sqr) + eps)
-        x -= momentum
-        b = f(x)
-
-        print("Residual: %s" % abs(b - b0))
-        if abs(b - b0) > residual:
-            print("Final Strain Energy: %s" % b0)
-            print("Step size too large. Increase in residual detected. Terminating...")
-            break
-        residual = abs(b - b0)
-
-        # print("Current Strain Energy: %s" % b)
-        loss.append(b)
-
-        iters += 1
-
-    return x.reshape(x_0.shape), loss
-
-
-def optimize(f, grad, x_0, eps=1e-5, precision=1e-3, maxiters=1e4):
-    import pdb
-    import matplotlib.pyplot as plt
-    from mpl_toolkits.mplot3d import axes3d
-
-    # iteration, strain value
-    record = np.empty((0, 2))
-
-    x = x_0.flatten()
-    b = f(x)
-    print("Starting Energy: %s" % b)
-
-    residual = np.inf
-    iters = 0
-    b0 = np.inf
-    b = 0.0
-    while abs(b - b0) > precision and iters < maxiters:
-        b0 = b
-        cur_grad = grad(x)
-        x = x - eps * cur_grad
-        b = f(x)
-
-        print("Residual: %s" % abs(b - b0))
-        if abs(b - b0) > residual:
-            print("Final residual: %s" % residual)
-            print("Step size too large. Increase in residual detected. Terminating...")
-            break
-        residual = abs(b - b0)
-
-        # print("Current Strain Energy: %s" % b)
-        record = np.vstack((record, np.array([iters, b])))
-
-        iters += 1
-
-    # fig = plt.figure()
-    # plt.scatter(x_0[:, 0], x_0[:, 1])
-    # plt.scatter(x.reshape(x_0.shape)[:, 0], x.reshape(x_0.shape)[:, 1])
-
-    fig = plt.figure()
-    plt.plot(record[:, 0], record[:, 1])
-
-    return x.reshape(x_0.shape), record

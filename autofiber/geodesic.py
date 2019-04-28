@@ -63,7 +63,7 @@ def angle_between_vectors(v1, v2):
         return 2*np.pi - np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
 
 
-def vector_inbetween(v1, v2, v3):
+def vector_inbetween(v1, v2, v3, error=1e-10):
     """
     Determines if a vector (v1) is between v2 and v3
     https://stackoverflow.com/questions/13640931/how-to-determine-if-a-vector-is-between-two-other-vectors
@@ -72,7 +72,7 @@ def vector_inbetween(v1, v2, v3):
     :param v3: Given vector
     :return: True if vector is between v2 and v3, false if not between
     """
-    if np.dot(np.cross(v2, v1), np.cross(v2, v3)) >= 0 and np.dot(np.cross(v3, v1), np.cross(v3, v2)) >= 0:
+    if np.dot(np.cross(v2, v1), np.cross(v2, v3)) >= -error and np.dot(np.cross(v3, v1), np.cross(v3, v2)) >= -error:
         return True
     else:
         return False
@@ -90,11 +90,15 @@ def rot_vector(oldnormal, newnormal, vector, force=False):
         sinphi = np.linalg.norm(vector_a)
         cosphi = np.dot(oldnormal, newnormal)
         a_hat = vector_a/sinphi
-        if np.arccos(cosphi) >= np.deg2rad(85) and not force:
-            print("Edge detected...geodesic path completed")
+        if np.arccos(cosphi) >= np.deg2rad(85.0) and not force:
+            # print("Edge detected...geodesic path completed")
             raise EdgeError
         else:
             return calcunitvector(vector * cosphi - np.cross(vector, a_hat) * sinphi + a_hat * np.dot(vector, a_hat) * (1 - cosphi))
+
+
+def rot_vector_angle(vector, normal, angle):
+    return calcunitvector(vector * np.cos(np.deg2rad(angle)) + np.cross(normal, vector) * np.sin(np.deg2rad(angle)) + normal * np.dot(normal, vector) * (1 - np.cos(np.deg2rad(angle))))
 
 
 def check_proj_inplane_pnt(point, element_vertices):
@@ -212,13 +216,19 @@ def find_edge(point, direction, error):
         return 1
     elif d2 >= error and (d2 <= d0 or d0 <= error) and (d2 <= d1 or d1 <= error):
         return 2
+    elif d0 == 0.0 and d1 != 0.0 and d2 != 0.0:
+        return 0
+    elif d0 != 0.0 and d1 == 0.0 and d2 != 0.0:
+        return 1
+    elif d0 != 0.0 and d1 != 0.0 and d2 == 0.0:
+        return 2
     elif d0 == -1 or d1 == -1 or d2 == -1:
-        print("Following an edge...terminating geodesic")
+        # print("Following an edge...")
         raise EdgeError
     elif d0 < 0 and d1 < 0 and d2 < 0:
         return find_edge(point, -direction, error)
     else:
-        print("Edge is uncertain...terminating geodesic")
+        # print("Edge is uncertain...terminating geodesic")
         raise EdgeError
 
 
@@ -274,46 +284,12 @@ def calcclosestpoint(unitvector, oldpoint, meshpoints, normal):
     fpointu = paraldistances[point_idx]
     point_3d = trimedmeshpoints[point_idx]
     vector2pnt = perpdistances[point_idx]
-
-    # perppoint = oldpoint + unitvector*fpointu
-
-    # rel_uvw = np.vstack((oldpoint, perppoint, point_3d)).T
-    # testval = np.sign(0.5*np.linalg.det(rel_uvw))
-
     testval = np.dot(calcunitvector(np.cross(unitvector, vector2pnt)), normal)
-
-    # if element == 204:
-    #     fig = plt.figure()
-    #     ax = fig.add_subplot(111, projection='3d')
-    #     ax.quiver(oldpoint[0], oldpoint[1], oldpoint[2], unitvector[0], unitvector[1], unitvector[2], color="y", length=0.1)
-    #     ax.quiver(oldpoint[0], oldpoint[1], oldpoint[2], normal[0], normal[1], normal[2], color="r",
-    #               length=0.1)
-    #     ax.quiver(perppoint[0], perppoint[1], perppoint[2], vector2pnt[0], vector2pnt[1], vector2pnt[2], color="orange", length=0.1)
-    #     ax.scatter(oldpoint[0], oldpoint[1], oldpoint[2], color="black")
-    #     ax.scatter(point_3d[0], point_3d[1], point_3d[2], color="g")
-    #     ax.scatter(perppoint[0], perppoint[1], perppoint[2], color="b")
-    #     ax.scatter(meshpoints[:, 0], meshpoints[:, 1], meshpoints[:, 2], color="cyan")
-    #     import sys
-    #     sys.modules["__main__"].__dict__.update(globals())
-    #     sys.modules["__main__"].__dict__.update(locals())
-    #     pdb.set_trace()
 
     fpointv = testval * np.linalg.norm(vector2pnt)
     if np.isnan(fpointv):
         fpointv = 0.0
     fpoint = np.array([fpointu, fpointv])
-
-    # fig = plt.figure()
-    # ax = fig.add_subplot(111, projection='3d')
-    # ax.quiver(oldpoint[0], oldpoint[1], oldpoint[2], unitvector[0], unitvector[1], unitvector[2], color="r", length=0.1)
-    # ax.quiver(perppoint[0], perppoint[1], perppoint[2], vector2pnt[0], vector2pnt[1], vector2pnt[2], color="r", length=0.1)
-    # ax.scatter(oldpoint[0], oldpoint[1], oldpoint[2], color="black")
-    # ax.scatter(point_3d[0], point_3d[1], point_3d[2], color="g")
-    # ax.scatter(perppoint[0], perppoint[1], perppoint[2], color="b")
-    #
-    # print(unitvector)
-    # print(fpoint)
-    # pdb.set_trace()
     return fpoint, point_3d
 
 
@@ -444,7 +420,7 @@ def check_inplane_vector(vector, normal):
         return False
 
 
-def find_element_vertex(point, unitvector, curnormal, vertices, vertexids, facetnormals, debug=False):
+def find_element_vertex(point, unitvector, curnormal, vertices, vertexids, facetnormals):
     """
     Determines which element is next given a vertex and an angle
     :param point: Vertex in the mesh
@@ -455,7 +431,6 @@ def find_element_vertex(point, unitvector, curnormal, vertices, vertexids, facet
     :param facetnormals: Normals of each element in mesh
     :return: The element in which the fiber direction vector resides
     """
-    import pdb
     newvector = None
     element = None
     # Find neighboring elements:
@@ -476,43 +451,6 @@ def find_element_vertex(point, unitvector, curnormal, vertices, vertexids, facet
             if vector_inbetween(newvector, evectors[0], evectors[1]):
                 element = i
                 break
-
-                # import matplotlib.pyplot as plt
-                # from mpl_toolkits.mplot3d import axes3d
-                #
-                # fig = plt.figure()
-                # ax = fig.add_subplot(111, projection='3d')
-                # colors = ["b", "g", "r", "orange", "black", "y"]
-                # for l in range(0, neighbors.shape[0]):
-                #     print(neighbors[l], colors[l])
-                #     ax.scatter(vertices[vertexids[neighbors[l]]][:, 0], vertices[vertexids[neighbors[l]]][:, 1],
-                #                vertices[vertexids[neighbors[l]]][:, 2], c=colors[l])
-                # ax.scatter(vertices[:, 0], vertices[:, 1], vertices[:, 2], alpha=0.1)
-                # ax.scatter(point[0], point[1], point[2], c="r")
-                # ax.quiver(point[0], point[1], point[2], newvector[0], newvector[1], newvector[2], length=0.1)
-                # ax.quiver(point[0], point[1], point[2], evectors[0][0], evectors[0][1], evectors[0][2], length=0.1)
-                # ax.quiver(point[0], point[1], point[2], evectors[1][0], evectors[1][1], evectors[1][2], length=0.1)
-                #
-                # print(point)
-                # print(neighbors)
-                # print(vertices[vertexids[neighbors]])
-                # print(element)
-
-                # pdb.set_trace()
-    # if element.shape[0] > 1:
-    #     print("### On an edge, multiple potential elements ###")
-    #     normal_angles = np.array([])
-    #     for i in range(0, element.shape[0]):
-    #         angle = angle_between_vectors(curnormal, facetnormals[element[i]])
-    #         if angle > np.pi:
-    #             angle = 2 * np.pi - angle
-    #         normal_angles = np.append(normal_angles, angle)
-    #     element = int(element[np.argmin(normal_angles)])
-    # elif element.shape[0] == 0:
-    #     print("### No elements found ###")
-    #     element = None
-    # else:
-    #     element = int(element[0])
     return element, newvector
 
 
@@ -529,41 +467,30 @@ def find_element_within(point, unitvector, normal, vertices, vertexids, facetnor
 
     for i in neighbors:
         if check_inplane_pnt(point, vertices[vertexids[i, :]]):
-            # print("point %s in plane with element %s" % (point, i))
             if geometry.point_in_polygon_3d(vertices[vertexids[i]], point, inplanemat[i]):
-                # print("point in element")
                 if check_inplane_vector(unitvector, facetnormals[i]):
-                    # print("vector in plane")
-                    return i, unitvector
+                    return i, unitvector, None
                 else:
-                    # print("vector not in plane...adjusting")
                     try:
                         newvector = rot_vector(normal, facetnormals[i], unitvector)
                     except EdgeError:
                         continue
                     if check_inplane_vector(newvector, facetnormals[i]):
-                        # print("vector adjusted")
-                        return i, newvector
+                        return i, newvector, None
         else:
-            # print("point not in plane...attempting to adjust")
             test, projpnt = check_proj_inplane_pnt(point, vertices[vertexids[i]])
             if test:
-                # print("point in plane with element %s" % i)
                 if geometry.point_in_polygon_3d(vertices[vertexids[i]], projpnt, inplanemat[i]):
-                    # print("point in element")
                     if check_inplane_vector(unitvector, facetnormals[i]):
-                        # print("vector in plane")
-                        return i, unitvector
+                        return i, unitvector, projpnt
                     else:
-                        # print("vector not in plane...adjusting")
                         try:
                             newvector = rot_vector(normal, facetnormals[i], unitvector)
                         except EdgeError:
                             continue
                         if check_inplane_vector(newvector, facetnormals[i]):
-                            # print("vector adjusted")
-                            return i, newvector
-    return None, None
+                            return i, newvector, projpnt
+    return None, None, None
 
 
 def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, length, uv_start, direction=1, parameterization=True):
