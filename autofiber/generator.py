@@ -546,8 +546,6 @@ class AutoFiber:
 
         self.average_fpoint(np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0], mask)
 
-        self.plot_geodesics()
-
         assert not self.check_negative_area(self.geoparameterization)
         assert np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0].size == 0
 
