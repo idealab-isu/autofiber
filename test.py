@@ -2,8 +2,8 @@ import pickle
 import numpy as np
 from autofiber.generator import AutoFiber as AF
 
-# angles = [0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0]
-angles = [0.0]
+angles = [0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0]
+# angles = [20.0]
 
 for angle in angles:
     print("Angle: %s" % angle)
@@ -57,13 +57,13 @@ for angle in angles:
 
     test = AF(pickle.load(open(r'C:\Files\Research\Fiber-Generator\demos\test.pkl', 'rb')),     # mm
               np.array([0.0, 0.0, 3.0]),
-              np.array([np.sin(np.deg2rad(angle)), np.cos(np.deg2rad(angle)), 0.0]),
+              np.array([np.cos(np.deg2rad(angle)), np.sin(np.deg2rad(angle)), 0.0]),
               np.array([0, 0, 1]),
               E=[1.415e11/1.e9, 8.5e9/1.e9, 8.5e9/1.e9],        # GPa
               nu=[0.33, 0.33, 0.33],
               G=[5.02e9/1.e9, 5.02e9/1.e9, 2.35e9/1.e9],        # GPa
-              fiberint=1.0)
+              fiberint=0.5)
     #
     # meshcoords = np.load("test_abaqus_mesh_coords.npy")
     #
-    # texcoords2inplane = test.layup(0.0, orienation_locations=meshcoords, plotting=True)
+    # texcoords2inplane = test.layup(0.0, plotting=True)

@@ -1,5 +1,6 @@
 import os, sys, time
 import numpy as np
+np.seterr(divide='ignore', invalid='ignore')
 
 from spatialnde.coordframes import coordframe
 from spatialnde.ndeobj import ndepart
@@ -12,11 +13,13 @@ from autofiber import optimization as OP
 
 def calcunitvector(vector):
     """ Returns the unit vector of the vector.  """
-    with np.errstate(divide='ignore'):
-        if len(vector.shape) >= 2:
-            return vector / np.linalg.norm(vector, axis=1)[:, np.newaxis]
-        else:
+    if len(vector.shape) >= 2:
+        return vector / np.linalg.norm(vector, axis=1)[:, np.newaxis]
+    else:
+        if np.linalg.norm(vector) > 0.0:
             return vector / np.linalg.norm(vector)
+        else:
+            return vector
 
 
 class AutoFiber:
@@ -398,8 +401,7 @@ class AutoFiber:
 
     def check_negative_area(self, record):
         rel_uvw = np.pad(record[self.vertexids], [(0, 0), (0, 0), (0, 1)], "constant", constant_values=1)
-        with np.errstate(invalid='ignore'):
-            vdir = 0.5 * np.linalg.det(rel_uvw)
+        vdir = 0.5 * np.linalg.det(rel_uvw)
         vdir[np.isnan(vdir)] = 0
         if (vdir < 0).any():
             return True
@@ -525,24 +527,26 @@ class AutoFiber:
                         else:
                             self.geoparameterization[i] = fpoint_t
                 assert not self.check_negative_area(self.geoparameterization)
+                assert np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0].size == 0
                 break
-            except (AssertionError, IndexError):
+            except (AssertionError, IndexError) as e:
                 cleanup(tests)
 
     def create_parameterization(self):
         mask = np.ones((self.geoparameterization.shape[0]), dtype=bool)
         mask[np.unique(self.surface_vertexids)] = False
+        print("\r\n")
 
         self.assign_vertices(self.fill_missing_geodesics)
+
+        if np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0].size > 0:
+            self.assign_vertices(self.fill_low_density_geodesics)
 
         self.interpolate(np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0], mask)
 
         self.average_fpoint(np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0], mask)
 
-        if np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0].size > 0:
-            self.assign_vertices(self.fill_low_density_geodesics)
-
-        # print("Missed vertices: %s" % np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0].size)
+        self.plot_geodesics()
 
         assert not self.check_negative_area(self.geoparameterization)
         assert np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0].size == 0
@@ -694,7 +698,7 @@ class AutoFiber:
         ax.scatter(self.initpoint[0], self.initpoint[1], self.initpoint[2])
         ax.scatter(self.vertices[:, 0], self.vertices[:, 1], self.vertices[:, 2], alpha=0.1)
         ax.scatter(self.startpoints[:, 0], self.startpoints[:, 1], self.startpoints[:, 2])
-        # ax.scatter(self.vertices[leftover_idxs][:, 0], self.vertices[leftover_idxs][:, 1], self.vertices[leftover_idxs][:, 2])
+        # ax.scatter(self.vertices[leftover_idxs][:, 0], self.vertices[leftover_idxs][:, 1], self.vertices[leftover_idxs][:, 2], c="r")
         # ax.quiver(self.startpoints[:, 0], self.startpoints[:, 1], self.startpoints[:, 2], self.sfiberdirections[:, 0], self.sfiberdirections[:, 1], self.sfiberdirections[:, 2])
         for i in self.geoints:
             ax.plot(i[:, 0], i[:, 1], i[:, 2])
