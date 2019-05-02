@@ -535,7 +535,6 @@ class AutoFiber:
     def create_parameterization(self):
         mask = np.ones((self.geoparameterization.shape[0]), dtype=bool)
         mask[np.unique(self.surface_vertexids)] = False
-        print("\r\n")
 
         self.assign_vertices(self.fill_missing_geodesics)
 
