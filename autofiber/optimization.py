@@ -126,7 +126,7 @@ def rmsprop_momentum(F, dF, x_0, precision=None, maxsteps=None, lr=None, decay=N
     dx_mean_sqr = np.zeros(x.shape, dtype=float)
     momentum = np.zeros(x.shape, dtype=float)
 
-    if F(x) < eps:
+    if F(x) < precision:
         return x.reshape(-1, 2), loss
 
     for _ in range(maxsteps):

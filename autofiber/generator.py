@@ -640,13 +640,13 @@ class AutoFiber:
             plt.plot(range(len(loss)), loss)
 
             fig = plt.figure()
-            plt.scatter(parameterization[:, 0], parameterization[:, 1])
-            plt.scatter(optimizedparamterization[:, 0], optimizedparamterization[:, 1])
+            plt.scatter(parameterization[:, 0], parameterization[:, 1], c="b")
+            plt.scatter(optimizedparamterization[:, 0], optimizedparamterization[:, 1], c="orange")
 
             fig = plt.figure()
             ax = fig.add_subplot(111, projection='3d')
             ax.scatter(self.vertices[:, 0], self.vertices[:, 1], self.vertices[:, 2])
-            ax.quiver(orienation_locations[:, 0], orienation_locations[:, 1], orienation_locations[:, 2], orientations[:, 0], orientations[:, 1], orientations[:, 2], length=0.1)
+            ax.quiver(orienation_locations[:, 0], orienation_locations[:, 1], orienation_locations[:, 2], orientations[:, 0], orientations[:, 1], orientations[:, 2], length=2.0)
             plt.show()
 
         return texcoords2inplane
@@ -701,7 +701,8 @@ class AutoFiber:
             ax.plot(i[:, 0], i[:, 1], i[:, 2])
 
         fig = plt.figure()
-        plt.scatter(self.geoparameterization[:, 0], self.geoparameterization[:, 1])
+        for i in range(0, self.vertexids.shape[0]):
+            plt.plot(self.geoparameterization[self.vertexids[i]][:, 0], self.geoparameterization[self.vertexids[i]][:, 1])
         plt.scatter(self.startuv[:, 0], self.startuv[:, 1])
 
     def calcorientations_abaqus(self, modellocs, vertices, vertexids, inplanemat, texcoords2inplane, boxes, boxpolys, boxcoords):
