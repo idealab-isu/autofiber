@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 
 
@@ -125,7 +126,7 @@ def rmsprop_momentum(F, dF, x_0, precision=None, maxsteps=None, lr=None, decay=N
     dx_mean_sqr = np.zeros(x.shape, dtype=float)
     momentum = np.zeros(x.shape, dtype=float)
 
-    if F(x) < eps:
+    if F(x) < precision:
         return x.reshape(-1, 2), loss
 
     for _ in range(maxsteps):
@@ -137,10 +138,12 @@ def rmsprop_momentum(F, dF, x_0, precision=None, maxsteps=None, lr=None, decay=N
 
         loss.append(F(x))
 
-        print(F(x), abs(F(x) - b0))
+        sys.stdout.write("Residual: %s      \r" % abs(F(x) - b0))
+        sys.stdout.flush()
 
         if abs(F(x) - b0) < precision:
             break
         if F(x) < 0:
             raise ValueError("Negative strain energy detected. Bad parameterization?")
+    print("")
     return x.reshape(-1, 2), loss

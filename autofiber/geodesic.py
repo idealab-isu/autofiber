@@ -1,4 +1,5 @@
 import numpy as np
+np.seterr(divide='ignore', invalid='ignore')
 from spatialnde import geometry
 
 
@@ -38,7 +39,10 @@ def calcunitvector(vector):
     if len(vector.shape) >= 2:
         return vector / np.linalg.norm(vector, axis=1)[:, np.newaxis]
     else:
-        return vector / np.linalg.norm(vector)
+        if np.linalg.norm(vector) > 0.0:
+            return vector / np.linalg.norm(vector)
+        else:
+            return vector
 
 
 def calcnormal(points):
@@ -186,7 +190,7 @@ def find_intpnt(P1, P2, P3, P4):
                      ((P1[0] - P2[0]) * (P3[1] - P4[1]) - (P1[1] - P2[1]) * (P3[0] - P4[0]))])
 
 
-def find_edge(point, direction, error):
+def find_edge(point, direction, bary, error):
     """
     Determines which edge number is intersected first (0, 1, 2) -> (d12, d23, d31)
     https://math.stackexchange.com/questions/2292895/walking-on-the-surface-of-a-triangular-mesh
@@ -195,17 +199,19 @@ def find_edge(point, direction, error):
     :param error: Numerical tolerance
     :return: Edge number (0, 1, 2) or -1 if on an edge
     """
-    if direction[1] != 0:
+    point = point + calcunitvector(np.sum(bary, axis=0) / 3 - point) * error
+
+    if direction[1] != 0.0:
         d0 = -point[1] / direction[1]
     else:
         d0 = -1
 
-    if direction[0] + direction[1] != 0:
+    if direction[0] + direction[1] != 0.0:
         d1 = (1 - point[0] - point[1]) / (direction[0] + direction[1])
     else:
         d1 = -1
 
-    if direction[0] != 0:
+    if direction[0] != 0.0:
         d2 = -point[0] / direction[0]
     else:
         d2 = -1
@@ -216,17 +222,11 @@ def find_edge(point, direction, error):
         return 1
     elif d2 >= error and (d2 <= d0 or d0 <= error) and (d2 <= d1 or d1 <= error):
         return 2
-    elif d0 == 0.0 and d1 != 0.0 and d2 != 0.0:
-        return 0
-    elif d0 != 0.0 and d1 == 0.0 and d2 != 0.0:
-        return 1
-    elif d0 != 0.0 and d1 != 0.0 and d2 == 0.0:
-        return 2
     elif d0 == -1 or d1 == -1 or d2 == -1:
         # print("Following an edge...")
         raise EdgeError
     elif d0 < 0 and d1 < 0 and d2 < 0:
-        return find_edge(point, -direction, error)
+        return find_edge(point, -direction, bary, error)
     else:
         # print("Edge is uncertain...terminating geodesic")
         raise EdgeError
@@ -512,12 +512,12 @@ def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, 
     duv = calcunitvector(np.array(calcbarycentricdirection(unitfiberdirection, element_vertices)))
 
     # Calculate another point in the direction of the fiber in order to calculate intersection point later
-    lnpoint = pointuv + duv * 1
+    lnpoint = pointuv + duv * 1.1
 
     # Signed distance to each edge ([d12, d23, d31])
     edges_dict = np.array([[0, 1], [1, 2], [2, 0]])
     # Determine which edge will be intersected first
-    edge_num = find_edge(pointuv, duv, 0.0000000005)
+    edge_num = find_edge(pointuv, duv, element_vertices_bary, 0.0000000005)
     # Retrieve the corresponding vertex indices to the intersected edge
     edge = edges_dict[edge_num]
     nextedge = element_vertices_bary[edge]
