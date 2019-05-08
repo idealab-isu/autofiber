@@ -55,7 +55,16 @@ for angle in angles:
     #           G=[5.02e9/1.e9, 5.02e9/1.e9, 2.35e9/1.e9],        # GPa
     #           fiberint=1.0)
 
-    test = AF(pickle.load(open(r'C:\Files\Research\Fiber-Generator\demos\test.pkl', 'rb')),     # mm
+    # test = AF(pickle.load(open(r'C:\Files\Research\Fiber-Generator\demos\test.pkl', 'rb')),     # mm
+    #           np.array([0.0, 0.0, 3.0]),
+    #           np.array([np.cos(np.deg2rad(angle)), np.sin(np.deg2rad(angle)), 0.0]),
+    #           np.array([0, 0, 1]),
+    #           E=[1.415e11/1.e9, 8.5e9/1.e9, 8.5e9/1.e9],        # GPa
+    #           nu=[0.33, 0.33, 0.33],
+    #           G=[5.02e9/1.e9, 5.02e9/1.e9, 2.35e9/1.e9],        # GPa
+    #           fiberint=0.25)
+
+    test = AF(r'C:\Files\Research\Fiber-Generator\demos\flatplate.stl',     # mm
               np.array([0.0, 0.0, 3.0]),
               np.array([np.cos(np.deg2rad(angle)), np.sin(np.deg2rad(angle)), 0.0]),
               np.array([0, 0, 1]),
@@ -64,6 +73,7 @@ for angle in angles:
               G=[5.02e9/1.e9, 5.02e9/1.e9, 2.35e9/1.e9],        # GPa
               fiberint=0.25)
 
-    # meshcoords = np.load("test_abaqus_mesh_coords.npy")
+    # meshcoords = np.load("curved_abaqus_mesh_coords.npy")
+    meshcoords = np.load("test_Layer_1_LB1.npy")
 
-    texcoords2inplane = test.layup(0.0, plotting=True)
+    texcoords2inplane = test.layup(0.0, orienation_locations=meshcoords, plotting=True)

@@ -199,7 +199,7 @@ def find_edge(point, direction, bary, error):
     :param error: Numerical tolerance
     :return: Edge number (0, 1, 2) or -1 if on an edge
     """
-    point = point + calcunitvector(np.sum(bary, axis=0) / 3 - point) * error
+    point = point + calcunitvector(np.sum(bary, axis=0) / 3 - point) * 1e-8
 
     if direction[1] != 0.0:
         d0 = -point[1] / direction[1]

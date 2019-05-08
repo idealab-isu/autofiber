@@ -646,7 +646,7 @@ class AutoFiber:
             fig = plt.figure()
             ax = fig.add_subplot(111, projection='3d')
             ax.scatter(self.vertices[:, 0], self.vertices[:, 1], self.vertices[:, 2])
-            ax.quiver(orienation_locations[:, 0], orienation_locations[:, 1], orienation_locations[:, 2], orientations[:, 0], orientations[:, 1], orientations[:, 2], length=2.0)
+            ax.quiver(orienation_locations[:, 0], orienation_locations[:, 1], orienation_locations[:, 2], orientations[:, 0], orientations[:, 1], orientations[:, 2], arrow_length_ratio=0, length=2.0)
             plt.show()
 
         return texcoords2inplane
@@ -713,27 +713,34 @@ class AutoFiber:
         rangey = np.array([boxcoords[:, 1], boxcoords[:, 4]]).T
         rangez = np.array([boxcoords[:, 2], boxcoords[:, 5]]).T
 
-        for i in range(0, modellocs.shape[0]):
-            element = None
-
-            point = modellocs[i]
-            idx = np.where(np.linalg.norm(vertices - point, axis=1) == np.min(np.linalg.norm(vertices - point, axis=1)))
-            vert = vertices[idx][0]
-
+        def in_box(p):
             containers = np.where(np.logical_and(np.logical_and(
-                np.logical_and(vert[0] > rangex[:, 0], vert[0] < rangex[:, 1]),
-                np.logical_and(vert[1] > rangey[:, 0], vert[1] < rangey[:, 1])),
-                np.logical_and(vert[2] > rangez[:, 0], vert[2] < rangez[:, 1])))[0]
+                np.logical_and(p[0] > rangex[:, 0], p[0] < rangex[:, 1]),
+                np.logical_and(p[1] > rangey[:, 0], p[1] < rangey[:, 1])),
+                np.logical_and(p[2] > rangez[:, 0], p[2] < rangez[:, 1])))[0]
+            bindx = boxes[containers][:, -1][boxes[containers][:, -1] != -1][0]
 
-            box_idx = boxes[containers][:, -1][boxes[containers][:, -1] != -1][0]
-
-            polys = np.array([boxpolys[box_idx]])
+            polyslist = np.array([boxpolys[bindx]])
             count = 1
             while True:
-                if boxpolys[box_idx+count] == -1:
+                if boxpolys[bindx+count] == -1:
                     break
-                polys = np.append(polys, boxpolys[box_idx+count])
+                polyslist = np.append(polyslist, boxpolys[bindx+count])
                 count += 1
+
+            return bindx, polyslist
+
+        for i in range(0, modellocs.shape[0]):
+            idx, element = None, None
+
+            point = modellocs[i]
+
+            try:
+                box_idx, polys = in_box(point)
+            except IndexError:
+                idx = np.where(np.linalg.norm(vertices - point, axis=1) == np.min(np.linalg.norm(vertices - point, axis=1)))
+                vert = vertices[idx][0]
+                box_idx, polys = in_box(vert)
 
             for j in polys:
                 check, projpnt = GEO.check_proj_inplane_pnt(point, vertices[vertexids[j]])
@@ -742,6 +749,8 @@ class AutoFiber:
                     break
 
             if element is None:
+                if idx is None:
+                    idx = np.where(np.linalg.norm(vertices - point, axis=1) == np.min(np.linalg.norm(vertices - point, axis=1)))
                 vertneighbors = np.unique(np.where((vertexids == idx))[0])
                 element = vertneighbors[0]
 
@@ -752,7 +761,7 @@ class AutoFiber:
                 u3D = np.dot(inplanemat[element].T, texu2dbasis)
                 orientations[i] = calcunitvector(u3D)
             else:
-                print("Failed to find point on surface: %s" % vert)
+                print("Failed to find point on surface: %s" % point)
         return orientations
 
     def point_in_polygon_2d(self, vertices_rel_point):
