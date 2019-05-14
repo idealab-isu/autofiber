@@ -7,33 +7,6 @@ class EdgeError(Exception):
     pass
 
 
-def referenceaxis(facetnormal):
-    """ Determine a reference axis based on the element normal
-        Returns: Global axis pointing to "right" of the element normal
-    """
-    normal = np.array([0, 0, 0])
-    if facetnormal[np.where((np.abs(facetnormal) == max(np.abs(facetnormal))))] > 0:
-        normal[np.where((np.abs(facetnormal) == max(np.abs(facetnormal))))] = 1
-    else:
-        normal[np.where((np.abs(facetnormal) == max(np.abs(facetnormal))))] = -1
-    coordsys = np.where((normal != 0))[0][0]
-    if normal[coordsys] > 0:
-        if coordsys == 0:
-            axis = np.array([0, 1, 0])
-        elif coordsys == 1:
-            axis = np.array([0, 0, 1])
-        else:
-            axis = np.array([0, 1, 0])
-    else:
-        if coordsys == 0:
-            axis = np.array([0, -1, 0])
-        elif coordsys == 1:
-            axis = np.array([0, 0, -1])
-        else:
-            axis = np.array([0, -1, 0])
-    return axis
-
-
 def calcunitvector(vector):
     """ Returns the unit vector of the vector.  """
     if len(vector.shape) >= 2:
@@ -129,11 +102,18 @@ def check_proj_inplane_pnt(point, element_vertices):
 
 
 def proj_vector(vector, newnormal):
+    """
+    Project a vector onto a surface defined by newnormal
+    :param vector: Vector to be projected
+    :param newnormal: Normal of projected surface
+    :return: Vector projected on surface defined by newnormal
+    """
     return calcunitvector(vector - np.dot(vector, newnormal) * newnormal)
 
 
 def check_intersection(p1, q1, p2, q2):
     """
+    Check for an intersection between (p1, p2) and (q1, q2)
     https://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/
     """
     def orientation(p, q, r):
@@ -493,7 +473,19 @@ def find_element_within(point, unitvector, normal, vertices, vertexids, facetnor
     return None, None, None
 
 
-def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, length, uv_start, direction=1, parameterization=True):
+def traverse_element(af, element, point, unitfiberdirection, length, uv_start, direction=1, parameterization=True):
+    """
+    Traverse a triangular element
+    :param af: Autofiber object
+    :param element: Current triangular element
+    :param point: Current point
+    :param unitfiberdirection: Current direction vector
+    :param length: Current length of the geodesic
+    :param uv_start: Start point of geodesic in uv space
+    :param direction: (1) for positive geodesic direction, (-1) for negative geodesic direction
+    :param parameterization: Are we going to record geodesic details for use in parameterization calculation?
+    :return: next intersection point, next unitfiberdirection based on next element, next element
+    """
     # Determine the elements surrounding the current element
     neighbors = find_neighbors(element, af.vertexids_indices, af.adjacencyidx)
 
@@ -534,7 +526,7 @@ def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, 
             distance = np.linalg.norm(int_pnt_3d - point)
             intersected.append((distance, int_pnt_3d))
     if len(intersected) > 0:
-        return min(intersected, key=lambda t: t[0])[1], None, None, fiberpoints_local
+        return min(intersected, key=lambda t: t[0])[1], None, None
 
     if parameterization:
         af.fiberdirections[element] = direction * unitfiberdirection
@@ -568,9 +560,9 @@ def traverse_element(af, element, point, unitfiberdirection, fiberpoints_local, 
     int_pnt_3d = invcalcbarycentric(int_pnt, element_vertices)
 
     if nextelement is None:
-        return int_pnt_3d, None, nextelement, fiberpoints_local
+        return int_pnt_3d, None, nextelement
 
     # Rotate current 3d fiber vector to match the plane of the next element
     nextunitvector = rot_vector(af.facetnormals[element], af.facetnormals[nextelement], unitfiberdirection)
 
-    return int_pnt_3d, nextunitvector, nextelement, fiberpoints_local
+    return int_pnt_3d, nextunitvector, nextelement
