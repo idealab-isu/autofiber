@@ -308,7 +308,7 @@ class AutoFiber:
                     try:
                         while True:
                             # Traverse the current element
-                            int_pnt_3d, nextunitvector, nextelement, _ = GEO.traverse_element(self, element, point, pointdirection, None, None, None, direction=direction, parameterization=False)
+                            int_pnt_3d, nextunitvector, nextelement = GEO.traverse_element(self, element, point, pointdirection, None, None, direction=direction, parameterization=False)
 
                             # Determine how far we are from the calculated intersection point on the other side of the current triangle
                             d2int = np.linalg.norm(int_pnt_3d - point)
@@ -369,7 +369,7 @@ class AutoFiber:
         for i in range(startidx, self.startpoints.shape[0]):
             sys.stdout.write('\r')
             percent_complete = ((i + 1) / float(self.startpoints.shape[0])) * 100.0
-            sys.stdout.write("[%-100s] %d%%" % ('=' * int(percent_complete), percent_complete))
+            sys.stdout.write("[%-50s] %d%%" % ('=' * int(percent_complete/2), percent_complete))
             sys.stdout.flush()
             self.calc_geodesic(self.startpoints[i], self.startelements[i], self.sfiberdirections[i],
                                self.startuv[i], direction=1, parameterization=True)
