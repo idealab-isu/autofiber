@@ -1,6 +1,5 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 from os import path
-from io import open
 
 here = path.abspath(path.dirname(__file__))
 
@@ -10,4 +9,5 @@ setup(
     author='Nathan Scheirer',
     description='Accurate, automatic composite fiber placement',
     keywords='auto fiber placement strain energy optimization',
+    packages=["autofiberlib"]
 )

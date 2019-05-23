@@ -1,6 +1,6 @@
 import pickle
 import numpy as np
-from autofiber.generator import AutoFiber as AF
+from autofiberlib import AutoFiber as AF
 
 # angles = [0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0]
 angles = [0.0]
@@ -9,7 +9,7 @@ for angle in angles:
     print("Angle: %s" % angle)
     # Flat plate - X3D - Anisotropic material properties
     # Path to X3D CAD model
-    # test = AF('FlatPlate.x3d',
+    # test = AF('demos/FlatPlate.x3d',
     #           # Point close to the center of the model
     #           np.array([1.0, -1.0, 0.0]),
     #           # Vector pointing in fiber direction
@@ -28,7 +28,7 @@ for angle in angles:
     # texcoords2inplane = test.layup(0.0, plotting=True)
 
     # Cylinder - X3D - Anisotropic material properties
-    # test = AF('Cylinder.x3d',
+    # test = AF('demos/Cylinder.x3d',
     #           np.array([0.0, 0.0, 1.0]),
     #           np.array([np.sin(-1 * np.deg2rad(angle)), np.cos(np.deg2rad(angle)), 0.0]),
     #           np.array([0, 0, 1.0]),
@@ -39,7 +39,7 @@ for angle in angles:
     # texcoords2inplane = test.layup(0.0, plotting=True)
 
     # Saddle model - X3D - Anisotropic material properties
-    test = AF('SmallSaddle32.x3d',
+    test = AF('demos/SmallSaddle32.x3d',
               np.array([0.0, 1.0, 0.0]),
               np.array([-np.cos(np.deg2rad(angle)), 0, -np.sin(np.deg2rad(angle))]),
               np.array([0, 1, 0]),
@@ -56,7 +56,7 @@ for angle in angles:
     texcoords2inplane = test.layup(0.0, plotting=True)
 
     # Curved Composite Mold / De-La-Mo - DMObject - Anisotropic material properties
-    # test = AF(pickle.load(open('DMObject.pkl', 'rb')),     # mm
+    # test = AF(pickle.load(open('demos/DMObject.pkl', 'rb')),     # mm
     #           np.array([0.0, 0.0, 3.0]),
     #           np.array([np.cos(np.deg2rad(angle)), np.sin(np.deg2rad(angle)), 0.0]),
     #           np.array([0, 0, 1]),
@@ -65,5 +65,5 @@ for angle in angles:
     #           G=[5.02e9/1.e9, 5.02e9/1.e9, 2.35e9/1.e9],        # GPa
     #           fiberint=0.25)
     # Can define mesh coordinates at which the orientation can be computed
-    # meshcoords = np.load("curved_abaqus_mesh_coords.npy")
+    # meshcoords = np.load("demos/curved_abaqus_mesh_coords.npy")
     # texcoords2inplane = test.layup(0.0, orientation_locations=meshcoords, plotting=True)
