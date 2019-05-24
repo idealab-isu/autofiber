@@ -5,8 +5,12 @@ of the [De-La-Mo](http://thermal.cnde.iastate.edu/de-la-mo.xhtml)
 automatic defect insertion into FEM package developed at Iowa
 State University.
 
+AutoFiber is Copyright (C) 2016-2018 Iowa State University
+Research Foundation, Inc. It is published under the
+Apache 2.0 license. See the LICENSE file for details.
+
 ## Project Structure
-* `autofiber/`: Contains the python package *autofiber*
+* `autofiber/`: Contains the python library [autofiberlib](https://github.com/nscheirer/autofiberlib) as a git submodule.
 * `demos/`: Contains a variety of demo models and a script, *test.py*
 which demonstrates usage on each model.
 * `doc/`: Contains various documentation materials
@@ -22,11 +26,12 @@ Created by Dr. Stephen D. Holland at Iowa State University \
 ## Installation
 Once all dependencies are installed run:
 ```
+python setup.py build
 python setup.py install
 ```
 
 ## How to run
-Take a look at `demos/test.py` for an in-depth explaination of the relevant
+Take a look at `test.py` for an in-depth explanation of the relevant
 API calls and how they work for a variety of models.
 
 ## Abaqus integration
