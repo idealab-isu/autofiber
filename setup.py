@@ -24,5 +24,5 @@ setup(
     author='Nathan Scheirer',
     description='Accurate, automatic composite fiber placement',
     keywords='auto fiber placement strain energy optimization',
-    packages=["autofiberlib"]
+    packages=["autofiber"]
 )

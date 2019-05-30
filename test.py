@@ -15,7 +15,7 @@
 
 import pickle
 import numpy as np
-from autofiberlib import AutoFiber as AF
+from autofiber import AutoFiber as AF
 
 # angles = [0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0]
 angles = [0.0]
