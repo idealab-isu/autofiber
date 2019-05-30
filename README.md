@@ -10,13 +10,21 @@ Research Foundation, Inc. It is published under the
 Apache 2.0 license. See the LICENSE file for details.
 
 ## Project Structure
-* `autofiber/`: Contains the python library [autofiberlib](https://github.com/nscheirer/autofiberlib) as a git submodule.
+* `autofiber/`: Contains the python package __autofiber__.
 * `demos/`: Contains a variety of demo models and a script, *test.py*
 which demonstrates usage on each model.
 * `doc/`: Contains various documentation materials
 
+## Package Structure
+* `generator.py`: Main control script which generates geodesic start points, calculates geodesic paths, computes the
+geodesic parameterization, and employs the strain energy minimization.
+* `geodesic.py`: Contains the functions necessary for computing the geodesic trajectories and parameterizations.
+* `optimization.py`: Contains the definition for the strain energy function and gradient as well as the RMSprop
+algorithm used to minimize the strain energy function.
+* `analyze_uv.py`: Spatialnde helper script that defines mesh adjacency indexes.
+
 ## Dependencies
-* Requires Python 2.7 (limited by spatialnde)
+* Tested with Python 2.7-3.7
 * `spatialnde`: 3D model loader and image projection package \
 Created by Dr. Stephen D. Holland at Iowa State University \
 [Spatialnde](http://thermal.cnde.iastate.edu/spatialnde)

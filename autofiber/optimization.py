@@ -45,8 +45,8 @@ def minor(arr, i, j):
     :return: minor of arr with ith row removed and jth column removed
     """
     # ith row, jth column removed
-    return ((-1) ** (i + j)) * arr[:, np.array(range(i)+range(i+1, arr.shape[1]))[:, np.newaxis],
-                               np.array(range(j)+range(j+1, arr.shape[2]))]
+    return ((-1) ** (i + j)) * arr[:, np.array(list(range(i))+list(range(i+1, arr.shape[1])))[:, np.newaxis],
+                               np.array(list(range(j))+list(range(j+1, arr.shape[2])))]
 
 
 def build_checkerboard(w, h):
@@ -71,7 +71,7 @@ def computeglobalstrain(normalized_2d, fiberpoints, vertexids, stiffness_tensor)
     :param stiffness_tensor: Stiffness tensor of the given material
     :return: The computed total strain energy between normalized_2d and fiberpoints
     """
-    element_vertices_uv = fiberpoints.reshape(fiberpoints.shape[0]/2, 2)[vertexids]
+    element_vertices_uv = fiberpoints.reshape(int(fiberpoints.shape[0]/2), 2)[vertexids]
 
     centroid_2d = np.sum(normalized_2d, axis=1) / 3
     centroid_uv = np.sum(element_vertices_uv, axis=1) / 3
@@ -121,7 +121,7 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
     :param oc: A vertex index which we want to constrain by fixing it's location
     :return: The gradient of strain energy with respect to movement of each point in the uv parameterization
     """
-    element_vertices_uv = fiberpoints.reshape(fiberpoints.shape[0]/2, 2)[vertexids]
+    element_vertices_uv = fiberpoints.reshape(int(fiberpoints.shape[0]/2), 2)[vertexids]
 
     centroid_2d = np.sum(normalized_2d, axis=1) / 3
     centroid_uv = np.sum(element_vertices_uv, axis=1) / 3
@@ -175,7 +175,7 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
     # dE_du = strain*C*dstrain_duv*areas + 0.5*strain*C*strain*dareas_duv
     dE_du = (np.einsum("ei,e->ei", np.einsum("ei,eij->ej", np.matmul(strain_vector, stiffness_tensor), dstrainvector_duv), areas) + 0.5*np.einsum("e,ej->ej", np.einsum("ei,ei->e", np.matmul(strain_vector, stiffness_tensor), strain_vector), dareas_duv)).reshape(dstrainvector_duv.shape[0], 3, 2)
 
-    point_strain_grad = np.zeros((fiberpoints.shape[0]/2, 2))
+    point_strain_grad = np.zeros((int(fiberpoints.shape[0]/2), 2))
     for i in range(0, vertexids.shape[0]):
         ele_vertices = vertexids[i]
         ele_strain_grad = dE_du[i]
