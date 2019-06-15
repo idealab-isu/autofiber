@@ -69,6 +69,10 @@ instance/
 # Scrapy stuff:
 .scrapy
 
+# Sphinx documentation
+make.bat
+Makefile
+
 # PyBuilder
 target/
 
