@@ -1,0 +1,244 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Tutorial &#8212; AutoFiber  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Submodules" href="autofiber.html" />
+    <link rel="prev" title="Welcome to AutoFiber!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="tutorial">
+<h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
+<p>This tutorial will follow one of the examples in <a class="reference external" href="../test.py">test.py</a>, specifically the optimization of fiber orientations on the
+saddle model. To run <code class="docutils literal notranslate"><span class="pre">test.py</span></code> simply run <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">test.py</span></code> or launch <code class="docutils literal notranslate"><span class="pre">test.py</span></code> with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">launcher.py</span></code> which will launch
+the <code class="docutils literal notranslate"><span class="pre">test.py</span></code> file in an IPython interactive shell with pylab already primed to be initialized.</p>
+<p>Once Autofiber is installed correctly the package can be imported as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">autofiber.generator</span> <span class="kn">import</span> <span class="n">AutoFiber</span> <span class="k">as</span> <span class="n">AF</span>
+</pre></div>
+</div>
+<p>In <code class="docutils literal notranslate"><span class="pre">test.py</span></code> the experiments are setup such that a variety of angles can be computed sequentially. To create an AutoFiber
+object we can use the following call:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Saddle model - X3D - Anisotropic material properties</span>
+<span class="n">test</span> <span class="o">=</span> <span class="n">AF</span><span class="p">(</span><span class="s1">&#39;demos/SmallSaddle32.x3d&#39;</span><span class="p">,</span>
+          <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]),</span>
+          <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">angle</span><span class="p">)),</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">angle</span><span class="p">))]),</span>
+          <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span>
+          <span class="n">materialproperties</span><span class="o">=</span><span class="n">materialproperties</span><span class="p">,</span>
+          <span class="n">fiberint</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+          <span class="c1"># Further angle to be applied to the given fiber direction</span>
+          <span class="c1">#  This is typically used as a tolerance in the fiber angle but</span>
+          <span class="c1">#  can be used to rotate the base parameterization such as in the case</span>
+          <span class="c1">#  of the saddle part we can actually define a parameterization easily at 45.0 degrees.</span>
+          <span class="c1">#  Recommended to be any number except exactly zero</span>
+          <span class="n">angle_error</span><span class="o">=</span><span class="mf">45.0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here is a breakdown of each parameter used to create the AutoFiber object:</p>
+<ol class="arabic simple">
+<li>cadfile: Path to CAD file (currently supports x3d, stl, and De-La-Mo DMObjects)</li>
+<li>initpoint: 3D point closest to the center of the surface we would like to work on</li>
+<li>initdirection: 3D unit vector representing the fiber direction at initpoint</li>
+<li>initnormal: 3D unit vector indicating the surface normal at initpoint (used to determine which surface to operate on)</li>
+<li>materialproperties: Composite fiber material properties, if empty then a set of default properties will be used.
+materialproperties is setup as follows: (E, poisson’s ratio, G) if E is a list: for anisotropic [E1, E2, E3],
+nu is [nu12, nu13, nu23], and the shear modulus G is [G12, G13, G23]. If E is not a list then an isotropic material
+is used and G will be computed from E and nu.</li>
+<li>fiberint: Perpendicular distance between generated geodesics</li>
+<li>angle_error: Error incorporated into the initdirection, any error defined here is reversed during optimization</li>
+<li>accel: Utilize OpenCL parallel geodesic generator (WIP - not currently functioning)</li>
+</ol>
+<p>Therefore, if we have the following model:</p>
+<a class="reference external image-reference" href="images/saddlemodel.png"><img alt="alt text" src="_images/saddlemodel.png" /></a>
+<p>we can pick the point which will be in approximately the center. The Autofiber package will determine the nearest vertex
+to start from so we don’t have to be extremely precise. It is not necessary to pick a start point at the center of the model,
+however starting from this location will give us the greatest opportunity to cover the entire surface with geodesic lines.</p>
+<a class="reference external image-reference" href="images/saddlemodelwithstart.png"><img alt="alt text" src="_images/saddlemodelwithstart.png" /></a>
+<p>Now, we need to figure out the direction of the geodesics we would like to use. Typically, if we consider a plane that goes
+through the start point that shares the same general surface normal as our model then we can determine a good
+starting geodesic direction. Keep in mind that this direction will essentially set our U-V directions or in terms of
+composite fibers the U direction is the longitudinal direction and V is the transverse direction. Therefore, more than not,
+we will use an initial geodesic direction in a principle direction i.e. [1, 0, 0] as seen here:</p>
+<a class="reference external image-reference" href="images/saddlemodelwithdirection.png"><img alt="alt text" src="_images/saddlemodelwithdirection.png" /></a>
+<p>Occasionally, the algorithm will fail to assign all the vertices a UV coordinate and an error like the following might occur:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+  <span class="n">File</span> <span class="s2">&quot;test.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">73</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
+    <span class="n">angle_error</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+  <span class="n">File</span> <span class="s2">&quot;/home/nate/research/autofiber/autofiber/generator.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">164</span><span class="p">,</span> <span class="ow">in</span> <span class="fm">__init__</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">create_parameterization</span><span class="p">()</span>
+  <span class="n">File</span> <span class="s2">&quot;/home/nate/research/autofiber/autofiber/generator.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">701</span><span class="p">,</span> <span class="ow">in</span> <span class="n">create_parameterization</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geoparameterization</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="o">~</span><span class="n">mask</span><span class="p">)))[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span>
+<span class="ne">AssertionError</span>
+</pre></div>
+</div>
+<p>If this happens, then the parameter <code class="docutils literal notranslate"><span class="pre">angle_error</span></code> might be of use. This parameter allows us to incorporate an error into
+the angle the initial geodesic direction makes with the U direction on our starting plane we described earlier. This is
+depicted in the following image:</p>
+<a class="reference external image-reference" href="images/saddlemodelwitherror.png"><img alt="alt text" src="_images/saddlemodelwitherror.png" /></a>
+<p>Any error we create with the <code class="docutils literal notranslate"><span class="pre">angle_error</span></code> parameter will be reversed when we optimize the parameterization. For example,
+when using the saddle model, if we use an <code class="docutils literal notranslate"><span class="pre">angle_error=0.1</span></code>, which means we are basically using the defined geodesic direction,
+we will fail to assign all vertices. This is because the saddle and it’s doubly curved nature makes it difficult to parameterize
+the full surface. However, if we use an <code class="docutils literal notranslate"><span class="pre">angle_error=45.0</span></code> we can see that a full parameterization can be made. In most cases
+this error should be ~0.1 or something close to zero (it’s not recomended to use zero because geodesics can’t be accurately
+determined along mesh lines).</p>
+<p>Once the geodesic direction vector has been determined and an appropriate <code class="docutils literal notranslate"><span class="pre">angle_error</span></code> applied then the surface normal,
+typically that normal we used for the plane of the geodesic direction vector can be calculated, usually
+by just taking the cross product of the longitudinal and transverse directions. This is also the vector which the initial
+geodesic direction vector will be rotated upon when the <code class="docutils literal notranslate"><span class="pre">angle_error</span></code> is applied.</p>
+<p>If we have properly defined the AutoFiber object, a parameterization will be created and the following output will be observed:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Angle</span><span class="p">:</span> <span class="mf">0.0</span>
+<span class="n">x3d_indexedfaceset_loader</span><span class="p">:</span>  <span class="n">Non</span><span class="o">-</span><span class="n">implemented</span> <span class="n">tag</span> <span class="n">NavigationInfo</span>
+<span class="n">x3d_indexedfaceset_loader</span><span class="p">:</span>  <span class="n">Non</span><span class="o">-</span><span class="n">implemented</span> <span class="n">tag</span> <span class="n">Background</span>
+<span class="n">x3d_indexedfaceset_loader</span><span class="p">:</span>  <span class="n">Non</span><span class="o">-</span><span class="n">implemented</span> <span class="n">tag</span> <span class="n">PointLight</span>
+<span class="n">x3d_indexedfaceset_loader</span><span class="p">:</span>  <span class="n">Non</span><span class="o">-</span><span class="n">implemented</span> <span class="n">tag</span> <span class="n">Viewpoint</span>
+<span class="n">Calculating</span> <span class="n">parameterization</span><span class="o">...</span>
+<span class="p">[</span><span class="o">==================================================</span><span class="p">]</span> <span class="mi">100</span><span class="o">%</span>
+<span class="n">Time</span> <span class="n">to</span> <span class="n">calculate</span> <span class="n">geodesic</span> <span class="n">parameterization</span><span class="p">:</span> <span class="mf">12.801896</span> <span class="n">seconds</span>
+</pre></div>
+</div>
+<p>This will result in the following geodesics on our model:</p>
+<a class="reference external image-reference" href="images/saddlemodelwithgeodesics.png"><img alt="alt text" src="_images/saddlemodelwithgeodesics.png" /></a>
+<p>as well as the following UV parameterization:</p>
+<a class="reference external image-reference" href="images/saddlemodeluv.png"><img alt="alt text" src="_images/saddlemodeluv.png" /></a>
+<p>Now, this has created the necessary components to create optimized parameterizations for any fiber angle. To perform and
+return an optimized parameterization we can use the following call:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">texcoords2inplane</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">layup</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">plotting</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">texcoords2inplane</span></code> is a matrix transformation that can be used to convert either 3D coordinates into the optimized fiber
+parameterization or the other way around. We can optionally set <code class="docutils literal notranslate"><span class="pre">plotting=True</span></code> if we would also like to view the results.
+Once this call is completed and an output like the following has been observed:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Optimizing</span><span class="o">...</span>
+<span class="n">Initial</span> <span class="n">strain</span> <span class="n">energy</span><span class="p">:</span> <span class="mf">111.22885079385848</span> <span class="n">J</span><span class="o">/</span><span class="p">(</span><span class="n">model</span> <span class="n">length</span><span class="p">)</span>
+<span class="n">Residual</span><span class="p">:</span> <span class="mf">4.048914335186282e-05</span>
+<span class="n">Time</span> <span class="n">to</span> <span class="n">optimize</span><span class="p">:</span> <span class="mf">14.077847</span> <span class="n">seconds</span>
+</pre></div>
+</div>
+<p>we can use this transformation to find out the fiber orientation at any point on our model. The Abaqus optimized
+function included in the Autofiber class can be used to perform this operation. This function was designed to be used
+within the Abaqus context but works perfectly well on its own. The saddle demo does not come with any predefined
+list of interesting points so the default will be used, which is the centroids of each triangular
+element. Since we set <code class="docutils literal notranslate"><span class="pre">plotting=True</span></code> the fiber orientations at each element centroid were calculated and
+can be observed in the following image:</p>
+<a class="reference external image-reference" href="images/saddlemodelorientations.png"><img alt="alt text" src="_images/saddlemodelorientations.png" /></a>
+<p>The corresponding optimized parameterization can be seen below compared to the unoptimized starting parameterization. This
+process can be thought of as follows, in typical deformation theory we would start from a reference state and solve for
+the deformed state. However, in this scenario we are starting from the deformed state i.e. “inaccurate” geodesic defined space
+and solving for the reference, undeformed or lowest energy state. Shown along with this image is a plot of the loss function
+used to optimize the strain energy.</p>
+<a class="reference external image-reference" href="images/saddlemodeloptimizeduv.png"><img alt="alt text" src="_images/saddlemodeloptimizeduv.png" /></a>
+<a class="reference external image-reference" href="images/saddlemodelloss.png"><img alt="alt text" src="_images/saddlemodelloss.png" /></a>
+<div class="section" id="custom-points">
+<h2>Custom Points<a class="headerlink" href="#custom-points" title="Permalink to this headline">¶</a></h2>
+<p>To use the built in Abaqus function to find the fiber orientations at a list of custom locations on the model surface we
+can use the following call:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">meshcoords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;demos/curved_abaqus_mesh_coords.npy&quot;</span><span class="p">)</span>
+<span class="n">texcoords2inplane</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">layup</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">orientation_locations</span><span class="o">=</span><span class="n">meshcoords</span><span class="p">,</span> <span class="n">plotting</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Where <code class="docutils literal notranslate"><span class="pre">meshcoords</span></code> is a saved list of three dimensional points lying on the surface of the model.</p>
+<p>This is also demonstrated in the last demo in <code class="docutils literal notranslate"><span class="pre">test.py</span></code> titled “Curved Composite Mold / De-La-Mo - DMObject - Anisotropic material properties”</p>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">AutoFiber</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#custom-points">Custom Points</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autofiber.html">Submodules</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to AutoFiber!</a></li>
+      <li>Next: <a href="autofiber.html" title="next chapter">Submodules</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Nathan Scheirer.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/tutorial.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
