@@ -67,9 +67,9 @@ def IdentifyTexMaps(part,surfaceparameterizationmapping=None):
             surfaceparameterization=surfaceparameterizationmapping[id(surface)]
             pass
         
-        if isinstance(surfaceparameterization,polygonalsurface_texcoordparameterization): # only support texture coordinates
+        if isinstance(surfaceparameterization,polygonalsurface_texcoordparameterization): # only extras texture coordinates
             
-            # Currently only support texture url
+            # Currently only extras texture url
             if surface.appearance is not None and hasattr(surface.appearance,"texture_url"):
                 surface_texurl[id(surface)]=surface.appearance.texture_url
                 pass

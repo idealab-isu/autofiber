@@ -25,6 +25,7 @@ def calcunitvector(vector):
 def calc2d(obj, points):
     """
     Calculate a 2D representation of a 3D model
+
     :param obj: spatialnde object
     :param points: 3D model points to be converted to 2D
     :return: points in 2D space
@@ -39,6 +40,7 @@ def minor(arr, i, j):
     """
     https://stackoverflow.com/questions/3858213/numpy-routine-for-computing-matrix-minors
     Calculate the minor of a matrix with ith row, jth column removed
+
     :param arr: Matrix of interest
     :param i: row to remove
     :param j: column to remove
@@ -53,6 +55,7 @@ def build_checkerboard(w, h):
     """
     https://stackoverflow.com/questions/2169478/how-to-make-a-checkerboard-in-numpy
     Build a checkerboard array
+
     :param w: width of checkerboard
     :param h: height of checkerboard
     :return: checkerboard array of width w and height h
@@ -65,6 +68,11 @@ def build_checkerboard(w, h):
 def computeglobalstrain(normalized_2d, fiberpoints, vertexids, stiffness_tensor):
     """
     Compute the strain energy between a 2d representation of a surface and a uv parameterization
+
+    :math:`p_{3D}`
+
+    :math:`A_{uv} = \\frac{1}{2}det(p_{uv})`
+
     :param normalized_2d: 2D representation of a 3D model
     :param fiberpoints: uv parameterization
     :param vertexids: Vertex indices of each element in the 3D model
@@ -114,6 +122,7 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
     """
     Compute the gradient of the strain energy function defined above with respect to the movement of each point in the
     uv parameterization.
+
     :param normalized_2d: 2D representation of a 3D model
     :param fiberpoints: uv parameterization
     :param vertexids: Vertex indices of each element in the 3D model
