@@ -89,7 +89,7 @@ def IdentifyTexMaps(part,surfaceparameterizationmapping=None):
 
 
 def BuildEdgeDict(surface):
-    """ build edge dictionary from a surface. 
+    """ Create edge dictionary from a surface.
     The edge dictionary is indexed by a tuple 
     (vertexindex1,vertexindex2) of indices into surface.vertexes. 
     It contains a list of polygon ids that have an edge that shares
