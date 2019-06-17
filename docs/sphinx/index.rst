@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Welcome to the AutoFiber Documentation!
-=====================================
+=======================================
 
 .. toctree::
    :maxdepth: 2
