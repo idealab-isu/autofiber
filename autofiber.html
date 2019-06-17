@@ -16,7 +16,8 @@
     <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Welcome to AutoFiber!" href="index.html" />
+    <link rel="next" title="License" href="license.html" />
+    <link rel="prev" title="Tutorial" href="tutorial.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -901,9 +902,21 @@ Build a checkerboard array</p>
 <dl class="function">
 <dt id="autofiber.optimization.computeglobalstrain">
 <code class="descclassname">autofiber.optimization.</code><code class="descname">computeglobalstrain</code><span class="sig-paren">(</span><em>normalized_2d</em>, <em>fiberpoints</em>, <em>vertexids</em>, <em>stiffness_tensor</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.optimization.computeglobalstrain" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the strain energy between a 2d representation of a surface and a uv parameterization</p>
-<p><img class="math" src="_images/math/158b0cf69aa413202fa8b11b55154ec3e7806c9e.png" alt="p_{3D}"/></p>
+<dd><p>Compute the strain energy between a 2d representation of a surface and a uv (geodesic) parameterization</p>
+<p><img class="math" src="_images/math/158b0cf69aa413202fa8b11b55154ec3e7806c9e.png" alt="p_{3D}"/> - 2D mapping of 3D model surface based on element normal and inplanemat</p>
+<p><img class="math" src="_images/math/2ada2fe91fae03e751077ba1092aaab4395b23bb.png" alt="p_{UV}"/> - Parameterization of 3D surface based on geodesic lines</p>
+<p>Compute the areas of each triangular element in UV space:</p>
 <p><img class="math" src="_images/math/738e338e1521840041a71ac9594cef5ae6014ca2.png" alt="A_{uv} = \frac{1}{2}det(p_{uv})"/></p>
+<p>Compute the deformation gradient between each element in UV space and the corresponding element in 2D space:</p>
+<p><img class="math" src="_images/math/313e52d0d601e83234dae14d7946f7af90ce68dd.png" alt="F = p_{3D} * p_{UV}^{-1}"/></p>
+<p>Utilizing the Lagrangian finite strain tensor:</p>
+<p><img class="math" src="_images/math/4d499b581e58837ef7fbda6e35e3ba4b047c6648.png" alt="\epsilon = \frac{1}{2}(C - I)"/></p>
+<p>where <img class="math" src="_images/math/54fb163521ade3b5341e178fc474a7c671f43921.png" alt="C = F^{t}F"/> the right Cauchy–Green deformation tensor and <img class="math" src="_images/math/d2ed2630e579be280a30b6646f4d706103c337ce.png" alt="I"/> is the identity matrix.</p>
+<p>Since <img class="math" src="_images/math/9a923670782b9aee04188a3a81a91dc46eb640a9.png" alt="\overrightarrow{\epsilon} = [\epsilon_{11}, \epsilon_{22}, 2\gamma_{12}]"/> we have to:</p>
+<p><img class="math" src="_images/math/6227f6b300b0fb1fb10b35afdd57e25521150e42.png" alt="\overrightarrow{\epsilon} = \frac{\epsilon}{[1.0, 1.0, 0.5]}^T"/></p>
+<p>Therefore the total strain energy density of the surface with units (J/length):</p>
+<p><img class="math" src="_images/math/7bbe9fdcbbae0fa030b1050650714d00734331b4.png" alt="E_{total} = \sum_{k=0}^N\frac{1}{2}\overrightarrow{\epsilon_k}^2SA_{uv_k}"/></p>
+<p>where <img class="math" src="_images/math/1dbc400fcc213305415872f9f625cd2828f97a00.png" alt="S"/> is the stiffness tensor of the defined material and N is the total number of mesh elements.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -928,6 +941,39 @@ Build a checkerboard array</p>
 <code class="descclassname">autofiber.optimization.</code><code class="descname">computeglobalstrain_grad</code><span class="sig-paren">(</span><em>normalized_2d</em>, <em>fiberpoints</em>, <em>vertexids</em>, <em>stiffness_tensor</em>, <em>oc</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.optimization.computeglobalstrain_grad" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the gradient of the strain energy function defined above with respect to the movement of each point in the
 uv parameterization.</p>
+<p><img class="math" src="_images/math/158b0cf69aa413202fa8b11b55154ec3e7806c9e.png" alt="p_{3D}"/> - 2D mapping of 3D model surface based on element normal and inplanemat</p>
+<p><img class="math" src="_images/math/2ada2fe91fae03e751077ba1092aaab4395b23bb.png" alt="p_{UV}"/> - Parameterization of 3D surface based on geodesic lines</p>
+<p>Compute the areas of each triangular element in UV space:</p>
+<p><img class="math" src="_images/math/738e338e1521840041a71ac9594cef5ae6014ca2.png" alt="A_{uv} = \frac{1}{2}det(p_{uv})"/></p>
+<p>In order to calculate the derivative of the area of each element with respect to each nodal displacement we will
+calculate the (i,j)-minor of <img class="math" src="_images/math/947603552eda597fe9ab10992e460f75cafd213c.png" alt="A_{uv}"/> by the determinate of the matrix created by removing the ith row and jth
+column in <img class="math" src="_images/math/a4a1069c59e610b2cbfa5a97cb85328b3ab2ff40.png" alt="p_{uv}"/> for each element in <img class="math" src="_images/math/a4a1069c59e610b2cbfa5a97cb85328b3ab2ff40.png" alt="p_{uv}"/>:</p>
+<p><img class="math" src="_images/math/885c7ad878bded85b7f7de3afd98d3e45aeafe3a.png" alt="M_{ij} = det(minor(p_{uv_{ij}}))"/></p>
+<p>Then using <img class="math" src="_images/math/3beae8a4ac3bd7f16d5cf40ddea23f8869e9a6cf.png" alt="M_{ij}"/> we can compute the cofactor matrix:</p>
+<p><img class="math" src="_images/math/4d8a0a336800c59355e95691983c3fc0372401ac.png" alt="Cof = ((-1)^{i+j}M_{ij})_{1 \leq i,j \leq n^*}"/></p>
+<p>Therefore, the adjugate matrix of <img class="math" src="_images/math/947603552eda597fe9ab10992e460f75cafd213c.png" alt="A_{uv}"/> is:</p>
+<p><img class="math" src="_images/math/f13939e547ccffade29f5328c740391798baa8df.png" alt="adj(A_{uv}) = Cof^T"/></p>
+<p>The derivative of the area of each element with respect to each nodal displacement can be calculated using
+Jacobi’s formula as follows:</p>
+<p><img class="math" src="_images/math/203aa4dfe10d5f3f324b947c29554ccc96e9636e.png" alt="\frac{dA_{uv}}{dp_{uv}} = -\frac{1}{2}trace(adj(A_{uv})*\frac{dp_{uv}}{dp_{uv_{ij}}})"/></p>
+<p>where <img class="math" src="_images/math/2bf6c77c871cd4291891250f93bb925b2cd59ef1.png" alt="\frac{dp_{uv}}{dp_{uv_{ij}}}"/> is the derivative of each nodal displacement with respect to moving all
+the other nodes for each mesh element.</p>
+<p>Compute the deformation gradient between each element in UV space and the corresponding element in 2D space:</p>
+<p><img class="math" src="_images/math/313e52d0d601e83234dae14d7946f7af90ce68dd.png" alt="F = p_{3D} * p_{UV}^{-1}"/></p>
+<p>Utilizing the Lagrangian finite strain tensor:</p>
+<p><img class="math" src="_images/math/4d499b581e58837ef7fbda6e35e3ba4b047c6648.png" alt="\epsilon = \frac{1}{2}(C - I)"/></p>
+<p>where <img class="math" src="_images/math/54fb163521ade3b5341e178fc474a7c671f43921.png" alt="C = F^{t}F"/> the right Cauchy–Green deformation tensor and <img class="math" src="_images/math/d2ed2630e579be280a30b6646f4d706103c337ce.png" alt="I"/> is the identity matrix.</p>
+<p>Since <img class="math" src="_images/math/1c8c3e4b73671546b4fa887b6111b022cd11e8a0.png" alt="\overrightarrow{\epsilon} = [\epsilon_{11}, \epsilon_{22}, \gamma_{12}/2]"/> we have to:</p>
+<p><img class="math" src="_images/math/6227f6b300b0fb1fb10b35afdd57e25521150e42.png" alt="\overrightarrow{\epsilon} = \frac{\epsilon}{[1.0, 1.0, 0.5]}^T"/></p>
+<p>The derivative of the deformation tensor with respect to each nodal displacement is as follows:</p>
+<p><img class="math" src="_images/math/66b8792cd83ff24fa18e42941e7dcf99e1f21d88.png" alt="\frac{dF}{dp_{uv}} = p_{uv}^{-1}\frac{dp_{uv}}{dp_{uv_{ij}}}p_{uv}^{-1}p_{3D}"/></p>
+<p>The derivative of strain with respect to each nodal displacement:</p>
+<p><img class="math" src="_images/math/f47d68d8da7f5199c4fcd8a51607cfe99bfda276.png" alt="\frac{d\epsilon}{dp_{uv}} = \frac{1}{2}(\frac{dF}{dp_{uv}}^TF + F^T\frac{dF}{dp_{uv}})"/></p>
+<p>Then to account for <img class="math" src="_images/math/063d72a011b00638a9f00ce97a621087cd1bf348.png" alt="2\gamma_{12}"/>:</p>
+<p><img class="math" src="_images/math/cb8575943298de0a5f49dcacdc0185769d609e75.png" alt="\frac{d\overrightarrow{\epsilon}}{dp_{uv}} = \frac{\frac{d\epsilon}{dp_{uv}}}{[1.0, 1.0, 0.5]}"/></p>
+<p>Finally, we can compute the derivative of the strain energy density with respect to each nodal displacement with the
+following application of the chain rule:</p>
+<p><img class="math" src="_images/math/062cefa22bbdeb0a1d8f8771aae49c6c6050123e.png" alt="\frac{dE}{dp_{uv}} = \overrightarrow{\epsilon}S\frac{d\overrightarrow{\epsilon}}{dp_{uv}}A_{uv} + \frac{1}{2}\overrightarrow{\epsilon}S\overrightarrow{\epsilon}\frac{dA_{uv}}{dp_{uv}}"/></p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1050,6 +1096,7 @@ surfaces_bytexurl is indexed by texture url strings and contains a list of surfa
 
 <h3>Navigation</h3>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Submodules</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#module-autofiber.generator">AutoFiber generator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-autofiber.geodesic">AutoFiber geodesic</a></li>
@@ -1057,13 +1104,15 @@ surfaces_bytexurl is indexed by texture url strings and contains a list of surfa
 <li class="toctree-l2"><a class="reference internal" href="#module-autofiber.analyze_uv">AutoFiber analyze_uv</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="index.html" title="previous chapter">Welcome to AutoFiber!</a></li>
+      <li>Previous: <a href="tutorial.html" title="previous chapter">Tutorial</a></li>
+      <li>Next: <a href="license.html" title="next chapter">License</a></li>
   </ul></li>
 </ul>
 </div>
