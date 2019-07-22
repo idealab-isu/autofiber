@@ -14,7 +14,7 @@ Apache 2.0 license. See the [LICENSE](LICENSE) file for details.
 * `demos/`: Contains a variety of demo models and a script, *test.py*
 which demonstrates usage on each model.
 * `docs/`: Contains various documentation materials. Complete documentation
-can be obtained [here](https://nscheirer.github.io/autofiber/).
+can be obtained [here](https://idealab-isu.github.io/autofiber/).
 
 ## Package Structure
 * `generator.py`: Main control script which generates geodesic start points, calculates geodesic paths, computes the
