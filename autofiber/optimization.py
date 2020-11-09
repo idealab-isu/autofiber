@@ -86,7 +86,7 @@ def computeglobalstrain(normalized_2d, fiberpoints, vertexids, stiffness_tensor)
 
     :math:`\epsilon = \frac{1}{2}(C - I)`
 
-    where :math:`C = F^{t}F` the right Cauchy–Green deformation tensor and :math:`I` is the identity matrix.
+    where :math:`C = F^{-1}^{t}F^{-1}` the right Cauchy–Green deformation tensor and :math:`I` is the identity matrix.
 
     Since :math:`\overrightarrow{\epsilon} = [\epsilon_{11}, \epsilon_{22}, gamma_{12}/2]` we have to:
 
@@ -119,11 +119,11 @@ def computeglobalstrain(normalized_2d, fiberpoints, vertexids, stiffness_tensor)
     areas = 0.5 * np.linalg.det(rel_uvw)
 
     # Compute the deformation matrix for each element
-    F = np.matmul(rel_3d, np.linalg.inv(rel_uvw))[:, :2, :2]
+    Finv = np.matmul(rel_3d, np.linalg.inv(rel_uvw))[:, :2, :2]
 
     # We can exclude the rotation of F by multiplying by it's transpose and gaining the strain
     # https://en.wikipedia.org/wiki/Finite_strain_theory
-    strain = 0.5 * (np.matmul(F.transpose(0, 2, 1), F) - np.identity(F.shape[1]))
+    strain = 0.5 * (np.matmul(Finv.transpose(0, 2, 1), Finv) - np.identity(Finv.shape[1]))
 
     m = np.array([1.0, 1.0, 0.5])[np.newaxis].T
     strain_vector = np.divide(np.array([[strain[:, 0, 0]], [strain[:, 1, 1]], [strain[:, 0, 1]]]).transpose((2, 0, 1)), m).squeeze()
@@ -247,11 +247,11 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
     dareas_duv = -0.5*np.trace(np.matmul(adj_mat[:, np.newaxis, :, :], duvw_duij_t), axis1=2, axis2=3)
 
     # Compute the deformation matrix
-    F = np.matmul(rel_3d, np.linalg.inv(rel_uvw))[:, :2, :2]
+    Finv = np.matmul(rel_3d, np.linalg.inv(rel_uvw))[:, :2, :2]
 
     # We can exclude the rotation of F by multiplying by it's transpose and gaining the strain
     # https://en.wikipedia.org/wiki/Finite_strain_theory
-    strain = 0.5 * (np.matmul(F.transpose(0, 2, 1), F) - np.identity(F.shape[1]))
+    strain = 0.5 * (np.matmul(Finv.transpose(0, 2, 1), Finv) - np.identity(Finv.shape[1]))
 
     m = np.array([1.0, 1.0, 0.5])[np.newaxis].T
     strain_vector = np.divide(np.array([[strain[:, 0, 0]], [strain[:, 1, 1]], [strain[:, 0, 1]]]).transpose((2, 0, 1)), m).squeeze()
