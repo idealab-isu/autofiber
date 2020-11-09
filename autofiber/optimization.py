@@ -78,9 +78,9 @@ def computeglobalstrain(normalized_2d, fiberpoints, vertexids, stiffness_tensor)
 
     :math:`A_{uv} = \frac{1}{2}det(p_{uv})`
 
-    Compute the deformation gradient between each element in UV space and the corresponding element in 2D space:
+    Compute the inverse deformation gradient between each element in UV space and the corresponding element in 2D space:
 
-    :math:`F = p_{3D} * p_{UV}^{-1}`
+    :math:`F^{-1} = p_{3D} * p_{UV}^{-1}`
 
     Utilizing the Lagrangian finite strain tensor:
 
@@ -88,7 +88,7 @@ def computeglobalstrain(normalized_2d, fiberpoints, vertexids, stiffness_tensor)
 
     where :math:`C = F^{t}F` the right Cauchy–Green deformation tensor and :math:`I` is the identity matrix.
 
-    Since :math:`\overrightarrow{\epsilon} = [\epsilon_{11}, \epsilon_{22}, 2\gamma_{12}]` we have to:
+    Since :math:`\overrightarrow{\epsilon} = [\epsilon_{11}, \epsilon_{22}, gamma_{12}/2]` we have to:
 
     :math:`\overrightarrow{\epsilon} = \frac{\epsilon}{[1.0, 1.0, 0.5]}^T`
 
@@ -178,15 +178,15 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
     where :math:`\frac{dp_{uv}}{dp_{uv_{ij}}}` is the derivative of each nodal displacement with respect to moving all
     the other nodes for each mesh element.
 
-    Compute the deformation gradient between each element in UV space and the corresponding element in 2D space:
+    Compute the inverse deformation gradient between each element in UV space and the corresponding element in 2D space:
 
-    :math:`F = p_{3D} * p_{UV}^{-1}`
+    :math:`F^{-1} = p_{3D} * p_{UV}^{-1}`
 
     Utilizing the Lagrangian finite strain tensor:
 
     :math:`\epsilon = \frac{1}{2}(C - I)`
 
-    where :math:`C = F^{t}F` the right Cauchy–Green deformation tensor and :math:`I` is the identity matrix.
+    where :math:`C = F^{-1}^{t}F^{-1}` the right Cauchy–Green deformation tensor and :math:`I` is the identity matrix.
 
     Since :math:`\overrightarrow{\epsilon} = [\epsilon_{11}, \epsilon_{22}, \gamma_{12}/2]` we have to:
 
@@ -194,13 +194,13 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
 
     The derivative of the deformation tensor with respect to each nodal displacement is as follows:
 
-    :math:`\frac{dF}{dp_{uv}} = p_{uv}^{-1}\frac{dp_{uv}}{dp_{uv_{ij}}}p_{uv}^{-1}p_{3D}`
+    :math:`\frac{dF^{-1}}{dp_{uv}} = -p_{3D}*p_{uv}^{-1}\frac{dp_{uv}}{dp_{uv_{ij}}}p_{uv}^{-1}`
 
     The derivative of strain with respect to each nodal displacement:
 
-    :math:`\frac{d\epsilon}{dp_{uv}} = \frac{1}{2}(\frac{dF}{dp_{uv}}^TF + F^T\frac{dF}{dp_{uv}})`
+    :math:`\frac{d\epsilon}{dp_{uv}} = \frac{1}{2}(\frac{dF^{-1}}{dp_{uv}}^TF^{-1} + F^{-1}^{T}\frac{dF^{-1}}{dp_{uv}})`
 
-    Then to account for :math:`2\gamma_{12}`:
+    Then to account for :math:`gamma_{12}/2`:
 
     :math:`\frac{d\overrightarrow{\epsilon}}{dp_{uv}} = \frac{\frac{d\epsilon}{dp_{uv}}}{[1.0, 1.0, 0.5]}`
 
@@ -257,13 +257,13 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
     strain_vector = np.divide(np.array([[strain[:, 0, 0]], [strain[:, 1, 1]], [strain[:, 0, 1]]]).transpose((2, 0, 1)), m).squeeze()
 
     # compute the derivative of the deformation matrix with respect to each uv coordinate
-    # 3D*F = UV -> UV^-1*dUV_{dUV_ij}*UV^-1*3D = dF_duv
-    dF_duv = np.matmul(rel_3d[:, np.newaxis, :, :], np.matmul(np.matmul(np.linalg.inv(rel_uvw)[:, np.newaxis, :, :], duvw_duij_t), np.linalg.inv(rel_uvw)[:, np.newaxis, :, :]))[:, :, :2, :2]
+    # UV*F^-1 = 3D -> 3D*UV^-1*dUV_{dUV_ij}*UV^-1 = dF_duv
+    dFinv_duv = -1*np.matmul(rel_3d[:, np.newaxis, :, :], np.matmul(np.matmul(np.linalg.inv(rel_uvw)[:, np.newaxis, :, :], duvw_duij_t), np.linalg.inv(rel_uvw)[:, np.newaxis, :, :]))[:, :, :2, :2]
 
     # Compute the derivative of the strain with respect to each uv coordinate
     dstrainvector_duv = np.zeros((strain_vector.shape[0], strain_vector.shape[1], 6))
     for i in range(0, 6):
-        dstrain_du = 0.5 * (np.matmul(dF_duv[:, i, :, :].transpose(0, 2, 1), F) + np.matmul(F.transpose(0, 2, 1), dF_duv[:, i, :, :]))
+        dstrain_du = 0.5 * (np.matmul(dFinv_duv[:, i, :, :].transpose(0, 2, 1), F) + np.matmul(F.transpose(0, 2, 1), dFinv_duv[:, i, :, :]))
         dstrainvector_duv[:, :, i] = np.divide(np.array([[dstrain_du[:, 0, 0]], [dstrain_du[:, 1, 1]], [dstrain_du[:, 0, 1]]]).transpose((2, 0, 1)), m).squeeze()
 
     # Using the chain rule we can compute the derivative of the strain energy with respect to each uv coordinate
@@ -280,7 +280,7 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
     point_strain_grad[oc][0] = 0.0
     point_strain_grad[oc][1] = 0.0
 
-    return -1*point_strain_grad.flatten()
+    return point_strain_grad.flatten()
 
 
 # https://medium.com/100-days-of-algorithms/day-69-rmsprop-7a88d475003b
