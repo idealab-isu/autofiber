@@ -42,7 +42,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.githubpages',
     'sphinx.ext.imgmath',
-    'm2r'
+    'm2r2'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
