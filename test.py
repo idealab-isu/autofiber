@@ -46,6 +46,8 @@ for angle in angles:
     #           materialproperties=materialproperties,
     #           # Geodesic spacing interval
     #           fiberint=0.01)
+    # test.load_model()
+    # test.evaluate()
     # Compute an orientation given a fiber angle
     # texcoords2inplane = test.layup(0.0, plotting=True)
 
@@ -56,6 +58,8 @@ for angle in angles:
     #           np.array([0, 0, 1.0]),
     #           materialproperties=materialproperties,
     #           fiberint=0.05)
+    # test.load_model()
+    # test.evaluate()
     # texcoords2inplane = test.layup(0.0, plotting=True)
 
     # Saddle model - X3D - Anisotropic material properties
@@ -71,6 +75,8 @@ for angle in angles:
               #  of the saddle part we can actually define a parameterization easily at 45.0 degrees.
               #  Recommended to be any number except exactly zero
               angle_error=45.0)
+    test.load_model()
+    test.evaluate()
     texcoords2inplane = test.layup(0.0, plotting=True)
 
     # Curved Composite Mold / De-La-Mo - DMObject - Anisotropic material properties
@@ -82,4 +88,7 @@ for angle in angles:
     #           fiberint=0.25)
     # Can define mesh coordinates at which the orientation can be computed
     # meshcoords = np.load("demos/curved_abaqus_mesh_coords.npy")
+    # test.load_model()
+    # test.evaluate()
     # texcoords2inplane = test.layup(0.0, orientation_locations=meshcoords, plotting=True)
+
