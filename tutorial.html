@@ -1,19 +1,17 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tutorial &#8212; AutoFiber 1.0 alpha documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Submodules" href="autofiber.html" />
@@ -62,17 +60,17 @@ object we can use the following call:</p>
 </div>
 <p>Here is a breakdown of each parameter used to create the AutoFiber object:</p>
 <ol class="arabic simple">
-<li>cadfile: Path to CAD file (currently supports x3d, stl, and De-La-Mo DMObjects)</li>
-<li>initpoint: 3D point closest to the center of the surface we would like to work on</li>
-<li>initdirection: 3D unit vector representing the fiber direction at initpoint</li>
-<li>initnormal: 3D unit vector indicating the surface normal at initpoint (used to determine which surface to operate on)</li>
-<li>materialproperties: Composite fiber material properties, if empty then a set of default properties will be used.
+<li><p>cadfile: Path to CAD file (currently supports x3d, stl, and De-La-Mo DMObjects)</p></li>
+<li><p>initpoint: 3D point closest to the center of the surface we would like to work on</p></li>
+<li><p>initdirection: 3D unit vector representing the fiber direction at initpoint</p></li>
+<li><p>initnormal: 3D unit vector indicating the surface normal at initpoint (used to determine which surface to operate on)</p></li>
+<li><p>materialproperties: Composite fiber material properties, if empty then a set of default properties will be used.
 materialproperties is setup as follows: (E, poisson’s ratio, G) if E is a list: for anisotropic [E1, E2, E3],
 nu is [nu12, nu13, nu23], and the shear modulus G is [G12, G13, G23]. If E is not a list then an isotropic material
-is used and G will be computed from E and nu.</li>
-<li>fiberint: Perpendicular distance between generated geodesics</li>
-<li>angle_error: Error incorporated into the initdirection, any error defined here is reversed during optimization</li>
-<li>accel: Utilize OpenCL parallel geodesic generator (WIP - not currently functioning)</li>
+is used and G will be computed from E and nu.</p></li>
+<li><p>fiberint: Perpendicular distance between generated geodesics</p></li>
+<li><p>angle_error: Error incorporated into the initdirection, any error defined here is reversed during optimization</p></li>
+<li><p>accel: Utilize OpenCL parallel geodesic generator (WIP - not currently functioning)</p></li>
 </ol>
 <p>Therefore, if we have the following model:</p>
 <a class="reference external image-reference" href="images/saddlemodel.png"><img alt="alt text" src="_images/saddlemodel.png" /></a>
@@ -203,17 +201,15 @@ can use the following call:</p>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
 
 
 
@@ -227,10 +223,10 @@ can use the following call:</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2019, Nathan Scheirer.
+      &copy;2020, Nathan Scheirer.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

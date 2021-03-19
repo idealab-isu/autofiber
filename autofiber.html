@@ -1,19 +1,17 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Submodules &#8212; AutoFiber 1.0 alpha documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="License" href="license.html" />
@@ -38,394 +36,342 @@
 <h1>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-autofiber.generator">
 <span id="autofiber-generator"></span><h2>AutoFiber generator<a class="headerlink" href="#module-autofiber.generator" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.generator.calcunitvector">
-<code class="descclassname">autofiber.generator.</code><code class="descname">calcunitvector</code><span class="sig-paren">(</span><em>vector</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.calcunitvector" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.generator.</span></code><code class="sig-name descname"><span class="pre">calcunitvector</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.calcunitvector" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the unit vector of the given vector.</p>
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="autofiber.generator.AutoFiber">
-<em class="property">class </em><code class="descclassname">autofiber.generator.</code><code class="descname">AutoFiber</code><span class="sig-paren">(</span><em>cadfile</em>, <em>initpoint</em>, <em>initdirection</em>, <em>initnormal</em>, <em>materialproperties=(228.0</em>, <em>0.2</em>, <em>None)</em>, <em>fiberint=0.1</em>, <em>angle_error=0.01</em>, <em>accel=False</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">autofiber.generator.</span></code><code class="sig-name descname"><span class="pre">AutoFiber</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cadfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initdirection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initnormal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">materialproperties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(228.0,</span> <span class="pre">0.2,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fiberint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
 <dt id="autofiber.generator.AutoFiber.assign_vertices">
-<code class="descname">assign_vertices</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.assign_vertices" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">assign_vertices</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.assign_vertices" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assign all vertices a uv coordinate based on the closest geodesic to the vertex
 Cleanup methods are employed here such as self.fill_missing_geodesics and self.fill_low_density_geodesics</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Sets the self.geoparameterization</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Sets the self.geoparameterization</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="autofiber.generator.AutoFiber.average_fpoint">
-<code class="descname">average_fpoint</code><span class="sig-paren">(</span><em>leftover_idxs</em>, <em>mask</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.average_fpoint" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">average_fpoint</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">leftover_idxs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.average_fpoint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Last ditch effort to assign the missed vertices. Simply average any nearby uv coordinates and make sure the new
 coordinate won’t flip the triangle.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>leftover_idxs</strong> – Indices of missed vertices during assignment</li>
-<li><strong>mask</strong> – Surface vertex index mask</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>leftover_idxs</strong> – Indices of missed vertices during assignment</p></li>
+<li><p><strong>mask</strong> – Surface vertex index mask</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Any vertex indices that were missed by this cleanup method</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Any vertex indices that were missed by this cleanup method</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="autofiber.generator.AutoFiber.calc_geodesic">
-<code class="descname">calc_geodesic</code><span class="sig-paren">(</span><em>point</em>, <em>element</em>, <em>unitfiberdirection</em>, <em>uv_start</em>, <em>direction=1</em>, <em>parameterization=False</em>, <em>save_ints=True</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.calc_geodesic" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">calc_geodesic</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unitfiberdirection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uv_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameterization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_ints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.calc_geodesic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the geodesic path from a point in a given direction</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>point</strong> – The geodesic’s starting point</li>
-<li><strong>element</strong> – The first element we will traverse</li>
-<li><strong>unitfiberdirection</strong> – The desired direction the geodesic will propogate</li>
-<li><strong>uv_start</strong> – Starting point in uv space</li>
-<li><strong>direction</strong> – Positive (1) or negative (-1) direction of unitfiberdirection?</li>
-<li><strong>parameterization</strong> – Do we want to save this geodesic into self.georecord for use in the parameterization?</li>
-<li><strong>save_ints</strong> – Do we want to save intersection points for plotting purposes?</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>point</strong> – The geodesic’s starting point</p></li>
+<li><p><strong>element</strong> – The first element we will traverse</p></li>
+<li><p><strong>unitfiberdirection</strong> – The desired direction the geodesic will propogate</p></li>
+<li><p><strong>uv_start</strong> – Starting point in uv space</p></li>
+<li><p><strong>direction</strong> – Positive (1) or negative (-1) direction of unitfiberdirection?</p></li>
+<li><p><strong>parameterization</strong> – Do we want to save this geodesic into self.georecord for use in the parameterization?</p></li>
+<li><p><strong>save_ints</strong> – Do we want to save intersection points for plotting purposes?</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Adds the resulting geodesic path to the self.geoints and/or the self.georecord</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Adds the resulting geodesic path to the self.geoints and/or the self.georecord</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="autofiber.generator.AutoFiber.calc_geodesics">
-<code class="descname">calc_geodesics</code><span class="sig-paren">(</span><em>startidx</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.calc_geodesics" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">calc_geodesics</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">startidx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.calc_geodesics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the a geodesic path in the positive and negative direction for each point define in start_points beginning
 at the index startidx
 :param: startidx: Which index in self.startpoints to begin calculating geodesics at
 :return: Adds the relevant details for each geodesic to self.georecord</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="autofiber.generator.AutoFiber.calcorientations_abaqus">
-<code class="descname">calcorientations_abaqus</code><span class="sig-paren">(</span><em>modellocs</em>, <em>vertices</em>, <em>vertexids</em>, <em>inplanemat</em>, <em>texcoords2inplane</em>, <em>boxes</em>, <em>boxpolys</em>, <em>boxcoords</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.calcorientations_abaqus" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">calcorientations_abaqus</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modellocs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertexids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplanemat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">texcoords2inplane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boxes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boxpolys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boxcoords</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.calcorientations_abaqus" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function optimized for Abaqus to determine the orientations of given locations.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>modellocs</strong> – Points of interest on the surface or close to the surface</li>
-<li><strong>vertices</strong> – Vertices of the model</li>
-<li><strong>vertexids</strong> – Indices of the vertices of the model for each element</li>
-<li><strong>inplanemat</strong> – Orthogonal matrix define by spatialnde</li>
-<li><strong>texcoords2inplane</strong> – Transformation matrix between 3D space and uv space</li>
-<li><strong>boxes</strong> – spatialnde polygon box definition</li>
-<li><strong>boxpolys</strong> – spatialnde polygon definition relative to boxes</li>
-<li><strong>boxcoords</strong> – spatialnde box vertex coordinates</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>modellocs</strong> – Points of interest on the surface or close to the surface</p></li>
+<li><p><strong>vertices</strong> – Vertices of the model</p></li>
+<li><p><strong>vertexids</strong> – Indices of the vertices of the model for each element</p></li>
+<li><p><strong>inplanemat</strong> – Orthogonal matrix defined by spatialnde</p></li>
+<li><p><strong>texcoords2inplane</strong> – Transformation matrix between 3D space and uv space</p></li>
+<li><p><strong>boxes</strong> – spatialnde polygon box definition</p></li>
+<li><p><strong>boxpolys</strong> – spatialnde polygon definition relative to boxes</p></li>
+<li><p><strong>boxcoords</strong> – spatialnde box vertex coordinates</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Orientations at modellocs</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Orientations at modellocs</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="autofiber.generator.AutoFiber.calctransform">
-<code class="descname">calctransform</code><span class="sig-paren">(</span><em>parameterization</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.calctransform" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">calctransform</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameterization</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.calctransform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the transformation matrix between the 3D model and the uv parameterization using spatialNDE</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>parameterization</strong> – uv parameterization</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Transformation matrix</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>parameterization</strong> – uv parameterization</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Transformation matrix</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="autofiber.generator.AutoFiber.check_negative_area">
-<code class="descname">check_negative_area</code><span class="sig-paren">(</span><em>record</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.check_negative_area" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">check_negative_area</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.check_negative_area" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check to see if we have a triangle with a flipped normal</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>record</strong> – Parameterization we want to check</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if there is a flipped triangle, False otherwise</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>record</strong> – Parameterization we want to check</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if there is a flipped triangle, False otherwise</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="autofiber.generator.AutoFiber.create_parameterization">
-<code class="descname">create_parameterization</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.create_parameterization" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">create_parameterization</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.create_parameterization" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create the uv parameterization based on the computed geodesic paths
 If vertices can’t be assigned or are missed cleanup methods are employed to attempt to solve coordinates for all
 vertices. This is difficult to make robust as geometric complexities can vary quite largely.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="autofiber.generator.AutoFiber.determine_surface">
-<code class="descname">determine_surface</code><span class="sig-paren">(</span><em>initpoint</em>, <em>initdirection</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.determine_surface" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">determine_surface</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initdirection</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.determine_surface" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine which surface of a 3D model we should operate on.
 This should single out a solo surface without sharp (90 degree) edges</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>initpoint</strong> – Starting point</li>
-<li><strong>initdirection</strong> – Starting direction</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>initpoint</strong> – Starting point</p></li>
+<li><p><strong>initdirection</strong> – Starting direction</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Sets self.surface_vertexids</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Sets self.surface_vertexids</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="autofiber.generator.AutoFiber.fiberoptimize">
-<code class="descname">fiberoptimize</code><span class="sig-paren">(</span><em>seed</em>, <em>precision=None</em>, <em>maxsteps=None</em>, <em>lr=None</em>, <em>decay=None</em>, <em>eps=None</em>, <em>mu=None</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.fiberoptimize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">fiberoptimize</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxsteps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.fiberoptimize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Minimum strain energy optimization of a seed parameterization. Uses an RMSprop optimization algorithm.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>seed</strong> – Initial uv parameterization</li>
-<li><strong>precision</strong> – Termination threshold for the strain energy optimization</li>
-<li><strong>maxsteps</strong> – Maximum number of optimizaiton iterations</li>
-<li><strong>lr</strong> – Optimization rate (similar to learning rate in machine learning optimizers)</li>
-<li><strong>decay</strong> – Decay rate</li>
-<li><strong>eps</strong> – Error precision value</li>
-<li><strong>mu</strong> – Momentum value</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>seed</strong> – Initial uv parameterization</p></li>
+<li><p><strong>precision</strong> – Termination threshold for the strain energy optimization</p></li>
+<li><p><strong>maxsteps</strong> – Maximum number of optimization iterations</p></li>
+<li><p><strong>lr</strong> – Optimization rate (similar to learning rate in machine learning optimizers)</p></li>
+<li><p><strong>decay</strong> – Decay rate</p></li>
+<li><p><strong>eps</strong> – Error precision value</p></li>
+<li><p><strong>mu</strong> – Momentum value</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="autofiber.generator.AutoFiber.fill_low_density_geodesics">
-<code class="descname">fill_low_density_geodesics</code><span class="sig-paren">(</span><em>minassigned</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.fill_low_density_geodesics" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">fill_low_density_geodesics</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">minassigned</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.fill_low_density_geodesics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Spin off more geodesics in elements that contain a low number of geodesics per area
 (This method is a little unreliable because the geodesics/area threshold isn’t well defined for all models)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>minassigned</strong> – Minimum number of neighbors that contain geodesics</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Nothing</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>minassigned</strong> – Minimum number of neighbors that contain geodesics</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Nothing</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="autofiber.generator.AutoFiber.fill_missing_geodesics">
-<code class="descname">fill_missing_geodesics</code><span class="sig-paren">(</span><em>elements</em>, <em>minassigned</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.fill_missing_geodesics" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">fill_missing_geodesics</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minassigned</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.fill_missing_geodesics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Spin off more geodesics in elements that contain no geodesics (i.e. fill holes in the initially spawned geodesics)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>elements</strong> – Elements without an geodesics</li>
-<li><strong>minassigned</strong> – Minimum number of neighbors that contain geodesics</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>elements</strong> – Elements without an geodesics</p></li>
+<li><p><strong>minassigned</strong> – Minimum number of neighbors that contain geodesics</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Nothing</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Nothing</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="autofiber.generator.AutoFiber.find_close_geodesic">
-<code class="descname">find_close_geodesic</code><span class="sig-paren">(</span><em>elements</em>, <em>point</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.find_close_geodesic" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">find_close_geodesic</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.find_close_geodesic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the closest geodesic in self.georecord and elements</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>elements</strong> – A given set of search elements for a close geodesic</li>
-<li><strong>point</strong> – The point we want to find a close geodesic to</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>elements</strong> – A given set of search elements for a close geodesic</p></li>
+<li><p><strong>point</strong> – The point we want to find a close geodesic to</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">tuple(georecord, element closest geodesic is in,</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>tuple(georecord, element closest geodesic is in,</p>
+</dd>
+</dl>
 <p>[vector perpendicular to u direction norm(vector) = v distance, u distance])</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="autofiber.generator.AutoFiber.find_startpoints">
-<code class="descname">find_startpoints</code><span class="sig-paren">(</span><em>initpoint</em>, <em>initdirection</em>, <em>normal</em>, <em>cfpoint</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.find_startpoints" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">find_startpoints</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initdirection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">-</span> <span class="pre">1)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.find_startpoints" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determines starting location, direction, and element for each geodesic
 Spawns geodesics perpendicular to initdirection
 Geodesic start points are dropped in self.fiberint intervals</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>initpoint</strong> – Starting location (should be close to the center of the model)</li>
-<li><strong>initdirection</strong> – Starting direction vector</li>
-<li><strong>normal</strong> – Surface normal vector</li>
-<li><strong>cfpoint</strong> – initpoint location in parameterization space</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>initpoint</strong> – Starting location (should be close to the center of the model)</p></li>
+<li><p><strong>initdirection</strong> – Starting direction vector</p></li>
+<li><p><strong>normal</strong> – Surface normal vector</p></li>
+<li><p><strong>cfpoint</strong> – initpoint location in parameterization space</p></li>
+<li><p><strong>directions</strong> – A tuple of positive and negative directions to compute start point geodesics</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Appends new geodesic start information to the relevant lists</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Appends new geodesic start information to the relevant lists</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="autofiber.generator.AutoFiber.interpolate">
-<code class="descname">interpolate</code><span class="sig-paren">(</span><em>leftover_idxs</em>, <em>mask</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.interpolate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">interpolate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">leftover_idxs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.interpolate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Basic interpolation of uv coordinates based on nearby element fiber directions leftover from geodesic paths</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>leftover_idxs</strong> – Indices of missed vertices during assignment</li>
-<li><strong>mask</strong> – Surface vertex index mask</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>leftover_idxs</strong> – Indices of missed vertices during assignment</p></li>
+<li><p><strong>mask</strong> – Surface vertex index mask</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Any vertex indices that were missed by this cleanup method</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Any vertex indices that were missed by this cleanup method</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="autofiber.generator.AutoFiber.interpolate_geodesic">
-<code class="descname">interpolate_geodesic</code><span class="sig-paren">(</span><em>point</em>, <em>element</em>, <em>minassigned</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.interpolate_geodesic" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">interpolate_geodesic</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minassigned</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.interpolate_geodesic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine a geodesics starting direction and uv parameterization location that is between two other geodesics</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>point</strong> – A point between two geodesics</li>
-<li><strong>element</strong> – The element point is within or a vertex of</li>
-<li><strong>minassigned</strong> – Minimum number of neighbor elements that have geodesics within them for the used starting element</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>point</strong> – A point between two geodesics</p></li>
+<li><p><strong>element</strong> – The element point is within or a vertex of</p></li>
+<li><p><strong>minassigned</strong> – Minimum number of neighbor elements that have geodesics within them for the used starting element</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The direction and uv parameterization location of the geodesic at point</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The direction and uv parameterization location of the geodesic at point</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="autofiber.generator.AutoFiber.interpolate_point">
-<code class="descname">interpolate_point</code><span class="sig-paren">(</span><em>vertex</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.interpolate_point" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">interpolate_point</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertex</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.interpolate_point" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine the uv coordinates of a point using the same method as interpolate_geodesic
 (Currently not being used as direct assignment is faster and more accurate than spinning off more geodesics)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>vertex</strong> – Starting vertex</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">uv coordinates of vertex</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>vertex</strong> – Starting vertex</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>uv coordinates of vertex</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="autofiber.generator.AutoFiber.layup">
-<code class="descname">layup</code><span class="sig-paren">(</span><em>angle</em>, <em>orientation_locations=None</em>, <em>precision=0.0001</em>, <em>maxsteps=10000</em>, <em>lr=0.001</em>, <em>decay=0.7</em>, <em>eps=1e-08</em>, <em>mu=0.8</em>, <em>plotting=False</em>, <em>save=False</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.layup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">layup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orientation_locations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxsteps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plotting</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.layup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Once the parameterization has been computed we can calculate any fiber orientation without needing to compute a new geodesic
 mapping. Simply rotate the geoparameterization by angle and then minimize the strain energy.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>angle</strong> – Desired fiber orientation</li>
-<li><strong>orientation_locations</strong> – Optional locations to calculate the fiber orientations at. Default is element centroids.</li>
-<li><strong>precision</strong> – Termination threshold for the strain energy optimization</li>
-<li><strong>maxsteps</strong> – Maximum number of optimizaiton iterations</li>
-<li><strong>lr</strong> – Optimization rate (similar to learning rate in machine learning optimizers)</li>
-<li><strong>decay</strong> – Decay rate</li>
-<li><strong>eps</strong> – Error precision value</li>
-<li><strong>mu</strong> – Momentum value</li>
-<li><strong>plotting</strong> – Do we want to plot the results using matplotlib?</li>
-<li><strong>save</strong> – Do we want to save the fiber orintations at orientation_locations to a .npy file</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>angle</strong> – Desired fiber orientation</p></li>
+<li><p><strong>orientation_locations</strong> – Optional locations to calculate the fiber orientations at. Default is element centroids.</p></li>
+<li><p><strong>precision</strong> – Termination threshold for the strain energy optimization</p></li>
+<li><p><strong>maxsteps</strong> – Maximum number of optimizaiton iterations</p></li>
+<li><p><strong>lr</strong> – Optimization rate (similar to learning rate in machine learning optimizers)</p></li>
+<li><p><strong>decay</strong> – Decay rate</p></li>
+<li><p><strong>eps</strong> – Error precision value</p></li>
+<li><p><strong>mu</strong> – Momentum value</p></li>
+<li><p><strong>plotting</strong> – Do we want to plot the results using matplotlib?</p></li>
+<li><p><strong>save</strong> – Do we want to save the fiber orintations at orientation_locations to a .npy file</p></li>
+<li><p><strong>model_save</strong> – Export an x3d model with the optimized uv coordinates defined</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">texcoords2inplane - Transformation matrix between 3D space and 2D space, once created any orientation at any</p>
-</td>
-</tr>
-</tbody>
-</table>
-<p>point on the surface can be evaluated.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>texcoords2inplane - Transformation matrix between 3D space and 2D space, once created any orientation</p>
+</dd>
+</dl>
+<p>at any point on the surface can be evaluated.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="autofiber.generator.AutoFiber.loadobj">
-<code class="descname">loadobj</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.loadobj" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">loadobj</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.loadobj" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load a given CAD model using SpatialNDE
 Currently supported models are X3D, STL, and De-La-Mo/DMObjects</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="autofiber.generator.AutoFiber.loadvars">
-<code class="descname">loadvars</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.loadvars" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">loadvars</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.loadvars" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load spatialnde data into the corresponding model variables</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="autofiber.generator.AutoFiber.point_in_polygon_3d">
-<code class="descname">point_in_polygon_3d</code><span class="sig-paren">(</span><em>vertices</em>, <em>point</em>, <em>inplanemat</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.point_in_polygon_3d" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">point_in_polygon_3d</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplanemat</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.generator.AutoFiber.point_in_polygon_3d" title="Permalink to this definition">¶</a></dt>
 <dd><p>assumes vertices are coplanar, with given orthonormal 2D basis inplanemat.</p>
 </dd></dl>
 
@@ -434,595 +380,511 @@ Currently supported models are X3D, STL, and De-La-Mo/DMObjects</p>
 </div>
 <div class="section" id="module-autofiber.geodesic">
 <span id="autofiber-geodesic"></span><h2>AutoFiber geodesic<a class="headerlink" href="#module-autofiber.geodesic" title="Permalink to this headline">¶</a></h2>
-<dl class="exception">
+<dl class="py exception">
 <dt id="autofiber.geodesic.EdgeError">
-<em class="property">exception </em><code class="descclassname">autofiber.geodesic.</code><code class="descname">EdgeError</code><a class="headerlink" href="#autofiber.geodesic.EdgeError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">exceptions.Exception</span></code></p>
+<em class="property"><span class="pre">exception</span> </em><code class="sig-prename descclassname"><span class="pre">autofiber.geodesic.</span></code><code class="sig-name descname"><span class="pre">EdgeError</span></code><a class="headerlink" href="#autofiber.geodesic.EdgeError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.geodesic.angle_between_vectors">
-<code class="descclassname">autofiber.geodesic.</code><code class="descname">angle_between_vectors</code><span class="sig-paren">(</span><em>v1</em>, <em>v2</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.angle_between_vectors" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.geodesic.</span></code><code class="sig-name descname"><span class="pre">angle_between_vectors</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.angle_between_vectors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the angle in radians between vectors ‘v1’ and ‘v2’
 <a class="reference external" href="https://stackoverflow.com/questions/2827393/angles-between-two-n-dimensional-vectors-in-python">https://stackoverflow.com/questions/2827393/angles-between-two-n-dimensional-vectors-in-python</a></p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.geodesic.calcbarycentric">
-<code class="descclassname">autofiber.geodesic.</code><code class="descname">calcbarycentric</code><span class="sig-paren">(</span><em>point</em>, <em>element_vertices</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.calcbarycentric" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.geodesic.</span></code><code class="sig-name descname"><span class="pre">calcbarycentric</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element_vertices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.calcbarycentric" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert 3d point to barycenteric coordinates
 <a class="reference external" href="https://en.wikipedia.org/wiki/Barycentric_coordinate_system">https://en.wikipedia.org/wiki/Barycentric_coordinate_system</a>
 <a class="reference external" href="https://math.stackexchange.com/questions/2292895/walking-on-the-surface-of-a-triangular-mesh">https://math.stackexchange.com/questions/2292895/walking-on-the-surface-of-a-triangular-mesh</a></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>point</strong> – 3d point</li>
-<li><strong>element_vertices</strong> – Vertices of current element</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>point</strong> – 3d point</p></li>
+<li><p><strong>element_vertices</strong> – Vertices of current element</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">point in barycenteric coordinates</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>point in barycenteric coordinates</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.geodesic.calcbarycentricdirection">
-<code class="descclassname">autofiber.geodesic.</code><code class="descname">calcbarycentricdirection</code><span class="sig-paren">(</span><em>vector</em>, <em>element_vertices</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.calcbarycentricdirection" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.geodesic.</span></code><code class="sig-name descname"><span class="pre">calcbarycentricdirection</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element_vertices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.calcbarycentricdirection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a direction vector from 3d to barycenteric coordinates
 <a class="reference external" href="https://en.wikipedia.org/wiki/Barycentric_coordinate_system">https://en.wikipedia.org/wiki/Barycentric_coordinate_system</a>
 <a class="reference external" href="https://math.stackexchange.com/questions/2292895/walking-on-the-surface-of-a-triangular-mesh">https://math.stackexchange.com/questions/2292895/walking-on-the-surface-of-a-triangular-mesh</a></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>vector</strong> – Direction vector in 3d</li>
-<li><strong>element_vertices</strong> – Vertices of current element</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vector</strong> – Direction vector in 3d</p></li>
+<li><p><strong>element_vertices</strong> – Vertices of current element</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Vector in barycenteric coordinates (du, dv)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Vector in barycenteric coordinates (du, dv)</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.geodesic.calcclosestpoint">
-<code class="descclassname">autofiber.geodesic.</code><code class="descname">calcclosestpoint</code><span class="sig-paren">(</span><em>unitvector</em>, <em>oldpoint</em>, <em>meshpoints</em>, <em>normal</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.calcclosestpoint" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.geodesic.</span></code><code class="sig-name descname"><span class="pre">calcclosestpoint</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unitvector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oldpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meshpoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.calcclosestpoint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find closest mesh vertex defined by the distances calculated in calcdistance</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>unitvector</strong> – Reference direction vector</li>
-<li><strong>oldpoint</strong> – Start point for unitvector</li>
-<li><strong>meshpoints</strong> – All test points</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unitvector</strong> – Reference direction vector</p></li>
+<li><p><strong>oldpoint</strong> – Start point for unitvector</p></li>
+<li><p><strong>meshpoints</strong> – All test points</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Closest point relative to unitvector</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Closest point relative to unitvector</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.geodesic.calcdistance">
-<code class="descclassname">autofiber.geodesic.</code><code class="descname">calcdistance</code><span class="sig-paren">(</span><em>unitvector</em>, <em>oldvertex</em>, <em>meshpoints</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.calcdistance" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.geodesic.</span></code><code class="sig-name descname"><span class="pre">calcdistance</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unitvector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oldvertex</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meshpoints</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.calcdistance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate perpendicular distance between a ray and a point</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>unitvector</strong> – Reference vector to calculate distance from</li>
-<li><strong>oldvertex</strong> – Start point for unitvector</li>
-<li><strong>meshpoints</strong> – Test points</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unitvector</strong> – Reference vector to calculate distance from</p></li>
+<li><p><strong>oldvertex</strong> – Start point for unitvector</p></li>
+<li><p><strong>meshpoints</strong> – Test points</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Perpendicular and parallel distance to each mesh point</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Perpendicular and parallel distance to each mesh point</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.geodesic.calcnormal">
-<code class="descclassname">autofiber.geodesic.</code><code class="descname">calcnormal</code><span class="sig-paren">(</span><em>points</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.calcnormal" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.geodesic.</span></code><code class="sig-name descname"><span class="pre">calcnormal</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.calcnormal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the normal for the given 2d points</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.geodesic.calcunitvector">
-<code class="descclassname">autofiber.geodesic.</code><code class="descname">calcunitvector</code><span class="sig-paren">(</span><em>vector</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.calcunitvector" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.geodesic.</span></code><code class="sig-name descname"><span class="pre">calcunitvector</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.calcunitvector" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the unit vector of the vector.</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.geodesic.check_inplane_pnt">
-<code class="descclassname">autofiber.geodesic.</code><code class="descname">check_inplane_pnt</code><span class="sig-paren">(</span><em>point</em>, <em>element_vertices</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.check_inplane_pnt" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.geodesic.</span></code><code class="sig-name descname"><span class="pre">check_inplane_pnt</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element_vertices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.check_inplane_pnt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determines if a point is within the plane of the current element face</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>point</strong> – A point within or on the edge of the current element</li>
-<li><strong>element_vertices</strong> – Vertices of current element</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>point</strong> – A point within or on the edge of the current element</p></li>
+<li><p><strong>element_vertices</strong> – Vertices of current element</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if the point is within in the plane, or False if otherwise</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the point is within in the plane, or False if otherwise</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.geodesic.check_inplane_vector">
-<code class="descclassname">autofiber.geodesic.</code><code class="descname">check_inplane_vector</code><span class="sig-paren">(</span><em>vector</em>, <em>normal</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.check_inplane_vector" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.geodesic.</span></code><code class="sig-name descname"><span class="pre">check_inplane_vector</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.check_inplane_vector" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determines if a vector is in plane with the current element</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>vector</strong> – Test vector</li>
-<li><strong>normal</strong> – Normal of element</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vector</strong> – Test vector</p></li>
+<li><p><strong>normal</strong> – Normal of element</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.geodesic.check_intersection">
-<code class="descclassname">autofiber.geodesic.</code><code class="descname">check_intersection</code><span class="sig-paren">(</span><em>p1</em>, <em>q1</em>, <em>p2</em>, <em>q2</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.check_intersection" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.geodesic.</span></code><code class="sig-name descname"><span class="pre">check_intersection</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.check_intersection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check for an intersection between (p1, p2) and (q1, q2)
 <a class="reference external" href="https://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/">https://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/</a></p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.geodesic.check_proj_inplane_pnt">
-<code class="descclassname">autofiber.geodesic.</code><code class="descname">check_proj_inplane_pnt</code><span class="sig-paren">(</span><em>point</em>, <em>element_vertices</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.check_proj_inplane_pnt" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.geodesic.</span></code><code class="sig-name descname"><span class="pre">check_proj_inplane_pnt</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element_vertices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.check_proj_inplane_pnt" title="Permalink to this definition">¶</a></dt>
 <dd><p><a class="reference external" href="https://math.stackexchange.com/questions/544946/determine-if-projection-of-3d-point-onto-plane-is-within-a-triangle">https://math.stackexchange.com/questions/544946/determine-if-projection-of-3d-point-onto-plane-is-within-a-triangle</a></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>point</strong> – Test point to check</li>
-<li><strong>element_vertices</strong> – Vertices of current element</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>point</strong> – Test point to check</p></li>
+<li><p><strong>element_vertices</strong> – Vertices of current element</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True or False, depending on if the projected point is inside or outside</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True or False, depending on if the projected point is inside or outside</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.geodesic.find_edge">
-<code class="descclassname">autofiber.geodesic.</code><code class="descname">find_edge</code><span class="sig-paren">(</span><em>point</em>, <em>direction</em>, <em>bary</em>, <em>error</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.find_edge" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.geodesic.</span></code><code class="sig-name descname"><span class="pre">find_edge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bary</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.find_edge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determines which edge number is intersected first (0, 1, 2) -&gt; (d12, d23, d31)
 <a class="reference external" href="https://math.stackexchange.com/questions/2292895/walking-on-the-surface-of-a-triangular-mesh">https://math.stackexchange.com/questions/2292895/walking-on-the-surface-of-a-triangular-mesh</a></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>point</strong> – Start point</li>
-<li><strong>direction</strong> – Current fiber direction</li>
-<li><strong>error</strong> – Numerical tolerance</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>point</strong> – Start point</p></li>
+<li><p><strong>direction</strong> – Current fiber direction</p></li>
+<li><p><strong>error</strong> – Numerical tolerance</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Edge number (0, 1, 2) or -1 if on an edge</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Edge number (0, 1, 2) or -1 if on an edge</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.geodesic.find_element_vertex">
-<code class="descclassname">autofiber.geodesic.</code><code class="descname">find_element_vertex</code><span class="sig-paren">(</span><em>point</em>, <em>unitvector</em>, <em>curnormal</em>, <em>vertices</em>, <em>vertexids</em>, <em>facetnormals</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.find_element_vertex" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.geodesic.</span></code><code class="sig-name descname"><span class="pre">find_element_vertex</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unitvector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">curnormal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertexids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">facetnormals</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.find_element_vertex" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determines which element is next given a vertex and an angle</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>point</strong> – Vertex in the mesh</li>
-<li><strong>unitvector</strong> – Fiber direction vector</li>
-<li><strong>curnormal</strong> – Current element normal direction vector</li>
-<li><strong>vertices</strong> – Mesh vertices</li>
-<li><strong>vertexids</strong> – Id’s of mesh element vertices</li>
-<li><strong>facetnormals</strong> – Normals of each element in mesh</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>point</strong> – Vertex in the mesh</p></li>
+<li><p><strong>unitvector</strong> – Fiber direction vector</p></li>
+<li><p><strong>curnormal</strong> – Current element normal direction vector</p></li>
+<li><p><strong>vertices</strong> – Mesh vertices</p></li>
+<li><p><strong>vertexids</strong> – Id’s of mesh element vertices</p></li>
+<li><p><strong>facetnormals</strong> – Normals of each element in mesh</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The element in which the fiber direction vector resides</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The element in which the fiber direction vector resides</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.geodesic.find_element_within">
-<code class="descclassname">autofiber.geodesic.</code><code class="descname">find_element_within</code><span class="sig-paren">(</span><em>point</em>, <em>unitvector</em>, <em>normal</em>, <em>vertices</em>, <em>vertexids</em>, <em>facetnormals</em>, <em>inplanemat</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.find_element_within" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.geodesic.</span></code><code class="sig-name descname"><span class="pre">find_element_within</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unitvector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertexids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">facetnormals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplanemat</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.find_element_within" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determines which element a point is within</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>point</strong> – Vertex in the mesh</li>
-<li><strong>unitvector</strong> – Fiber direction vector</li>
-<li><strong>normal</strong> – Current element normal direction vector</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>point</strong> – Vertex in the mesh</p></li>
+<li><p><strong>unitvector</strong> – Fiber direction vector</p></li>
+<li><p><strong>normal</strong> – Current element normal direction vector</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The element that the point is within</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The element that the point is within</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.geodesic.find_intpnt">
-<code class="descclassname">autofiber.geodesic.</code><code class="descname">find_intpnt</code><span class="sig-paren">(</span><em>P1</em>, <em>P2</em>, <em>P3</em>, <em>P4</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.find_intpnt" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.geodesic.</span></code><code class="sig-name descname"><span class="pre">find_intpnt</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P4</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.find_intpnt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Line-Line intersection method
 Returns: A point in 2d that intersects line P1P2 and P3P4
 <a class="reference external" href="https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection">https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection</a></p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.geodesic.find_neighbors">
-<code class="descclassname">autofiber.geodesic.</code><code class="descname">find_neighbors</code><span class="sig-paren">(</span><em>element</em>, <em>vertexids_indices</em>, <em>adjacencyidx</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.find_neighbors" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.geodesic.</span></code><code class="sig-name descname"><span class="pre">find_neighbors</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertexids_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adjacencyidx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.find_neighbors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds neighboring elements</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>element</strong> – Current element</li>
-<li><strong>vertexids_indices</strong> – Indices of the mesh indices</li>
-<li><strong>adjacencyidx</strong> – Built from spatialnde, index of element adjacency</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>element</strong> – Current element</p></li>
+<li><p><strong>vertexids_indices</strong> – Indices of the mesh indices</p></li>
+<li><p><strong>adjacencyidx</strong> – Built from spatialnde, index of element adjacency</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An array of element numbers that neighbor the current element</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An array of element numbers that neighbor the current element</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.geodesic.invcalcbarycentric">
-<code class="descclassname">autofiber.geodesic.</code><code class="descname">invcalcbarycentric</code><span class="sig-paren">(</span><em>pointuv</em>, <em>element_vertices</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.invcalcbarycentric" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.geodesic.</span></code><code class="sig-name descname"><span class="pre">invcalcbarycentric</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pointuv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element_vertices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.invcalcbarycentric" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert barycenteric coordinates into 3d
 <a class="reference external" href="https://en.wikipedia.org/wiki/Barycentric_coordinate_system">https://en.wikipedia.org/wiki/Barycentric_coordinate_system</a>
 <a class="reference external" href="https://math.stackexchange.com/questions/2292895/walking-on-the-surface-of-a-triangular-mesh">https://math.stackexchange.com/questions/2292895/walking-on-the-surface-of-a-triangular-mesh</a></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>pointuv</strong> – Point in barycenteric coordinates (u, v)</li>
-<li><strong>element_vertices</strong> – Vertices of current element</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pointuv</strong> – Point in barycenteric coordinates (u, v)</p></li>
+<li><p><strong>element_vertices</strong> – Vertices of current element</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">pointuv in 3d coordinates (x, y, z)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>pointuv in 3d coordinates (x, y, z)</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.geodesic.invcalcbarycentricdirection">
-<code class="descclassname">autofiber.geodesic.</code><code class="descname">invcalcbarycentricdirection</code><span class="sig-paren">(</span><em>vectoruv</em>, <em>element_vertices</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.invcalcbarycentricdirection" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.geodesic.</span></code><code class="sig-name descname"><span class="pre">invcalcbarycentricdirection</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vectoruv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element_vertices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.invcalcbarycentricdirection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert vector in barycenteric coordinates into a 3d vector
 <a class="reference external" href="https://en.wikipedia.org/wiki/Barycentric_coordinate_system">https://en.wikipedia.org/wiki/Barycentric_coordinate_system</a>
 <a class="reference external" href="https://math.stackexchange.com/questions/2292895/walking-on-the-surface-of-a-triangular-mesh">https://math.stackexchange.com/questions/2292895/walking-on-the-surface-of-a-triangular-mesh</a></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>vectoruv</strong> – Vector in barycenteric coordinate (du, dv)</li>
-<li><strong>element_vertices</strong> – Vertices of current element</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vectoruv</strong> – Vector in barycenteric coordinate (du, dv)</p></li>
+<li><p><strong>element_vertices</strong> – Vertices of current element</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Vectoruv in 3d space (dx, dy, dz)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Vectoruv in 3d space (dx, dy, dz)</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.geodesic.proj_vector">
-<code class="descclassname">autofiber.geodesic.</code><code class="descname">proj_vector</code><span class="sig-paren">(</span><em>vector</em>, <em>newnormal</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.proj_vector" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.geodesic.</span></code><code class="sig-name descname"><span class="pre">proj_vector</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newnormal</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.proj_vector" title="Permalink to this definition">¶</a></dt>
 <dd><p>Project a vector onto a surface defined by newnormal</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>vector</strong> – Vector to be projected</li>
-<li><strong>newnormal</strong> – Normal of projected surface</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vector</strong> – Vector to be projected</p></li>
+<li><p><strong>newnormal</strong> – Normal of projected surface</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Vector projected on surface defined by newnormal</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Vector projected on surface defined by newnormal</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.geodesic.rot_vector">
-<code class="descclassname">autofiber.geodesic.</code><code class="descname">rot_vector</code><span class="sig-paren">(</span><em>oldnormal</em>, <em>newnormal</em>, <em>vector</em>, <em>force=False</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.rot_vector" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.geodesic.</span></code><code class="sig-name descname"><span class="pre">rot_vector</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">oldnormal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newnormal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminate_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">85.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.rot_vector" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rotate a vector given an axis and an angle of rotation
 Returns: Vector reoriented from an old element face to a new element
 <a class="reference external" href="https://en.wikipedia.org/wiki/Rodrigues'_rotation_formula">https://en.wikipedia.org/wiki/Rodrigues’_rotation_formula</a></p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.geodesic.traverse_element">
-<code class="descclassname">autofiber.geodesic.</code><code class="descname">traverse_element</code><span class="sig-paren">(</span><em>af</em>, <em>element</em>, <em>point</em>, <em>unitfiberdirection</em>, <em>length</em>, <em>uv_start</em>, <em>direction=1</em>, <em>parameterization=True</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.traverse_element" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.geodesic.</span></code><code class="sig-name descname"><span class="pre">traverse_element</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">af</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unitfiberdirection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uv_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameterization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.traverse_element" title="Permalink to this definition">¶</a></dt>
 <dd><p>Traverse a triangular element</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>af</strong> – Autofiber object</li>
-<li><strong>element</strong> – Current triangular element</li>
-<li><strong>point</strong> – Current point</li>
-<li><strong>unitfiberdirection</strong> – Current direction vector</li>
-<li><strong>length</strong> – Current length of the geodesic</li>
-<li><strong>uv_start</strong> – Start point of geodesic in uv space</li>
-<li><strong>direction</strong> – <ol class="arabic">
-<li>for positive geodesic direction, (-1) for negative geodesic direction</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>af</strong> – Autofiber object</p></li>
+<li><p><strong>element</strong> – Current triangular element</p></li>
+<li><p><strong>point</strong> – Current point</p></li>
+<li><p><strong>unitfiberdirection</strong> – Current direction vector</p></li>
+<li><p><strong>length</strong> – Current length of the geodesic</p></li>
+<li><p><strong>uv_start</strong> – Start point of geodesic in uv space</p></li>
+<li><p><strong>direction</strong> – <ol class="arabic simple">
+<li><p>for positive geodesic direction, (-1) for negative geodesic direction</p></li>
 </ol>
-</li>
-<li><strong>parameterization</strong> – Are we going to record geodesic details for use in parameterization calculation?</li>
+</p></li>
+<li><p><strong>parameterization</strong> – Are we going to record geodesic details for use in parameterization calculation?</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">next intersection point, next unitfiberdirection based on next element, next element</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>next intersection point, next unitfiberdirection based on next element, next element</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.geodesic.vector_inbetween">
-<code class="descclassname">autofiber.geodesic.</code><code class="descname">vector_inbetween</code><span class="sig-paren">(</span><em>v1</em>, <em>v2</em>, <em>v3</em>, <em>error=1e-10</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.vector_inbetween" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.geodesic.</span></code><code class="sig-name descname"><span class="pre">vector_inbetween</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.geodesic.vector_inbetween" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determines if a vector (v1) is between v2 and v3
 <a class="reference external" href="https://stackoverflow.com/questions/13640931/how-to-determine-if-a-vector-is-between-two-other-vectors">https://stackoverflow.com/questions/13640931/how-to-determine-if-a-vector-is-between-two-other-vectors</a></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>v1</strong> – Test vector</li>
-<li><strong>v2</strong> – Given vector</li>
-<li><strong>v3</strong> – Given vector</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>v1</strong> – Test vector</p></li>
+<li><p><strong>v2</strong> – Given vector</p></li>
+<li><p><strong>v3</strong> – Given vector</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if vector is between v2 and v3, false if not between</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if vector is between v2 and v3, false if not between</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
 <div class="section" id="module-autofiber.optimization">
 <span id="autofiber-optimization"></span><h2>AutoFiber optimization<a class="headerlink" href="#module-autofiber.optimization" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.optimization.build_checkerboard">
-<code class="descclassname">autofiber.optimization.</code><code class="descname">build_checkerboard</code><span class="sig-paren">(</span><em>w</em>, <em>h</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.optimization.build_checkerboard" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.optimization.</span></code><code class="sig-name descname"><span class="pre">build_checkerboard</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">w</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.optimization.build_checkerboard" title="Permalink to this definition">¶</a></dt>
 <dd><p><a class="reference external" href="https://stackoverflow.com/questions/2169478/how-to-make-a-checkerboard-in-numpy">https://stackoverflow.com/questions/2169478/how-to-make-a-checkerboard-in-numpy</a>
 Build a checkerboard array</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>w</strong> – width of checkerboard</li>
-<li><strong>h</strong> – height of checkerboard</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>w</strong> – width of checkerboard</p></li>
+<li><p><strong>h</strong> – height of checkerboard</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">checkerboard array of width w and height h</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>checkerboard array of width w and height h</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.optimization.calc2d">
-<code class="descclassname">autofiber.optimization.</code><code class="descname">calc2d</code><span class="sig-paren">(</span><em>obj</em>, <em>points</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.optimization.calc2d" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.optimization.</span></code><code class="sig-name descname"><span class="pre">calc2d</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.optimization.calc2d" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate a 2D representation of a 3D model</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>obj</strong> – spatialnde object</li>
-<li><strong>points</strong> – 3D model points to be converted to 2D</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj</strong> – spatialnde object</p></li>
+<li><p><strong>points</strong> – 3D model points to be converted to 2D</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">points in 2D space</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>points in 2D space</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.optimization.calcunitvector">
-<code class="descclassname">autofiber.optimization.</code><code class="descname">calcunitvector</code><span class="sig-paren">(</span><em>vector</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.optimization.calcunitvector" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.optimization.</span></code><code class="sig-name descname"><span class="pre">calcunitvector</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.optimization.calcunitvector" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the unit vector of the vector.</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.optimization.computeglobalstrain">
-<code class="descclassname">autofiber.optimization.</code><code class="descname">computeglobalstrain</code><span class="sig-paren">(</span><em>normalized_2d</em>, <em>fiberpoints</em>, <em>vertexids</em>, <em>stiffness_tensor</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.optimization.computeglobalstrain" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.optimization.</span></code><code class="sig-name descname"><span class="pre">computeglobalstrain</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normalized_2d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fiberpoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertexids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stiffness_tensor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.optimization.computeglobalstrain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the strain energy between a 2d representation of a surface and a uv (geodesic) parameterization</p>
-<p><img class="math" src="_images/math/158b0cf69aa413202fa8b11b55154ec3e7806c9e.png" alt="p_{3D}"/> - 2D mapping of 3D model surface based on element normal and inplanemat</p>
-<p><img class="math" src="_images/math/2ada2fe91fae03e751077ba1092aaab4395b23bb.png" alt="p_{UV}"/> - Parameterization of 3D surface based on geodesic lines</p>
+<p><img class="math" src="_images/math/5e4c169fd6705ed19e08d2b45f991417ab3b0c8d.png" alt="p_{3D}"/> - 2D mapping of 3D model surface based on element normal and inplanemat</p>
+<p><img class="math" src="_images/math/16979be2bac203d87e7299265ad3693aedcf394c.png" alt="p_{UV}"/> - Parameterization of 3D surface based on geodesic lines</p>
 <p>Compute the areas of each triangular element in UV space:</p>
-<p><img class="math" src="_images/math/738e338e1521840041a71ac9594cef5ae6014ca2.png" alt="A_{uv} = \frac{1}{2}det(p_{uv})"/></p>
+<p><img class="math" src="_images/math/72341c65799ae31e894010a310164a823d76245e.png" alt="A_{uv} = \frac{1}{2}det(p_{uv})"/></p>
 <p>Compute the deformation gradient between each element in UV space and the corresponding element in 2D space:</p>
-<p><img class="math" src="_images/math/313e52d0d601e83234dae14d7946f7af90ce68dd.png" alt="F = p_{3D} * p_{UV}^{-1}"/></p>
+<p><img class="math" src="_images/math/3cc2e6029a8eaa5e720cbe39ede48ce2434a17f3.png" alt="F = p_{3D} * p_{UV}^{-1}"/></p>
 <p>Utilizing the Lagrangian finite strain tensor:</p>
-<p><img class="math" src="_images/math/4d499b581e58837ef7fbda6e35e3ba4b047c6648.png" alt="\epsilon = \frac{1}{2}(C - I)"/></p>
-<p>where <img class="math" src="_images/math/54fb163521ade3b5341e178fc474a7c671f43921.png" alt="C = F^{t}F"/> the right Cauchy–Green deformation tensor and <img class="math" src="_images/math/d2ed2630e579be280a30b6646f4d706103c337ce.png" alt="I"/> is the identity matrix.</p>
-<p>Since <img class="math" src="_images/math/9a923670782b9aee04188a3a81a91dc46eb640a9.png" alt="\overrightarrow{\epsilon} = [\epsilon_{11}, \epsilon_{22}, 2\gamma_{12}]"/> we have to:</p>
-<p><img class="math" src="_images/math/6227f6b300b0fb1fb10b35afdd57e25521150e42.png" alt="\overrightarrow{\epsilon} = \frac{\epsilon}{[1.0, 1.0, 0.5]}^T"/></p>
+<p><img class="math" src="_images/math/71c8c0ef5ab89602e3ca04acb4466c816cc119f2.png" alt="\epsilon = \frac{1}{2}(C - I)"/></p>
+<p>where <img class="math" src="_images/math/9bdc8714d8233cdaaa141547a8bfcf86db8e9172.png" alt="C = F^{t}F"/> the right Cauchy–Green deformation tensor and <img class="math" src="_images/math/015755a22b6219b345c36a9a47b091dc56007486.png" alt="I"/> is the identity matrix.</p>
+<p>Since <img class="math" src="_images/math/ae77c1cec435edebecb608f593b87c3e90fca6a6.png" alt="\overrightarrow{\epsilon} = [\epsilon_{11}, \epsilon_{22}, 2\gamma_{12}]"/> we have to:</p>
+<p><img class="math" src="_images/math/9f7dd305b7040e8e146aec066e3582cfae96bc71.png" alt="\overrightarrow{\epsilon} = \frac{\epsilon}{[1.0, 1.0, 0.5]}^T"/></p>
 <p>Therefore the total strain energy density of the surface with units (J/length):</p>
-<p><img class="math" src="_images/math/7bbe9fdcbbae0fa030b1050650714d00734331b4.png" alt="E_{total} = \sum_{k=0}^N\frac{1}{2}\overrightarrow{\epsilon_k}^2SA_{uv_k}"/></p>
-<p>where <img class="math" src="_images/math/1dbc400fcc213305415872f9f625cd2828f97a00.png" alt="S"/> is the stiffness tensor of the defined material and N is the total number of mesh elements.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>normalized_2d</strong> – 2D representation of a 3D model</li>
-<li><strong>fiberpoints</strong> – uv parameterization</li>
-<li><strong>vertexids</strong> – Vertex indices of each element in the 3D model</li>
-<li><strong>stiffness_tensor</strong> – Stiffness tensor of the given material</li>
+<p><img class="math" src="_images/math/9d994e0554211ffa2ebb1fce6c98b45024d36a5e.png" alt="E_{total} = \sum_{k=0}^N\frac{1}{2}\overrightarrow{\epsilon_k}^2SA_{uv_k}"/></p>
+<p>where <img class="math" src="_images/math/b988975be41fd13b4d091c10202ba19374643586.png" alt="S"/> is the stiffness tensor of the defined material and N is the total number of mesh elements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>normalized_2d</strong> – 2D representation of a 3D model</p></li>
+<li><p><strong>fiberpoints</strong> – uv parameterization</p></li>
+<li><p><strong>vertexids</strong> – Vertex indices of each element in the 3D model</p></li>
+<li><p><strong>stiffness_tensor</strong> – Stiffness tensor of the given material</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The computed total strain energy between normalized_2d and fiberpoints</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The computed total strain energy between normalized_2d and fiberpoints</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.optimization.computeglobalstrain_grad">
-<code class="descclassname">autofiber.optimization.</code><code class="descname">computeglobalstrain_grad</code><span class="sig-paren">(</span><em>normalized_2d</em>, <em>fiberpoints</em>, <em>vertexids</em>, <em>stiffness_tensor</em>, <em>oc</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.optimization.computeglobalstrain_grad" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.optimization.</span></code><code class="sig-name descname"><span class="pre">computeglobalstrain_grad</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normalized_2d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fiberpoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertexids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stiffness_tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.optimization.computeglobalstrain_grad" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the gradient of the strain energy function defined above with respect to the movement of each point in the
 uv parameterization.</p>
-<p><img class="math" src="_images/math/158b0cf69aa413202fa8b11b55154ec3e7806c9e.png" alt="p_{3D}"/> - 2D mapping of 3D model surface based on element normal and inplanemat</p>
-<p><img class="math" src="_images/math/2ada2fe91fae03e751077ba1092aaab4395b23bb.png" alt="p_{UV}"/> - Parameterization of 3D surface based on geodesic lines</p>
+<p><img class="math" src="_images/math/5e4c169fd6705ed19e08d2b45f991417ab3b0c8d.png" alt="p_{3D}"/> - 2D mapping of 3D model surface based on element normal and inplanemat</p>
+<p><img class="math" src="_images/math/16979be2bac203d87e7299265ad3693aedcf394c.png" alt="p_{UV}"/> - Parameterization of 3D surface based on geodesic lines</p>
 <p>Compute the areas of each triangular element in UV space:</p>
-<p><img class="math" src="_images/math/738e338e1521840041a71ac9594cef5ae6014ca2.png" alt="A_{uv} = \frac{1}{2}det(p_{uv})"/></p>
+<p><img class="math" src="_images/math/72341c65799ae31e894010a310164a823d76245e.png" alt="A_{uv} = \frac{1}{2}det(p_{uv})"/></p>
 <p>In order to calculate the derivative of the area of each element with respect to each nodal displacement we will
-calculate the (i,j)-minor of <img class="math" src="_images/math/947603552eda597fe9ab10992e460f75cafd213c.png" alt="A_{uv}"/> by the determinate of the matrix created by removing the ith row and jth
-column in <img class="math" src="_images/math/a4a1069c59e610b2cbfa5a97cb85328b3ab2ff40.png" alt="p_{uv}"/> for each element in <img class="math" src="_images/math/a4a1069c59e610b2cbfa5a97cb85328b3ab2ff40.png" alt="p_{uv}"/>:</p>
-<p><img class="math" src="_images/math/885c7ad878bded85b7f7de3afd98d3e45aeafe3a.png" alt="M_{ij} = det(minor(p_{uv_{ij}}))"/></p>
-<p>Then using <img class="math" src="_images/math/3beae8a4ac3bd7f16d5cf40ddea23f8869e9a6cf.png" alt="M_{ij}"/> we can compute the cofactor matrix:</p>
-<p><img class="math" src="_images/math/4d8a0a336800c59355e95691983c3fc0372401ac.png" alt="Cof = ((-1)^{i+j}M_{ij})_{1 \leq i,j \leq n^*}"/></p>
-<p>Therefore, the adjugate matrix of <img class="math" src="_images/math/947603552eda597fe9ab10992e460f75cafd213c.png" alt="A_{uv}"/> is:</p>
-<p><img class="math" src="_images/math/f13939e547ccffade29f5328c740391798baa8df.png" alt="adj(A_{uv}) = Cof^T"/></p>
+calculate the (i,j)-minor of <img class="math" src="_images/math/709d2171704a5e6cce78c3ec0c6aa2128b8bd58f.png" alt="A_{uv}"/> by the determinate of the matrix created by removing the ith row and jth
+column in <img class="math" src="_images/math/c085010dc3546b9d5696525d2d52b10449c74760.png" alt="p_{uv}"/> for each element in <img class="math" src="_images/math/c085010dc3546b9d5696525d2d52b10449c74760.png" alt="p_{uv}"/>:</p>
+<p><img class="math" src="_images/math/b93cdf88eb365d5ed32a9f9534a3baa0c5aa3d74.png" alt="M_{ij} = det(minor(p_{uv_{ij}}))"/></p>
+<p>Then using <img class="math" src="_images/math/cfc666d36fd5dcffc3d230de1a04e41ea4a96bea.png" alt="M_{ij}"/> we can compute the cofactor matrix:</p>
+<p><img class="math" src="_images/math/806f356516238be10a7471e3aa24e3d396a9d68a.png" alt="Cof = ((-1)^{i+j}M_{ij})_{1 \leq i,j \leq n^*}"/></p>
+<p>Therefore, the adjugate matrix of <img class="math" src="_images/math/709d2171704a5e6cce78c3ec0c6aa2128b8bd58f.png" alt="A_{uv}"/> is:</p>
+<p><img class="math" src="_images/math/8e520fe892cc3f0b7345fc146d976992e819dbc8.png" alt="adj(A_{uv}) = Cof^T"/></p>
 <p>The derivative of the area of each element with respect to each nodal displacement can be calculated using
 Jacobi’s formula as follows:</p>
-<p><img class="math" src="_images/math/203aa4dfe10d5f3f324b947c29554ccc96e9636e.png" alt="\frac{dA_{uv}}{dp_{uv}} = -\frac{1}{2}trace(adj(A_{uv})*\frac{dp_{uv}}{dp_{uv_{ij}}})"/></p>
-<p>where <img class="math" src="_images/math/2bf6c77c871cd4291891250f93bb925b2cd59ef1.png" alt="\frac{dp_{uv}}{dp_{uv_{ij}}}"/> is the derivative of each nodal displacement with respect to moving all
+<p><img class="math" src="_images/math/25fe093f8bb3ad81914b2d2037a5fd88b9bb0b12.png" alt="\frac{dA_{uv}}{dp_{uv}} = -\frac{1}{2}trace(adj(A_{uv})*\frac{dp_{uv}}{dp_{uv_{ij}}})"/></p>
+<p>where <img class="math" src="_images/math/7636f2bd1902e24396e0166be5d8761f10e0dc21.png" alt="\frac{dp_{uv}}{dp_{uv_{ij}}}"/> is the derivative of each nodal displacement with respect to moving all
 the other nodes for each mesh element.</p>
 <p>Compute the deformation gradient between each element in UV space and the corresponding element in 2D space:</p>
-<p><img class="math" src="_images/math/313e52d0d601e83234dae14d7946f7af90ce68dd.png" alt="F = p_{3D} * p_{UV}^{-1}"/></p>
+<p><img class="math" src="_images/math/3cc2e6029a8eaa5e720cbe39ede48ce2434a17f3.png" alt="F = p_{3D} * p_{UV}^{-1}"/></p>
 <p>Utilizing the Lagrangian finite strain tensor:</p>
-<p><img class="math" src="_images/math/4d499b581e58837ef7fbda6e35e3ba4b047c6648.png" alt="\epsilon = \frac{1}{2}(C - I)"/></p>
-<p>where <img class="math" src="_images/math/54fb163521ade3b5341e178fc474a7c671f43921.png" alt="C = F^{t}F"/> the right Cauchy–Green deformation tensor and <img class="math" src="_images/math/d2ed2630e579be280a30b6646f4d706103c337ce.png" alt="I"/> is the identity matrix.</p>
-<p>Since <img class="math" src="_images/math/1c8c3e4b73671546b4fa887b6111b022cd11e8a0.png" alt="\overrightarrow{\epsilon} = [\epsilon_{11}, \epsilon_{22}, \gamma_{12}/2]"/> we have to:</p>
-<p><img class="math" src="_images/math/6227f6b300b0fb1fb10b35afdd57e25521150e42.png" alt="\overrightarrow{\epsilon} = \frac{\epsilon}{[1.0, 1.0, 0.5]}^T"/></p>
+<p><img class="math" src="_images/math/71c8c0ef5ab89602e3ca04acb4466c816cc119f2.png" alt="\epsilon = \frac{1}{2}(C - I)"/></p>
+<p>where <img class="math" src="_images/math/9bdc8714d8233cdaaa141547a8bfcf86db8e9172.png" alt="C = F^{t}F"/> the right Cauchy–Green deformation tensor and <img class="math" src="_images/math/015755a22b6219b345c36a9a47b091dc56007486.png" alt="I"/> is the identity matrix.</p>
+<p>Since <img class="math" src="_images/math/b3895f9afb3bdc2c3d557dd7d07dadf8d221f91c.png" alt="\overrightarrow{\epsilon} = [\epsilon_{11}, \epsilon_{22}, \gamma_{12}/2]"/> we have to:</p>
+<p><img class="math" src="_images/math/9f7dd305b7040e8e146aec066e3582cfae96bc71.png" alt="\overrightarrow{\epsilon} = \frac{\epsilon}{[1.0, 1.0, 0.5]}^T"/></p>
 <p>The derivative of the deformation tensor with respect to each nodal displacement is as follows:</p>
-<p><img class="math" src="_images/math/66b8792cd83ff24fa18e42941e7dcf99e1f21d88.png" alt="\frac{dF}{dp_{uv}} = p_{uv}^{-1}\frac{dp_{uv}}{dp_{uv_{ij}}}p_{uv}^{-1}p_{3D}"/></p>
+<p><img class="math" src="_images/math/2b0cbce23b8b33e85e6168ccf2a2e2aa2c61addd.png" alt="\frac{dF}{dp_{uv}} = p_{uv}^{-1}\frac{dp_{uv}}{dp_{uv_{ij}}}p_{uv}^{-1}p_{3D}"/></p>
 <p>The derivative of strain with respect to each nodal displacement:</p>
-<p><img class="math" src="_images/math/f47d68d8da7f5199c4fcd8a51607cfe99bfda276.png" alt="\frac{d\epsilon}{dp_{uv}} = \frac{1}{2}(\frac{dF}{dp_{uv}}^TF + F^T\frac{dF}{dp_{uv}})"/></p>
-<p>Then to account for <img class="math" src="_images/math/063d72a011b00638a9f00ce97a621087cd1bf348.png" alt="2\gamma_{12}"/>:</p>
-<p><img class="math" src="_images/math/cb8575943298de0a5f49dcacdc0185769d609e75.png" alt="\frac{d\overrightarrow{\epsilon}}{dp_{uv}} = \frac{\frac{d\epsilon}{dp_{uv}}}{[1.0, 1.0, 0.5]}"/></p>
+<p><img class="math" src="_images/math/26371051ce73dc734346154d413be35d37528c1e.png" alt="\frac{d\epsilon}{dp_{uv}} = \frac{1}{2}(\frac{dF}{dp_{uv}}^TF + F^T\frac{dF}{dp_{uv}})"/></p>
+<p>Then to account for <img class="math" src="_images/math/c5a6a475241d7bf7a8a6833cb06e83a627f60915.png" alt="2\gamma_{12}"/>:</p>
+<p><img class="math" src="_images/math/a07bd10714eb9c8564e114cc7bb9863bc1627114.png" alt="\frac{d\overrightarrow{\epsilon}}{dp_{uv}} = \frac{\frac{d\epsilon}{dp_{uv}}}{[1.0, 1.0, 0.5]}"/></p>
 <p>Finally, we can compute the derivative of the strain energy density with respect to each nodal displacement with the
 following application of the chain rule:</p>
-<p><img class="math" src="_images/math/062cefa22bbdeb0a1d8f8771aae49c6c6050123e.png" alt="\frac{dE}{dp_{uv}} = \overrightarrow{\epsilon}S\frac{d\overrightarrow{\epsilon}}{dp_{uv}}A_{uv} + \frac{1}{2}\overrightarrow{\epsilon}S\overrightarrow{\epsilon}\frac{dA_{uv}}{dp_{uv}}"/></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>normalized_2d</strong> – 2D representation of a 3D model</li>
-<li><strong>fiberpoints</strong> – uv parameterization</li>
-<li><strong>vertexids</strong> – Vertex indices of each element in the 3D model</li>
-<li><strong>stiffness_tensor</strong> – Stiffness tensor of the given material</li>
-<li><strong>oc</strong> – A vertex index which we want to constrain by fixing it’s location</li>
+<p><img class="math" src="_images/math/c66a4350b8dd0fe9d573bd843539c4c0671a80a8.png" alt="\frac{dE}{dp_{uv}} = \overrightarrow{\epsilon}S\frac{d\overrightarrow{\epsilon}}{dp_{uv}}A_{uv} + \frac{1}{2}\overrightarrow{\epsilon}S\overrightarrow{\epsilon}\frac{dA_{uv}}{dp_{uv}}"/></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>normalized_2d</strong> – 2D representation of a 3D model</p></li>
+<li><p><strong>fiberpoints</strong> – uv parameterization</p></li>
+<li><p><strong>vertexids</strong> – Vertex indices of each element in the 3D model</p></li>
+<li><p><strong>stiffness_tensor</strong> – Stiffness tensor of the given material</p></li>
+<li><p><strong>oc</strong> – A vertex index which we want to constrain by fixing it’s location</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The gradient of strain energy with respect to movement of each point in the uv parameterization</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The gradient of strain energy with respect to movement of each point in the uv parameterization</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.optimization.minor">
-<code class="descclassname">autofiber.optimization.</code><code class="descname">minor</code><span class="sig-paren">(</span><em>arr</em>, <em>i</em>, <em>j</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.optimization.minor" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.optimization.</span></code><code class="sig-name descname"><span class="pre">minor</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.optimization.minor" title="Permalink to this definition">¶</a></dt>
 <dd><p><a class="reference external" href="https://stackoverflow.com/questions/3858213/numpy-routine-for-computing-matrix-minors">https://stackoverflow.com/questions/3858213/numpy-routine-for-computing-matrix-minors</a>
 Calculate the minor of a matrix with ith row, jth column removed</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>arr</strong> – Matrix of interest</li>
-<li><strong>i</strong> – row to remove</li>
-<li><strong>j</strong> – column to remove</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arr</strong> – Matrix of interest</p></li>
+<li><p><strong>i</strong> – row to remove</p></li>
+<li><p><strong>j</strong> – column to remove</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">minor of arr with ith row removed and jth column removed</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>minor of arr with ith row removed and jth column removed</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
 <div class="section" id="module-autofiber.analyze_uv">
 <span id="autofiber-analyze-uv"></span><h2>AutoFiber analyze_uv<a class="headerlink" href="#module-autofiber.analyze_uv" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.analyze_uv.BuildEdgeDict">
-<code class="descclassname">autofiber.analyze_uv.</code><code class="descname">BuildEdgeDict</code><span class="sig-paren">(</span><em>surface</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.analyze_uv.BuildEdgeDict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.analyze_uv.</span></code><code class="sig-name descname"><span class="pre">BuildEdgeDict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">surface</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.analyze_uv.BuildEdgeDict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create edge dictionary from a surface.
 The edge dictionary is indexed by a tuple 
 (vertexindex1,vertexindex2) of indices into surface.vertexes. 
@@ -1034,15 +896,15 @@ vertex.</p>
 <p>This function returns the edge dictionary</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.analyze_uv.DetermineAdjacency">
-<code class="descclassname">autofiber.analyze_uv.</code><code class="descname">DetermineAdjacency</code><span class="sig-paren">(</span><em>surface</em>, <em>edges</em>, <em>surfaceparameterization=None</em>, <em>texture=False</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.analyze_uv.DetermineAdjacency" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Build an adjacency index for the given surface </dt>
-<dd>with the given edgedict. The adjacency index
+<code class="sig-prename descclassname"><span class="pre">autofiber.analyze_uv.</span></code><code class="sig-name descname"><span class="pre">DetermineAdjacency</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">surface</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surfaceparameterization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">texture</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.analyze_uv.DetermineAdjacency" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Build an adjacency index for the given surface </dt><dd><p>with the given edgedict. The adjacency index
 has the same layout as surface.vertexidx, but
 additional entries may be -1 as facets may have
-fewer adjacencies than vertices.</dd>
+fewer adjacencies than vertices.</p>
+</dd>
 </dl>
 <p>The adjacency index contains the polygon numbers adjacent
 to the given polygon.</p>
@@ -1054,24 +916,24 @@ so the polygon indices will range from 0 to
 vertexidx_indices.shape[0]+texcoordredundant_polystartindexs.shape[0]</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.analyze_uv.FindTexPatches">
-<code class="descclassname">autofiber.analyze_uv.</code><code class="descname">FindTexPatches</code><span class="sig-paren">(</span><em>surface</em>, <em>texadjacencyidx</em>, <em>surfaceparameterization=None</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.analyze_uv.FindTexPatches" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.analyze_uv.</span></code><code class="sig-name descname"><span class="pre">FindTexPatches</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">surface</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">texadjacencyidx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surfaceparameterization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.analyze_uv.FindTexPatches" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a surface and a texture adjacency index (which contains the texture polygon numbers adjacent, to the given texture polygon, with polygons findable from surface.vertexidx_indices and surfaceparameterization.texcoordredundant…), separate the polygons of the surface into groups that have adjacent texture. Return a list of lists of polygon numbers.</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="autofiber.analyze_uv.IdentifyTexMaps">
-<code class="descclassname">autofiber.analyze_uv.</code><code class="descname">IdentifyTexMaps</code><span class="sig-paren">(</span><em>part</em>, <em>surfaceparameterizationmapping=None</em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.analyze_uv.IdentifyTexMaps" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">autofiber.analyze_uv.</span></code><code class="sig-name descname"><span class="pre">IdentifyTexMaps</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">part</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surfaceparameterizationmapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autofiber.analyze_uv.IdentifyTexMaps" title="Permalink to this definition">¶</a></dt>
 <dd><p>Trace through and identify all texture maps, given a part
 (ndepart instance)</p>
 <p>If texture_urls are given through an appearance node, those are used. If
 the appearance node is missing or does not provide a texture_url, then
 a numbered name is used for that surface, of the form _unnamed_surface_%d</p>
-<dl class="docutils">
-<dt>Returns a tuple of two dictionaries:</dt>
-<dd>surface_texurl is indexed by the id of the surface object and contains the the texture url as a string. 
-surfaces_bytexurl is indexed by texture url strings and contains a list of surface objects that share that texture url</dd>
+<dl class="simple">
+<dt>Returns a tuple of two dictionaries:</dt><dd><p>surface_texurl is indexed by the id of the surface object and contains the the texture url as a string. 
+surfaces_bytexurl is indexed by texture url strings and contains a list of surface objects that share that texture url</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -1117,17 +979,15 @@ surfaces_bytexurl is indexed by texture url strings and contains a list of surfa
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
 
 
 
@@ -1141,10 +1001,10 @@ surfaces_bytexurl is indexed by texture url strings and contains a list of surfa
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2019, Nathan Scheirer.
+      &copy;2020, Nathan Scheirer.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
