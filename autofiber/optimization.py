@@ -256,6 +256,10 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
     m = np.array([1.0, 1.0, 0.5])[np.newaxis].T
     strain_vector = np.divide(np.array([[strain[:, 0, 0]], [strain[:, 1, 1]], [strain[:, 0, 1]]]).transpose((2, 0, 1)), m).squeeze()
 
+    # http://homepages.engineering.auckland.ac.nz/~pkel015/SolidMechanicsBooks/Part_I/BookSM_Part_I/08_Energy/08_Energy_02_Elastic_Strain_Energy.pdf
+    # J == Pa * m^3 -> J/m = Pa * m^2           ex. GPa * mm^3 = 1 J so to get J/mm -> GPa * mm^2
+    strain_energy_density = 0.5*np.multiply(np.einsum("ei,ei->e", strain_vector, np.matmul(strain_vector, stiffness_tensor)), areas)
+
     # compute the derivative of the deformation matrix with respect to each uv coordinate
     # 3D*F = UV -> UV^-1*dUV_{dUV_ij}*UV^-1*3D = dF_duv
     dF_duv = np.matmul(rel_3d[:, np.newaxis, :, :], np.matmul(np.matmul(np.linalg.inv(rel_uvw)[:, np.newaxis, :, :], duvw_duij_t), np.linalg.inv(rel_uvw)[:, np.newaxis, :, :]))[:, :, :2, :2]
@@ -280,34 +284,35 @@ def computeglobalstrain_grad(normalized_2d, fiberpoints, vertexids, stiffness_te
     point_strain_grad[oc][0] = 0.0
     point_strain_grad[oc][1] = 0.0
 
-    return -1*point_strain_grad.flatten()
+    return np.sum(strain_energy_density), -1*point_strain_grad.flatten()
 
 
 # https://medium.com/100-days-of-algorithms/day-69-rmsprop-7a88d475003b
-def rmsprop_momentum(F, dF, x_0, precision=None, maxsteps=None, lr=None, decay=None, eps=None, mu=None):
+def rmsprop_momentum(F, x_0, init, precision=None, maxsteps=None, lr=None, decay=None, eps=None, mu=None):
     x = x_0.flatten()
-    loss = []
+    loss = [init]
     dx_mean_sqr = np.zeros(x.shape, dtype=float)
     momentum = np.zeros(x.shape, dtype=float)
 
-    if F(x) < precision:
+    if F(x)[0] < precision:
         return x.reshape(-1, 2), loss
 
     for _ in range(maxsteps):
-        b0 = F(x)
-        dx = dF(x)
+        b0, dx = F(x)
+        # dx = dF(x)
         dx_mean_sqr = decay * dx_mean_sqr + (1 - decay) * dx ** 2
         momentum = mu * momentum + lr * dx / (np.sqrt(dx_mean_sqr) + eps)
         x -= momentum
+        b1, dx1 = F(x)
 
-        loss.append(F(x))
+        loss.append(b1)
 
-        sys.stdout.write("Residual: %s      \r" % abs(F(x) - b0))
+        sys.stdout.write("Residual: %s      \r" % abs(b1 - b0))
         sys.stdout.flush()
 
-        if abs(F(x) - b0) < precision:
+        if abs(b1 - b0) < precision:
             break
-        if F(x) < 0:
+        if b1 < 0:
             raise ValueError("Negative strain energy detected. Bad parameterization?")
     print("")
     return x.reshape(-1, 2), loss

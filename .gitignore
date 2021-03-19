@@ -98,8 +98,6 @@ env.bak/
 venv.bak/
 bin/
 include/
-lib64/
-lib/
 
 # Spyder project settings
 .spyderproject
@@ -114,4 +112,6 @@ lib/
 # mypy
 .mypy_cache/
 
-orientation.py
+orientation_*.npy
+demos/*.fibers
+results/*

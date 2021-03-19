@@ -13,12 +13,13 @@
 # limitations under the License.
 
 
-import os, sys, time
+import os, sys, time, pickle
 import numpy as np
 np.seterr(divide='ignore', invalid='ignore')
 
 from spatialnde.coordframes import coordframe
 from spatialnde.ndeobj import ndepart
+from spatialnde.exporters.x3d import X3DSerialization
 from spatialnde.cadpart.polygonalsurface_texcoordparameterization import polygonalsurface_texcoordparameterization
 
 from . import geodesic as GEO
@@ -37,9 +38,14 @@ def calcunitvector(vector):
             return vector
 
 
+def save_orientations(filename, model):
+    print("Not implemented")
+    pass
+
+
 class AutoFiber:
 
-    def __init__(self, cadfile, initpoint, initdirection, initnormal, materialproperties=(228.0, 0.2, None), fiberint=0.1, angle_error=0.01, accel=False):
+    def __init__(self, cadfile=None, initpoint=None, initdirection=None, initnormal=None, materialproperties=(228.0, 0.2, None), fiberint=0.1, angle_error=0.01, accel=False):
         """
         Calculate geodesic based parameterization of a triangular meshed CAD model
 
@@ -55,21 +61,25 @@ class AutoFiber:
         :param angle_error: Error incorporated into the initdirection, any error defined here is reversed during optimization
         :param accel: Utilize OpenCL parallel geodesic generator (WIP - not functioning)
         """
-        # Get CAD file of part that we would like to parameterize
-        self.cadfile = cadfile
-        # Get the angle error which will be applied to initdirection
-        self.error = angle_error
+
+        # Set status variables
+        self.model_loaded = False
+        self.parameterized = False
 
         # Gather options, set to default if option doesn't exist
         # accel: activate opencl optimization features (WIP)
         self.accel = accel
 
+        # Get CAD file of part that we would like to parameterize
+        self.cadfile = cadfile
+        self.savename = None
+
+        # Get the angle error which will be applied to initdirection
+        self.error = angle_error
+
         # Init spatialnde objects
         self.obj = None
         self.objframe = None
-
-        # load model into spatialnde obj
-        self.loadobj()
 
         # Init model variables
         self.vertices = None
@@ -86,87 +96,111 @@ class AutoFiber:
         self.boxpolys = None
         self.boxcoords = None
 
-        # load relevant model variables
-        self.loadvars()
-
         # Init fiber material properties
         # Defaults are just basic isotropic material properties
         self.fiberint = fiberint
+        self.materialproperties = materialproperties
         self.E = materialproperties[0]
         self.nu = materialproperties[1]
+        # Calculate compliance tensor
+        self.compliance_tensor = self.compute_compliance_tensor()
+        # Calculate stiffness tensor
+        self.stiffness_tensor = np.linalg.inv(self.compliance_tensor)
 
         # Init geodesic variables
         self.startpoints = np.empty((0, 3))
         self.startuv = np.empty((0, 2))
         self.startelements = np.empty(0, dtype=int)
         self.sfiberdirections = np.empty((0, 3))
-        self.fiberdirections = np.empty((self.vertexids.shape[0], 3)) * np.nan
-
-        self.surfacenormal = initnormal
+        self.fiberdirections = None
+        self.normalized_2d = None
         # Init geodesic path record variables
         self.georecord = {}
         self.geoints = []
 
         # Init uv parameterization parameters
-        self.geoparameterization = np.empty((self.vertices.shape[0], 2)) * np.nan
+        self.geoparameterization = None
         # Init optimization parameterization
         self.optimizedparameterization = None
 
-        # Calculate compliance tensor
-        if isinstance(self.E, list):
-            # Orthotropic
-            G = materialproperties[2]
-            if G is None:
-                raise ValueError("G property is not defined.")
-            self.compliance_tensor = np.array([[1/self.E[0], -self.nu[0]/self.E[1], 0],
-                                               [-self.nu[0]/self.E[0], 1/self.E[1], 0],
-                                               [0, 0, 1/(2*G[0])]])
-        else:
-            # Isotropic
-            G = self.E / (2 * (1 + self.nu))
-            self.compliance_tensor = np.array([[1/self.E, -self.nu/self.E, 0],
-                                               [-self.nu/self.E, 1/self.E, 0],
-                                               [0, 0, 1/G]])
-        # Calculate stiffness tensor
-        self.stiffness_tensor = np.linalg.inv(self.compliance_tensor)
-        # Calculate 2D normalized points for each element
-        self.normalized_2d = OP.calc2d(self.obj, self.vertices[self.vertexids])
-
-        # Apply angle error to initdirection
-        # New initdirection corresponds to a vector rotated around initnormal by angle_error
-        initdirection = GEO.rot_vector_angle(initdirection, initnormal, angle_error)
-
-        # Determine if initpoint is on the surface or not
-        # If not then we will set initpoint to a projected point on the surface
-        t1, t2, projpnt = GEO.find_element_within(initpoint, initdirection, initnormal, self.vertices, self.vertexids, self.facetnormals, self.inplanemat)
-        if t1 is None:
-            closestvertex_ind = np.where(np.linalg.norm(self.vertices - initpoint, axis=1) == np.min(np.linalg.norm(
-                self.vertices - initpoint, axis=1)))
-            initpoint = self.vertices[closestvertex_ind[0], :][0]
-        elif projpnt is not None:
-            initpoint = projpnt
+        # Initial conditions
+        self.surfacenormal = initnormal
+        self.initdirection = initdirection
         self.initpoint = initpoint
 
-        # Determine which surface we will be laying the geodesics upon
-        self.determine_surface(initpoint, initdirection)
+    def load(self, filepath):
+        with open(filepath, "rb") as f:
+            temp = pickle.load(f)
+        self.__dict__.clear()
+        self.__dict__.update(temp)
+        pass
 
-        # Find start points for all geodesics
-        # Start from initpoint and go in the positive initdirection and the negative initdirection
-        # Starting parameterization point is [0, 0]
-        self.find_startpoints(initpoint, initdirection, initnormal, np.array([0.0, 0.0]))
+    def save(self, filename=None):
+        fname = self.savename if self.savename is not None else filename
+        with open(fname, "wb") as f:
+            pickle.dump(self.__dict__, f)
+        self.savename = filename
+        pass
 
-        print("Calculating parameterization...")
-        start_time = time.time()
+    def load_model(self):
+        if self.cadfile:
+            # load model into spatialnde obj
+            self.loadobj()
+            # load relevant model variables
+            self.loadvars()
 
-        # Calculate each geodesic defined in self.find_startpoints
-        self.calc_geodesics(0)
-        # Given the calculated geodesics attempt to create a parameterization
-        # We may need to fill in missing elements or elements with few geodesics to get a full parameterization
-        self.create_parameterization()
+            self.fiberdirections = np.empty((self.vertexids.shape[0], 3)) * np.nan
+            self.geoparameterization = np.empty((self.vertices.shape[0], 2)) * np.nan
 
-        stop_time = time.time()
-        elapsed = stop_time - start_time
-        print("\r\nTime to calculate geodesic parameterization: %f seconds" % elapsed)
+            # Calculate 2D normalized points for each element
+            self.normalized_2d = OP.calc2d(self.obj, self.vertices[self.vertexids])
+
+            # Apply angle error to initdirection
+            # New initdirection corresponds to a vector rotated around self.surfacenormal by self.error
+            self.initdirection = GEO.rot_vector_angle(self.initdirection, self.surfacenormal, self.error)
+
+            # Determine if initpoint is on the surface or not
+            # If not then we will set initpoint to a projected point on the surface
+            t1, t2, projpnt = GEO.find_element_within(self.initpoint, self.initdirection, self.surfacenormal, self.vertices, self.vertexids, self.facetnormals, self.inplanemat)
+            if t1 is None:
+                closestvertex_ind = np.where(np.linalg.norm(self.vertices - self.initpoint, axis=1) == np.min(np.linalg.norm(
+                    self.vertices - self.initpoint, axis=1)))
+                self.initpoint = self.vertices[closestvertex_ind[0], :][0]
+            elif projpnt is not None:
+                self.initpoint = projpnt
+
+            # Determine which surface we will be laying the geodesics upon
+            self.determine_surface(self.initpoint, self.initdirection)
+            self.model_loaded = True
+        else:
+            raise ValueError("No CAD file associated with this object. Use AutoFiber.load")
+
+    def evaluate(self):
+        if self.model_loaded:
+            if not self.obj.implpart.surfaces[0].intrinsicparameterization:
+                # Find start points for all geodesics
+                # Start from initpoint, go in the positive initdirection and the negative initdirection
+                # Starting parameterization point is [0, 0]
+                self.find_startpoints(self.initpoint, self.initdirection, self.surfacenormal, np.array([0.0, 0.0]))
+
+                # print("Calculating parameterization...")
+                start_time = time.time()
+
+                # Calculate each geodesic defined in self.find_startpoints
+                self.calc_geodesics(0)
+
+                # Given the calculated geodesics attempt to create a parameterization
+                # We may need to fill in missing elements or elements with few geodesics to get a full parameterization
+                self.create_parameterization()
+
+                stop_time = time.time()
+                elapsed = stop_time - start_time
+                print("\r\nTime to calculate geodesic parameterization with %s geodesics: %f seconds" % (self.startpoints.shape[0], elapsed))
+            else:
+                self.geoparameterization = self.obj.implpart.surfaces[0].intrinsicparameterization.texcoord
+            self.parameterized = True
+        else:
+            raise ValueError("Model not loaded yet. Make sure AutoFiber.load_model is ran first")
 
     def loadobj(self):
         """
@@ -207,6 +241,24 @@ class AutoFiber:
         self.boxes = self.obj.implpart.surfaces[0].boxes
         self.boxpolys = self.obj.implpart.surfaces[0].boxpolys
         self.boxcoords = self.obj.implpart.surfaces[0].boxcoords
+
+    def compute_compliance_tensor(self):
+        # Calculate compliance tensor
+        if isinstance(self.E, list):
+            # Orthotropic
+            G = self.materialproperties[2]
+            if G is None:
+                raise ValueError("G property is not defined.")
+            compliance_tensor = np.array([[1/self.E[0], -self.nu[0]/self.E[1], 0],
+                                          [-self.nu[0]/self.E[0], 1/self.E[1], 0],
+                                          [0, 0, 1/(2*G[0])]])
+        else:
+            # Isotropic
+            G = self.E / (2 * (1 + self.nu))
+            compliance_tensor = np.array([[1/self.E, -self.nu/self.E, 0],
+                                          [-self.nu/self.E, 1/self.E, 0],
+                                          [0, 0, 1/G]])
+        return compliance_tensor
 
     def find_close_geodesic(self, elements, point):
         """
@@ -259,7 +311,7 @@ class AutoFiber:
         # self.vertexids = self.surface_vertexids
         # self.vertices = self.vertices[np.unique(self.surface_vertexids)].reshape(-1, 3)
 
-    def find_startpoints(self, initpoint, initdirection, normal, cfpoint):
+    def find_startpoints(self, initpoint, initdirection, normal, cfpoint, directions=(1, -1)):
         """
         Determines starting location, direction, and element for each geodesic
         Spawns geodesics perpendicular to initdirection
@@ -269,14 +321,15 @@ class AutoFiber:
         :param initdirection: Starting direction vector
         :param normal: Surface normal vector
         :param cfpoint: initpoint location in parameterization space
+        :param directions: A tuple of positive and negative directions to compute start point geodesics
         :return: Appends new geodesic start information to the relevant lists
         """
         # We want to travel perpendicular to the fiber direction
         pointdirections = np.array([np.cross(normal, initdirection)])
 
         # For both positive and negative directions
-        directions = [1, -1]
         for i in range(0, pointdirections.shape[0]):
+            element_list = []
             for direction in directions:
                 pointdirection = direction * pointdirections[i]
                 point = initpoint
@@ -362,6 +415,7 @@ class AutoFiber:
                                 if nextelement is None:
                                     # print("Couldn't find next element.")
                                     raise GEO.EdgeError
+                                element_list.append(element)
                                 # Update point, element, and direction to the next triangles details
                                 point = int_pnt_3d
                                 element = nextelement
@@ -381,7 +435,8 @@ class AutoFiber:
             ax = fig.add_subplot(111, projection='3d')
             ax.scatter(self.vertices[:, 0], self.vertices[:, 1], self.vertices[:, 2])
             ax.scatter(initpoint[0], initpoint[1], initpoint[2])
-            ax.quiver(initpoint[0], initpoint[1], initpoint[2], initdirection[0], initdirection[1], initdirection[2])
+            ax.quiver(initpoint[0], initpoint[1], initpoint[2], initdirection[0][0], initdirection[0][1], initdirection[0][2], length=10)
+            ax.quiver(initpoint[0], initpoint[1], initpoint[2], self.surfacenormal[0], self.surfacenormal[1], self.surfacenormal[2], length=10)
             plt.show()
             raise IndexError("No geodesic start points found.")
 
@@ -480,7 +535,7 @@ class AutoFiber:
 
         # Find neighbors that contain geodesics to the given element
         neighbors = GEO.find_neighbors(element, self.vertexids_indices, self.adjacencyidx)
-        neighbors = np.intersect1d(neighbors, self.georecord.keys())
+        neighbors = np.intersect1d(neighbors, np.asarray(list(self.georecord.keys())))
 
         # If the number of neighbors with geodesics is more than minassigned
         if neighbors.shape[0] > minassigned:
@@ -693,14 +748,17 @@ class AutoFiber:
         # Attempt to assign uv coordinates to all vertices
         self.assign_vertices()
 
+        # print("%s points left" % np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0].size)
         if np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0].size > 0:
             # Couldn't assign all points so lets add some more geodesics in elements where the geodesic density is low
             self.fill_low_density_geodesics(0)
             self.assign_vertices()
 
+        # print("%s points left" % np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0].size)
         # Basic interpolation of uv coordinates based on nearby element fiber directions
         self.interpolate(np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0], mask)
 
+        # print("%s points left" % np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0].size)
         # Last ditch attempt of merely averaging nearby uv coordinates
         self.average_fpoint(np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0], mask)
 
@@ -780,7 +838,7 @@ class AutoFiber:
         leftover_idxs = np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0]
         return leftover_idxs
 
-    def layup(self, angle, orientation_locations=None, precision=1e-4, maxsteps=10000, lr=1e-3, decay=0.7, eps=1e-8, mu=0.8, plotting=False, save=False):
+    def layup(self, angle, orientation_locations=None, precision=1e-4, maxsteps=10000, lr=1e-3, decay=0.7, eps=1e-8, mu=0.8, plotting=False, save=False, model_save=None):
         """
         Once the parameterization has been computed we can calculate any fiber orientation without needing to compute a new geodesic
         mapping. Simply rotate the geoparameterization by angle and then minimize the strain energy.
@@ -795,68 +853,104 @@ class AutoFiber:
         :param mu: Momentum value
         :param plotting: Do we want to plot the results using matplotlib?
         :param save: Do we want to save the fiber orintations at orientation_locations to a .npy file
-        :return: texcoords2inplane - Transformation matrix between 3D space and 2D space, once created any orientation at any
-        point on the surface can be evaluated.
+        :param model_save: Export an x3d model with the optimized uv coordinates defined
+        :return: texcoords2inplane - Transformation matrix between 3D space and 2D space, once created any orientation
+        at any point on the surface can be evaluated.
         """
-        orientations = None
-        # Remove the angle_error used to create the geodesic parameterization from these calculations
-        angle -= self.error
-        # Simple rotation matrix by angle
-        rmatrix = np.array([[np.cos(np.deg2rad(angle)), -np.sin(np.deg2rad(angle))],
-                            [np.sin(np.deg2rad(angle)), np.cos(np.deg2rad(angle))]])
-        # Rotate the geodesic parameterization by angle
-        parameterization = np.matmul(self.geoparameterization, rmatrix)
+        if self.model_loaded and self.parameterized:
+            orientations = None
+            # Remove the angle_error used to create the geodesic parameterization from these calculations
+            angle -= self.error
+            # Simple rotation matrix by angle
+            rmatrix = np.array([[np.cos(np.deg2rad(angle)), -np.sin(np.deg2rad(angle))],
+                                [np.sin(np.deg2rad(angle)), np.cos(np.deg2rad(angle))]])
+            # Rotate the geodesic parameterization by angle
+            parameterization = np.matmul(self.geoparameterization, rmatrix)
 
-        # Optimize the rotate parameterization using an RMSprop optimizer. This will minimize the strain energy between the
-        # 3D mesh surface and the uv mesh.
-        optimizedparamterization, loss = self.fiberoptimize(parameterization, precision=precision, maxsteps=maxsteps, lr=lr, decay=decay, eps=eps, mu=mu)
-        # Compute the transformation between the 3D model and the optimized uv mesh
-        texcoords2inplane = self.calctransform(optimizedparamterization)
+            # Optimize the rotate parameterization using an RMSprop optimizer. This will minimize the strain energy
+            # between the 3D mesh surface and the uv mesh.
+            optimizedparamterization, loss = self.fiberoptimize(parameterization, precision=precision, maxsteps=maxsteps, lr=lr, decay=decay, eps=eps, mu=mu)
 
-        if orientation_locations is not None:
-            orientations = self.calcorientations_abaqus(orientation_locations, self.vertices, self.vertexids, self.inplanemat,
-                                                        texcoords2inplane, self.obj.implpart.surfaces[0].boxes,
-                                                        self.obj.implpart.surfaces[0].boxpolys,
-                                                        self.obj.implpart.surfaces[0].boxcoords)
+            # Normalize the optimized parameterization from 0 to 1
+            normalizedopparameterization = np.copy(optimizedparamterization)
+            normalizedopparameterization += np.abs(np.min(normalizedopparameterization, axis=0))
+            normalizedopparameterization = normalizedopparameterization / np.abs(np.max(normalizedopparameterization, axis=0))
 
-        if plotting:
-            if orientations is None:
-                # Calculate orientations at the centroid of each element
-                orientation_locations = self.vertices[self.vertexids].sum(axis=1) / 3
-                orientations = self.calcorientations_abaqus(orientation_locations, self.vertices, self.vertexids, self.inplanemat,
-                                                            texcoords2inplane, self.obj.implpart.surfaces[0].boxes,
-                                                            self.obj.implpart.surfaces[0].boxpolys,
-                                                            self.obj.implpart.surfaces[0].boxcoords)
+            # Normalize the unoptimized parameterization from 0 to 1
+            normalizedparameterization = np.copy(parameterization)
+            normalizedparameterization += np.abs(np.min(normalizedparameterization, axis=0))
+            normalizedparameterization = normalizedparameterization / np.abs(np.max(normalizedparameterization, axis=0))
 
             if save:
                 np.save("orientation_%s.npy" % angle, orientations)
 
-            import matplotlib.pyplot as plt
-            from mpl_toolkits.mplot3d import axes3d
+            if model_save is not None and isinstance(model_save, str):
+                _ = self.calctransform(normalizedparameterization)
 
-            self.plot_geodesics()
+                x3dwriter = X3DSerialization.tofileorbuffer("results/unoptimized/" + model_save + ".x3d", x3dnamespace=None)
+                self.obj.X3DWrite(x3dwriter, self.objframe)
+                x3dwriter.finish()
 
-            fig = plt.figure()
-            plt.plot(range(len(loss)), loss)
-            plt.title("Loss Function")
-            plt.xlabel("Iteration")
-            plt.ylabel("Energy (J/length)")
+                # Modifiy the models texcoord parameterization to used the normalized, optimized parameterization
+                _ = self.calctransform(normalizedopparameterization)
 
-            fig = plt.figure()
-            plt.scatter(parameterization[:, 0], parameterization[:, 1], c="b")
-            plt.scatter(optimizedparamterization[:, 0], optimizedparamterization[:, 1], c="orange")
-            plt.title("Parameterizations")
-            plt.ylabel("V")
-            plt.xlabel("U")
-            plt.legend(["Original", "Optimized"])
+                x3dwriter = X3DSerialization.tofileorbuffer("results/optimized/" + model_save + ".x3d", x3dnamespace=None)
+                self.obj.X3DWrite(x3dwriter, self.objframe)
+                x3dwriter.finish()
+                pass
 
-            fig = plt.figure()
-            ax = fig.add_subplot(111, projection='3d')
-            ax.scatter(self.vertices[:, 0], self.vertices[:, 1], self.vertices[:, 2])
-            ax.quiver(orientation_locations[:, 0], orientation_locations[:, 1], orientation_locations[:, 2], orientations[:, 0], orientations[:, 1], orientations[:, 2], arrow_length_ratio=0, length=1.0)
-            plt.show()
+            # Compute the transformation between the 3D model and the optimized uv mesh
+            texcoords2inplane = self.calctransform(optimizedparamterization)
 
-        return texcoords2inplane
+            if orientation_locations is not None:
+                orientations = self.calcorientations_abaqus(orientation_locations, self.vertices, self.vertexids,
+                                                            self.inplanemat,
+                                                            texcoords2inplane, self.obj.implpart.surfaces[0].boxes,
+                                                            self.obj.implpart.surfaces[0].boxpolys,
+                                                            self.obj.implpart.surfaces[0].boxcoords)
+
+            if orientations is None:
+                # Calculate orientations at the centroid of each element
+                orientation_locations = self.vertices[self.vertexids].sum(axis=1) / 3
+                orientations = self.calcorientations_abaqus(orientation_locations, self.vertices, self.vertexids,
+                                                            self.inplanemat,
+                                                            texcoords2inplane, self.obj.implpart.surfaces[0].boxes,
+                                                            self.obj.implpart.surfaces[0].boxpolys,
+                                                            self.obj.implpart.surfaces[0].boxcoords)
+
+            if plotting:
+                import matplotlib.pyplot as plt
+                from mpl_toolkits.mplot3d import axes3d
+
+                self.plot_geodesics()
+
+                fig = plt.figure()
+                plt.plot(range(len(loss)), loss, color="black")
+                plt.yscale('log')
+                plt.title("Global Strain Energy Optimization")
+                plt.xlabel("Iteration")
+                plt.ylabel("Energy (J/length)")
+
+                fig = plt.figure()
+                plt.scatter(parameterization[:, 0], parameterization[:, 1], facecolors='none', edgecolors='black')
+                plt.scatter(optimizedparamterization[:, 0], optimizedparamterization[:, 1], c="black")
+                plt.title("Parameterizations")
+                plt.ylabel("V")
+                plt.xlabel("U")
+                plt.legend(["Original", "Optimized"])
+
+                fig = plt.figure()
+                ax = fig.add_subplot(111, projection='3d')
+                ax.scatter(self.vertices[:, 0], self.vertices[:, 1], self.vertices[:, 2])
+                ax.quiver(orientation_locations[:, 0], orientation_locations[:, 1], orientation_locations[:, 2],
+                          orientations[:, 0], orientations[:, 1], orientations[:, 2], arrow_length_ratio=0, length=1.0)
+
+                plt.show()
+                pass
+
+            return texcoords2inplane, orientations
+        else:
+            raise ValueError("Model status: model_loaded ~ {} -- evaluate ~ {}".format(self.model_loaded, self.parameterized))
 
     def fiberoptimize(self, seed, precision=None, maxsteps=None, lr=None, decay=None, eps=None, mu=None):
         """
@@ -864,19 +958,15 @@ class AutoFiber:
 
         :param seed: Initial uv parameterization
         :param precision: Termination threshold for the strain energy optimization
-        :param maxsteps: Maximum number of optimizaiton iterations
+        :param maxsteps: Maximum number of optimization iterations
         :param lr: Optimization rate (similar to learning rate in machine learning optimizers)
         :param decay: Decay rate
         :param eps: Error precision value
         :param mu: Momentum value
         :return:
         """
-        # Define the strain energy function
+        # Define the strain energy function and it's gradient
         def f(x, *args):
-            return OP.computeglobalstrain(self.normalized_2d, x, self.vertexids, self.stiffness_tensor)
-
-        # Define the strain energy gradient function
-        def gradf(x, *args):
             oc = np.argmin(np.linalg.norm(self.geoparameterization, axis=1))
             return OP.computeglobalstrain_grad(self.normalized_2d, x, self.vertexids, self.stiffness_tensor, oc)
 
@@ -887,10 +977,11 @@ class AutoFiber:
         start_time = time.time()
 
         # print("Optimizing with rmsprop...")
-        optimizedparameterization, loss = OP.rmsprop_momentum(f, gradf, seed, precision=precision, maxsteps=maxsteps, lr=lr, decay=decay, eps=eps, mu=mu)
+        optimizedparameterization, loss = OP.rmsprop_momentum(f, seed, initenergy, precision=precision, maxsteps=maxsteps, lr=lr, decay=decay, eps=eps, mu=mu)
 
         stop_time = time.time()
         elapsed = stop_time - start_time
+        print("Final strain energy: %s J/(model length)" % loss[-1])
         print("Time to optimize: %f seconds" % elapsed)
 
         return optimizedparameterization, loss
@@ -905,9 +996,7 @@ class AutoFiber:
         self.obj.implpart.surfaces[0].intrinsicparameterization = polygonalsurface_texcoordparameterization.new(self.obj.implpart.surfaces[0], parameterization, self.obj.implpart.surfaces[0].vertexidx, None)
         self.obj.implpart.surfaces[0].intrinsicparameterization.buildprojinfo(self.obj.implpart.surfaces[0])
 
-        texcoords2inplane = self.obj.implpart.surfaces[0].intrinsicparameterization.texcoords2inplane
-
-        return texcoords2inplane
+        return self.obj.implpart.surfaces[0].intrinsicparameterization.texcoords2inplane
 
     def plot_geodesics(self):
         import matplotlib.pyplot as plt
@@ -932,6 +1021,15 @@ class AutoFiber:
             plt.plot(self.geoparameterization[self.vertexids[i]][:, 0], self.geoparameterization[self.vertexids[i]][:, 1])
         plt.scatter(self.startuv[:, 0], self.startuv[:, 1])
 
+    def fiberorientations(self, locations, texcoords2inplane):
+        if self.model_loaded:
+            return self.calcorientations_abaqus(locations, self.vertices, self.vertexids, self.inplanemat,
+                                                texcoords2inplane, self.obj.implpart.surfaces[0].boxes,
+                                                self.obj.implpart.surfaces[0].boxpolys,
+                                                self.obj.implpart.surfaces[0].boxcoords)
+        else:
+            raise ValueError("Model not loaded yet. Make sure AutoFiber.load_model is ran first")
+
     def calcorientations_abaqus(self, modellocs, vertices, vertexids, inplanemat, texcoords2inplane, boxes, boxpolys, boxcoords):
         """
         Function optimized for Abaqus to determine the orientations of given locations.
@@ -939,7 +1037,7 @@ class AutoFiber:
         :param modellocs: Points of interest on the surface or close to the surface
         :param vertices: Vertices of the model
         :param vertexids: Indices of the vertices of the model for each element
-        :param inplanemat: Orthogonal matrix define by spatialnde
+        :param inplanemat: Orthogonal matrix defined by spatialnde
         :param texcoords2inplane: Transformation matrix between 3D space and uv space
         :param boxes: spatialnde polygon box definition
         :param boxpolys: spatialnde polygon definition relative to boxes
@@ -1005,7 +1103,6 @@ class AutoFiber:
         return orientations
 
     def point_in_polygon_2d(self, vertices_rel_point):
-        import sys
         # Apply winding number algorithm.
         # This algorithm is selected -- in its most simple form --
         # because it is so  simple and robust in the case of the

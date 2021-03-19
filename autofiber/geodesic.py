@@ -71,7 +71,7 @@ def vector_inbetween(v1, v2, v3, error=1e-10):
         return False
 
 
-def rot_vector(oldnormal, newnormal, vector, force=False):
+def rot_vector(oldnormal, newnormal, vector, terminate_angle=85.0, force=False):
     """ Rotate a vector given an axis and an angle of rotation
         Returns: Vector reoriented from an old element face to a new element
         https://en.wikipedia.org/wiki/Rodrigues'_rotation_formula
@@ -83,7 +83,7 @@ def rot_vector(oldnormal, newnormal, vector, force=False):
         sinphi = np.linalg.norm(vector_a)
         cosphi = np.dot(oldnormal, newnormal)
         a_hat = vector_a/sinphi
-        if np.arccos(cosphi) >= np.deg2rad(85.0) and not force:
+        if np.arccos(cosphi) >= np.deg2rad(terminate_angle) and not force:
             # print("Edge detected...geodesic path completed")
             raise EdgeError
         else:
