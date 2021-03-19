@@ -218,7 +218,7 @@ class AutoFiber:
                 raise Exception("Unsupported file type.")
         elif isinstance(self.cadfile, object):
             # print("Loading %s data type." % self.cadfile.__class__.__name__)
-            if self.cadfile.__class__.__name__ is "DMObject":
+            if self.cadfile.__class__.__name__ == "DMObject":
                 self.objframe = coordframe()
                 self.obj = ndepart.fromDMobject(self.objframe, None, self.cadfile, recalcnormals=False, tol=1e-6)
             else:
@@ -930,6 +930,7 @@ class AutoFiber:
                 plt.title("Global Strain Energy Optimization")
                 plt.xlabel("Iteration")
                 plt.ylabel("Energy (J/length)")
+                plt.savefig("GlobalStrainEnergy.png")
 
                 fig = plt.figure()
                 plt.scatter(parameterization[:, 0], parameterization[:, 1], facecolors='none', edgecolors='black')
@@ -938,12 +939,14 @@ class AutoFiber:
                 plt.ylabel("V")
                 plt.xlabel("U")
                 plt.legend(["Original", "Optimized"])
+                plt.savefig("Parameterizations.png")
 
                 fig = plt.figure()
                 ax = fig.add_subplot(111, projection='3d')
                 ax.scatter(self.vertices[:, 0], self.vertices[:, 1], self.vertices[:, 2])
                 ax.quiver(orientation_locations[:, 0], orientation_locations[:, 1], orientation_locations[:, 2],
                           orientations[:, 0], orientations[:, 1], orientations[:, 2], arrow_length_ratio=0, length=1.0)
+                plt.savefig("3DRenderWithFiberOrientations.png")
 
                 plt.show()
                 pass
