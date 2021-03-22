@@ -838,7 +838,7 @@ class AutoFiber:
         leftover_idxs = np.where((np.isnan(self.geoparameterization).all(axis=1) & np.array(~mask)))[0]
         return leftover_idxs
 
-    def layup(self, angle, orientation_locations=None, precision=1e-4, maxsteps=10000, lr=1e-3, decay=0.7, eps=1e-8, mu=0.8, plotting=False, save=False, model_save=None):
+    def layup(self, angle, orientation_locations=None, precision=1e-4, maxsteps=10000, lr=1e-3, decay=0.7, eps=1e-8, mu=0.8, directory="out", plotting=False, save=False, model_save=None):
         """
         Once the parameterization has been computed we can calculate any fiber orientation without needing to compute a new geodesic
         mapping. Simply rotate the geoparameterization by angle and then minimize the strain energy.
@@ -882,19 +882,19 @@ class AutoFiber:
             normalizedparameterization = normalizedparameterization / np.abs(np.max(normalizedparameterization, axis=0))
 
             if save:
-                np.save("orientation_%s.npy" % angle, orientations)
+                np.save(directory + "orientation_%s.npy" % angle, orientations)
 
             if model_save is not None and isinstance(model_save, str):
                 _ = self.calctransform(normalizedparameterization)
 
-                x3dwriter = X3DSerialization.tofileorbuffer("results/unoptimized/" + model_save + ".x3d", x3dnamespace=None)
+                x3dwriter = X3DSerialization.tofileorbuffer(directory + "/unoptimized/" + model_save + ".x3d", x3dnamespace=None)
                 self.obj.X3DWrite(x3dwriter, self.objframe)
                 x3dwriter.finish()
 
                 # Modifiy the models texcoord parameterization to used the normalized, optimized parameterization
                 _ = self.calctransform(normalizedopparameterization)
 
-                x3dwriter = X3DSerialization.tofileorbuffer("results/optimized/" + model_save + ".x3d", x3dnamespace=None)
+                x3dwriter = X3DSerialization.tofileorbuffer(directory + "/optimized/" + model_save + ".x3d", x3dnamespace=None)
                 self.obj.X3DWrite(x3dwriter, self.objframe)
                 x3dwriter.finish()
                 pass
@@ -930,7 +930,7 @@ class AutoFiber:
                 plt.title("Global Strain Energy Optimization")
                 plt.xlabel("Iteration")
                 plt.ylabel("Energy (J/length)")
-                plt.savefig("GlobalStrainEnergy.png")
+                plt.savefig(directory + "/GlobalStrainEnergy.png")
 
                 fig = plt.figure()
                 plt.scatter(parameterization[:, 0], parameterization[:, 1], facecolors='none', edgecolors='black')
@@ -939,14 +939,14 @@ class AutoFiber:
                 plt.ylabel("V")
                 plt.xlabel("U")
                 plt.legend(["Original", "Optimized"])
-                plt.savefig("Parameterizations.png")
+                plt.savefig(directory + "/Parameterizations.png")
 
                 fig = plt.figure()
                 ax = fig.add_subplot(111, projection='3d')
                 ax.scatter(self.vertices[:, 0], self.vertices[:, 1], self.vertices[:, 2])
                 ax.quiver(orientation_locations[:, 0], orientation_locations[:, 1], orientation_locations[:, 2],
                           orientations[:, 0], orientations[:, 1], orientations[:, 2], arrow_length_ratio=0, length=1.0)
-                plt.savefig("3DRenderWithFiberOrientations.png")
+                plt.savefig(directory + "/3DRenderWithFiberOrientations.png")
 
                 plt.show()
                 pass
