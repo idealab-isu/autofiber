@@ -28,67 +28,75 @@ materialproperties = (
     # Shear Modulus [G12, G13, G23]
     [5.02e9/1.e9, 5.02e9/1.e9, 2.35e9/1.e9])
 
-# angles = [0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0]
-angles = [0.0]
 
-for angle in angles:
-    print("Angle: %s" % angle)
-    # Flat plate - X3D - Anisotropic material properties
-    # Path to X3D CAD model
-    # test = AF('demos/FlatPlate.x3d',
-    #           # Point close to the center of the model
-    #           np.array([1.0, -1.0, 0.0]),
-    #           # Vector pointing in fiber direction
-    #           np.array([-np.cos(np.deg2rad(angle)), np.sin(np.deg2rad(angle)), 0]),
-    #           # Vector pointing in the primary normal to the surface
-    #           np.array([0, 0, 1]),
-    #           # Material properties of the composite fiber material
-    #           materialproperties=materialproperties,
-    #           # Geodesic spacing interval
-    #           fiberint=0.01)
-    # test.load_model()
-    # test.evaluate()
-    # Compute an orientation given a fiber angle
-    # texcoords2inplane = test.layup(0.0, plotting=True)
+# Flat plate - X3D - Anisotropic material properties
+# Path to X3D CAD model
+# test = AF('demos/FlatPlate.x3d',
+#           # Point close to the center of the model
+#           np.array([1.0, -1.0, 0.0]),
+#           # Vector pointing in fiber direction
+#           np.array([-np.cos(np.deg2rad(angle)), np.sin(np.deg2rad(angle)), 0]),
+#           # Vector pointing in the primary normal to the surface
+#           np.array([0, 0, 1]),
+#           # Material properties of the composite fiber material
+#           materialproperties=materialproperties,
+#           # Geodesic spacing interval
+#           fiberint=0.01)
+# test.load_model()
+# test.evaluate()
+# Compute an orientation given a fiber angle
+# texcoords2inplane = test.layup(0.0, plotting=True)
 
-    # Cylinder - X3D - Anisotropic material properties
-    # test = AF('demos/Cylinder.x3d',
-    #           np.array([0.0, 0.0, 1.0]),
-    #           np.array([np.sin(-1 * np.deg2rad(angle)), np.cos(np.deg2rad(angle)), 0.0]),
-    #           np.array([0, 0, 1.0]),
-    #           materialproperties=materialproperties,
-    #           fiberint=0.05)
-    # test.load_model()
-    # test.evaluate()
-    # texcoords2inplane = test.layup(0.0, plotting=True)
+# Cylinder - X3D - Anisotropic material properties
+# test = AF('demos/Cylinder.x3d',
+#           np.array([0.0, 0.0, 1.0]),
+#           np.array([np.sin(-1 * np.deg2rad(angle)), np.cos(np.deg2rad(angle)), 0.0]),
+#           np.array([0, 0, 1.0]),
+#           materialproperties=materialproperties,
+#           fiberint=0.05)
+# test.load_model()
+# test.evaluate()
+# texcoords2inplane = test.layup(0.0, plotting=True)
 
-    # Saddle model - X3D - Anisotropic material properties
-    test = AF('demos/SmallSaddle32.x3d',
-              np.array([0.0, 1.0, 0.0]),
-              np.array([-np.cos(np.deg2rad(angle)), 0, -np.sin(np.deg2rad(angle))]),
-              np.array([0, 1, 0]),
-              materialproperties=materialproperties,
-              fiberint=0.01,
-              # Further angle to be applied to the given fiber direction
-              #  This is typically used as a tolerance in the fiber angle but
-              #  can be used to rotate the base parameterization such as in the case
-              #  of the saddle part we can actually define a parameterization easily at 45.0 degrees.
-              #  Recommended to be any number except exactly zero
-              angle_error=45.0)
-    test.load_model()
-    test.evaluate()
-    texcoords2inplane = test.layup(0.0, plotting=True)
+# Saddle model - X3D - Anisotropic material properties
+# test = AF('demos/SmallSaddle32.x3d',
+#           np.array([0.0, 1.0, 0.0]),
+#           np.array([-np.cos(np.deg2rad(angle)), 0, -np.sin(np.deg2rad(angle))]),
+#           np.array([0, 1, 0]),
+#           materialproperties=materialproperties,
+#           fiberint=0.01,
+          # Further angle to be applied to the given fiber direction
+          #  This is typically used as a tolerance in the fiber angle but
+          #  can be used to rotate the base parameterization such as in the case
+          #  of the saddle part we can actually define a parameterization easily at 45.0 degrees.
+          #  Recommended to be any number except exactly zero
+#           angle_error=45.0)
+# test.load_model()
+# test.evaluate()
+# texcoords2inplane = test.layup(0.0, plotting=True)
 
-    # Curved Composite Mold / De-La-Mo - DMObject - Anisotropic material properties
-    # test = AF(pickle.load(open('demos/DMObject.pkl', 'rb')),     # mm
-    #           np.array([0.0, 0.0, 3.0]),
-    #           np.array([np.cos(np.deg2rad(angle)), np.sin(np.deg2rad(angle)), 0.0]),
-    #           np.array([0, 0, 1]),
-    #           materialproperties=materialproperties,
-    #           fiberint=0.25)
-    # Can define mesh coordinates at which the orientation can be computed
-    # meshcoords = np.load("demos/curved_abaqus_mesh_coords.npy")
-    # test.load_model()
-    # test.evaluate()
-    # texcoords2inplane = test.layup(0.0, orientation_locations=meshcoords, plotting=True)
+# Curved Composite Mold / De-La-Mo - DMObject - Anisotropic material properties
+# test = AF(pickle.load(open('demos/DMObject.pkl', 'rb')),     # mm
+#           np.array([0.0, 0.0, 3.0]),
+#           np.array([np.cos(np.deg2rad(angle)), np.sin(np.deg2rad(angle)), 0.0]),
+#           np.array([0, 0, 1]),
+#           materialproperties=materialproperties,
+#           fiberint=0.25)
+# Can define mesh coordinates at which the orientation can be computed
+# meshcoords = np.load("demos/curved_abaqus_mesh_coords.npy")
+# test.load_model()
+# test.evaluate()
+# texcoords2inplane = test.layup(0.0, orientation_locations=meshcoords, plotting=True)
+
+# Armchair model - X3D - Anisotropic material properties
+test = AF('demos/armchair.x3d',                                         # mm
+          np.array([0.8, 0.8, -1.0]),
+          np.array([np.cos(np.deg2rad(0)), np.sin(np.deg2rad(0)), 0.0]),
+          np.array([0, 0, -1]),
+          materialproperties=m,
+          fiberint=0.1)
+test.load_model()
+test.evaluate()
+
+texcoords2inplane = test.layup(angle, precision=1e-6, plotting=True)
 
