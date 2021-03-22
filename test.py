@@ -93,7 +93,7 @@ test = AF('demos/armchair.x3d',                                         # mm
           np.array([0.8, 0.8, -1.0]),
           np.array([np.cos(np.deg2rad(0)), np.sin(np.deg2rad(0)), 0.0]),
           np.array([0, 0, -1]),
-          materialproperties=m,
+          materialproperties=materialproperties,
           fiberint=0.1)
 test.load_model()
 test.evaluate()
