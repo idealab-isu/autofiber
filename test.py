@@ -98,5 +98,5 @@ test = AF('demos/armchair.x3d',                                         # mm
 test.load_model()
 test.evaluate()
 
-texcoords2inplane = test.layup(angle, precision=1e-6, plotting=True)
+texcoords2inplane = test.layup(45.0, precision=1e-6, plotting=True)
 
