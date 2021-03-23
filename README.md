@@ -28,7 +28,7 @@ algorithm used to minimize the strain energy function.
 * Tested with Python 2.7-3.7
 * `spatialnde`: 3D model loader and image projection package \
 Created by Dr. Stephen D. Holland at Iowa State University \
-[Spatialnde](http://thermal.cnde.iastate.edu/spatialnde)
+[Spatialnde](https://github.com/isuthermography/spatialnde)
 * `Numpy`
 * `Matplotlib` - optional for plotting
 

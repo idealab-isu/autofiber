@@ -127,6 +127,7 @@ class AutoFiber:
         self.surfacenormal = initnormal
         self.initdirection = initdirection
         self.initpoint = initpoint
+        pass
 
     def load(self, filepath):
         with open(filepath, "rb") as f:
@@ -310,6 +311,8 @@ class AutoFiber:
 
         # self.vertexids = self.surface_vertexids
         # self.vertices = self.vertices[np.unique(self.surface_vertexids)].reshape(-1, 3)
+
+        pass
 
     def find_startpoints(self, initpoint, initdirection, normal, cfpoint, directions=(1, -1)):
         """
@@ -858,6 +861,7 @@ class AutoFiber:
         at any point on the surface can be evaluated.
         """
         if self.model_loaded and self.parameterized:
+            print("Generating layup for %s at a %s degree angle." % (os.path.basename(self.cadfile), angle))
             orientations = None
             # Remove the angle_error used to create the geodesic parameterization from these calculations
             angle -= self.error
@@ -887,14 +891,14 @@ class AutoFiber:
             if model_save is not None and isinstance(model_save, str):
                 _ = self.calctransform(normalizedparameterization)
 
-                x3dwriter = X3DSerialization.tofileorbuffer(directory + "/unoptimized/" + model_save + ".x3d", x3dnamespace=None)
+                x3dwriter = X3DSerialization.tofileorbuffer(os.path.join(directory, "unoptimized", model_save + ".x3d"), x3dnamespace=None)
                 self.obj.X3DWrite(x3dwriter, self.objframe)
                 x3dwriter.finish()
 
                 # Modifiy the models texcoord parameterization to used the normalized, optimized parameterization
                 _ = self.calctransform(normalizedopparameterization)
 
-                x3dwriter = X3DSerialization.tofileorbuffer(directory + "/optimized/" + model_save + ".x3d", x3dnamespace=None)
+                x3dwriter = X3DSerialization.tofileorbuffer(os.path.join(directory, "optimized", model_save + ".x3d"), x3dnamespace=None)
                 self.obj.X3DWrite(x3dwriter, self.objframe)
                 x3dwriter.finish()
                 pass
@@ -930,7 +934,7 @@ class AutoFiber:
                 plt.title("Global Strain Energy Optimization")
                 plt.xlabel("Iteration")
                 plt.ylabel("Energy (J/length)")
-                plt.savefig(directory + "/GlobalStrainEnergy.png")
+                plt.savefig(os.path.join(directory, "GlobalStrainEnergy.png"))
 
                 fig = plt.figure()
                 plt.scatter(parameterization[:, 0], parameterization[:, 1], facecolors='none', edgecolors='black')
@@ -939,14 +943,14 @@ class AutoFiber:
                 plt.ylabel("V")
                 plt.xlabel("U")
                 plt.legend(["Original", "Optimized"])
-                plt.savefig(directory + "/Parameterizations.png")
+                plt.savefig(os.path.join(directory, "Parameterizations.png"))
 
                 fig = plt.figure()
                 ax = fig.add_subplot(111, projection='3d')
                 ax.scatter(self.vertices[:, 0], self.vertices[:, 1], self.vertices[:, 2])
                 ax.quiver(orientation_locations[:, 0], orientation_locations[:, 1], orientation_locations[:, 2],
                           orientations[:, 0], orientations[:, 1], orientations[:, 2], arrow_length_ratio=0, length=1.0)
-                plt.savefig(directory + "/3DRenderWithFiberOrientations.png")
+                plt.savefig(os.path.join(directory, "3DRenderWithFiberOrientations.png"))
 
                 plt.show()
                 pass
@@ -1011,7 +1015,7 @@ class AutoFiber:
 
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
-        ax.scatter(self.initpoint[0], self.initpoint[1], self.initpoint[2])
+        ax.scatter(self.initpoint[0], self.initpoint[1], self.initpoint[2], c="r")
         ax.scatter(self.vertices[:, 0], self.vertices[:, 1], self.vertices[:, 2], alpha=0.1)
         ax.scatter(self.startpoints[:, 0], self.startpoints[:, 1], self.startpoints[:, 2])
         # ax.scatter(self.vertices[leftover_idxs][:, 0], self.vertices[leftover_idxs][:, 1], self.vertices[leftover_idxs][:, 2], c="r")

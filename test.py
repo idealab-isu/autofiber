@@ -90,13 +90,12 @@ materialproperties = (
 
 # Armchair model - X3D - Anisotropic material properties
 test = AF('demos/armchair.x3d',                                         # mm
-          np.array([0.8, 0.8, -1.0]),
-          np.array([np.cos(np.deg2rad(0)), np.sin(np.deg2rad(0)), 0.0]),
-          np.array([0, 0, -1]),
+          np.array([0.8, 1.0, 0.8]),
+          np.array([np.cos(np.deg2rad(0.0)), 0.0, np.sin(np.deg2rad(0.0))]),
+          np.array([0, 1.0, 0]),
           materialproperties=materialproperties,
           fiberint=0.1)
 test.load_model()
 test.evaluate()
 
-texcoords2inplane = test.layup(45.0, precision=1e-6, plotting=True)
-
+texcoords2inplane = test.layup(-135.0, precision=1e-6, plotting=True)

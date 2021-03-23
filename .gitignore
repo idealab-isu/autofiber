@@ -112,7 +112,7 @@ include/
 # mypy
 .mypy_cache/
 
-orientation_*.npy
 demos/*.fibers
 results/*
+out/*
 archive/*
