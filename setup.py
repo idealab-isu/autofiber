@@ -20,7 +20,7 @@ here = path.abspath(path.dirname(__file__))
 
 setup(
     name='autofiber',
-    version='1.0.0',
+    version='1.1.0',
     author='Nathan Scheirer',
     description='Accurate, automatic composite fiber placement',
     keywords='auto fiber placement strain energy optimization',
