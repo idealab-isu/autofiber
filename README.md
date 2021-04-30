@@ -10,6 +10,8 @@ Research Foundation, Inc. It is published under the
 Apache 2.0 license. See the [LICENSE](LICENSE) file for details.
 
 ## Project Structure
+This is repository is located on [Github](https://github.com/idealab-isu/autofiber).
+
 * `autofiber/`: Contains the python package __autofiber__.
 * `demos/`: Contains a variety of demo models and a script, *test.py*
 which demonstrates usage on each model.
